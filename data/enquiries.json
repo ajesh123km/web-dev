@@ -1,0 +1,42 @@
+[
+  {
+    "id": "enq-1794121049893-yk5mu",
+    "full_name": "R. Ramesh",
+    "mobile_number": "9789825684",
+    "email": "ramesh.test@gmail.com",
+    "city": "Villukuri",
+    "preferred_scheme": "₹5,00,000 Scheme",
+    "preferred_language": "ta",
+    "message": "Interested in joining the next 20-month cycle.",
+    "consent": true,
+    "enquiry_status": "Contacted",
+    "created_at": "2026-11-08T06:57:29.893Z",
+    "updated_at": "2026-11-08T06:57:52.199Z"
+  },
+  {
+    "id": "demo-enq-001",
+    "full_name": "S. Murugan",
+    "mobile_number": "9842109876",
+    "email": "murugan.kkl@gmail.com",
+    "city": "Nagercoil",
+    "preferred_scheme": "₹2,00,000 Scheme",
+    "preferred_language": "ta",
+    "message": "Interested in the 20-month ₹2 Lakh chit scheme. Please share the joining formalities and auction dates.",
+    "consent": true,
+    "enquiry_status": "New",
+    "created_at": "2026-11-08T02:57:20.926Z"
+  },
+  {
+    "id": "demo-enq-002",
+    "full_name": "K. Anitha",
+    "mobile_number": "9443215678",
+    "email": "anitha.kanya@gmail.com",
+    "city": "Villukuri",
+    "preferred_scheme": "₹1,00,000 Scheme",
+    "preferred_language": "ta",
+    "message": "Would like to know the prompt payment bonus rules and guarantor requirement.",
+    "consent": true,
+    "enquiry_status": "Contacted",
+    "created_at": "2026-11-07T06:57:20.950Z"
+  }
+]

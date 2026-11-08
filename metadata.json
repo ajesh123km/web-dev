@@ -1,0 +1,6 @@
+{
+  "name": "Team Stars Chits Private Limited",
+  "description": "Official commercial bilingual website and customer enquiry portal for Team Stars Chits Private Limited, registered in Kanyakumari, Tamil Nadu (CIN: U64990TN2025PTC181717).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
