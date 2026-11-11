@@ -12,6 +12,7 @@ import { ContactSection } from './components/ContactSection';
 import { EnquiryForm } from './components/EnquiryForm';
 import { Footer } from './components/Footer';
 import { AdminPortal } from './components/AdminPortal';
+import { UserPortal } from './components/UserPortal';
 import { LegalModal } from './components/LegalModal';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<string>('home');
   const [selectedSchemeForEnquiry, setSelectedSchemeForEnquiry] = useState<string>('₹2,00,000 Scheme');
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
+  const [userOpen, setUserOpen] = useState<boolean>(false);
   const [legalOpen, setLegalOpen] = useState<boolean>(false);
   const [legalTab, setLegalTab] = useState<'privacy' | 'terms'>('privacy');
 
@@ -76,6 +78,7 @@ export default function App() {
         activeSection={activeSection}
         onNavigate={scrollToSection}
         onOpenAdmin={() => setAdminOpen(true)}
+        onOpenUser={() => setUserOpen(true)}
         onOpenEnquiry={() => scrollToSection('enquiry-form')}
       />
 
@@ -130,11 +133,18 @@ export default function App() {
         onOpenAdmin={() => setAdminOpen(true)}
       />
 
-      {/* Admin Enquiry Management Modal */}
+      {/* Admin Chit Fund Management Console Modal */}
       <AdminPortal
         lang={lang}
         isOpen={adminOpen}
         onClose={() => setAdminOpen(false)}
+      />
+
+      {/* Member Portal & Dashboard Modal */}
+      <UserPortal
+        lang={lang}
+        isOpen={userOpen}
+        onClose={() => setUserOpen(false)}
       />
 
       {/* Legal & Privacy Policy Modal */}

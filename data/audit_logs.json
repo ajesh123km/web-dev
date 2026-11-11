@@ -1,0 +1,73 @@
+[
+  {
+    "id": "log-1794390971342-e38q",
+    "action": "ANNOUNCEMENT_CREATE",
+    "details": "Published announcement: \"Special Auction Day Notice\"",
+    "performed_by": "Admin",
+    "target_id": "ann-1794390971342-h6iz",
+    "timestamp": "2026-11-11T09:56:11.342Z"
+  },
+  {
+    "id": "log-1794390971296-bpmo",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-TEST (Test User)",
+    "performed_by": "TS-2026-TEST",
+    "target_id": "usr-1794390952999-kd6l",
+    "timestamp": "2026-11-11T09:56:11.296Z"
+  },
+  {
+    "id": "log-1794390971278-ke1q",
+    "action": "PAYMENT_STATUS_PAID",
+    "details": "Cash payment of ₹9200 received for Test User (TS-2026-TEST) - Month 1 - Nov 2026. Receipt: REC-TEST-001",
+    "performed_by": "Admin",
+    "target_id": "pay-TS-2026-TEST-m1-2026",
+    "timestamp": "2026-11-11T09:56:11.278Z"
+  },
+  {
+    "id": "log-1794390953064-7eh1",
+    "action": "MONTHLY_PAYMENT_CONFIGURED",
+    "details": "Set Month 1 - Nov 2026 payment to ₹9,200 for Group ₹2 Lakh Test Batch. Created 1 new UNPAID records (0 existed).",
+    "performed_by": "Admin",
+    "target_id": "GRP-TEST-99",
+    "timestamp": "2026-11-11T09:55:53.064Z"
+  },
+  {
+    "id": "log-1794390952999-cj2k",
+    "action": "USER_CREATE",
+    "details": "Created User: TS-2026-TEST (Test User) in Group ₹2 Lakh Test Batch",
+    "performed_by": "Admin",
+    "target_id": "TS-2026-TEST",
+    "timestamp": "2026-11-11T09:55:52.999Z"
+  },
+  {
+    "id": "log-1794390952981-o258",
+    "action": "GROUP_CREATE",
+    "details": "Created Group: GRP-TEST-99 (₹2 Lakh Test Batch)",
+    "performed_by": "Admin",
+    "target_id": "GRP-TEST-99",
+    "timestamp": "2026-11-11T09:55:52.981Z"
+  },
+  {
+    "id": "log-1794390945498-yvbt",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-11T09:55:45.498Z"
+  },
+  {
+    "id": "log-1794390519261-hrcn",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-11T09:48:39.261Z"
+  },
+  {
+    "id": "log-1794390517546-3bc7",
+    "action": "SYSTEM_BOOT",
+    "details": "Chit Fund Management System Initialized with 3 Active Batches",
+    "performed_by": "System",
+    "timestamp": "2026-11-11T09:48:37.546Z"
+  }
+]

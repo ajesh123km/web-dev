@@ -12,6 +12,7 @@ export const TRANSLATIONS = {
       contact: "Contact",
       enquireNow: "Enquire Now",
       adminPortal: "Admin Portal",
+      memberLogin: "Member Login",
       callUs: "Call: 9789825684",
       switchLang: "தமிழ்"
     },
@@ -289,6 +290,7 @@ export const TRANSLATIONS = {
       contact: "தொடர்புக்கு",
       enquireNow: "சேர விண்ணப்பிக்கவும்",
       adminPortal: "நிர்வாக தளம்",
+      memberLogin: "பயனர் உள்நுழைவு",
       callUs: "அழைக்க: 9789825684",
       switchLang: "English"
     },
