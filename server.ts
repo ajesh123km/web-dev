@@ -96,8 +96,18 @@ const PAYMENTS_FILE = path.join(DATA_DIR, 'payments.json');
 const ANNOUNCEMENTS_FILE = path.join(DATA_DIR, 'announcements.json');
 const AUDIT_LOGS_FILE = path.join(DATA_DIR, 'audit_logs.json');
 
+function normalizeSupabaseUrl(raw?: string): string | undefined {
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  const dashboardMatch = trimmed.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)/i);
+  if (dashboardMatch?.[1]) {
+    return `https://${dashboardMatch[1]}.supabase.co`;
+  }
+  return trimmed;
+}
+
 // Supabase Client initialization (initialized early so write-through helpers are safely accessible)
-const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseUrl = normalizeSupabaseUrl(process.env.SUPABASE_URL);
 const supabaseKey =
   process.env.SUPABASE_SECRET_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
