@@ -96,6 +96,283 @@ const PAYMENTS_FILE = path.join(DATA_DIR, 'payments.json');
 const ANNOUNCEMENTS_FILE = path.join(DATA_DIR, 'announcements.json');
 const AUDIT_LOGS_FILE = path.join(DATA_DIR, 'audit_logs.json');
 
+// Supabase Client initialization (initialized early so write-through helpers are safely accessible)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_KEY;
+const supabaseKeyMode = process.env.SUPABASE_SECRET_KEY
+  ? 'secret'
+  : process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? 'service_role'
+  : process.env.SUPABASE_KEY
+  ? 'key'
+  : 'none';
+const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project'));
+
+let supabase: ReturnType<typeof createClient> | null = null;
+let supabaseTablesReady = false;
+if (isSupabaseConfigured) {
+  try {
+    supabase = createClient(supabaseUrl!, supabaseKey!);
+    console.log(`[Supabase] Client initialized (${supabaseKeyMode} key).`);
+  } catch (err) {
+    console.warn('[Supabase] Initialization failed:', err);
+  }
+} else {
+  console.log('[Supabase] Credentials not set in env. Using persistent local storage.');
+}
+
+async function syncTableUpsert(table: string, rows: any[], onConflict: string = 'id'): Promise<void> {
+  if (!supabase || !rows || rows.length === 0) return;
+  try {
+    const { error } = await (supabase as any).from(table).upsert(rows, { onConflict });
+    if (error) {
+      console.warn(`[Supabase] Upsert warning (${table}):`, error.message);
+    }
+  } catch (err) {
+    console.warn(`[Supabase] Upsert exception (${table}):`, err);
+  }
+}
+
+async function syncTableDelete(table: string, column: string, value: string): Promise<void> {
+  if (!supabase) return;
+  try {
+    const { error } = await (supabase as any).from(table).delete().eq(column, value);
+    if (error) {
+      console.warn(`[Supabase] Delete warning (${table}):`, error.message);
+    }
+  } catch (err) {
+    console.warn(`[Supabase] Delete exception (${table}):`, err);
+  }
+}
+
+function schemeToDbRow(s: any) {
+  return {
+    id: s.id,
+    scheme_code: s.schemeCode,
+    name_en: s.nameEn,
+    name_ta: s.nameTa,
+    chit_value: Number(s.chitValue),
+    duration_months: Number(s.durationMonths || 20),
+    available_durations: Array.isArray(s.availableDurations) ? s.availableDurations.map(Number) : [Number(s.durationMonths || 20)],
+    first_month_instalment: Number(s.firstMonthInstalment),
+    min_instalment: Number(s.minInstalment),
+    max_instalment: Number(s.maxInstalment),
+    total_instalments_paid: Number(s.totalInstalmentsPaid),
+    dividend_benefit: Number(s.dividendBenefit),
+    prompt_bonus: Number(s.promptBonus || 0),
+    last_month_bonus: Number(s.lastMonthBonus || 0),
+    total_bonus: Number(s.totalBonus || 0),
+    tagline_en: s.taglineEn || null,
+    tagline_ta: s.taglineTa || null,
+    document_image: s.documentImage || '/images/5-lakh-scheme.jpeg',
+    schedule_json: Array.isArray(s.schedule) ? s.schedule : [],
+    rules_en: Array.isArray(s.rulesEn) ? s.rulesEn : [],
+    rules_ta: Array.isArray(s.rulesTa) ? s.rulesTa : [],
+    status: s.status || 'active',
+    start_date: s.startDate ? String(s.startDate).split('T')[0] : new Date().toISOString().split('T')[0],
+    version: Number(s.version || 1),
+    created_at: s.createdAt || new Date().toISOString(),
+    updated_at: s.updatedAt || new Date().toISOString()
+  };
+}
+
+function dbRowToScheme(row: any) {
+  const chitValue = Number(row.chit_value);
+  const durationMonths = Number(row.duration_months || 20);
+  const promptBonus = Number(row.prompt_bonus || 0);
+  const lastMonthBonus = Number(row.last_month_bonus || 0);
+  const calc = (!Array.isArray(row.schedule_json) || row.schedule_json.length === 0)
+    ? buildProportionalSchedule(chitValue, durationMonths)
+    : null;
+  return {
+    id: row.id,
+    schemeCode: row.scheme_code,
+    nameEn: row.name_en,
+    nameTa: row.name_ta,
+    chitValue,
+    chitValueFormatted: formatInr(chitValue),
+    chitValueFormattedTa: formatInr(chitValue),
+    durationMonths,
+    availableDurations: Array.isArray(row.available_durations) && row.available_durations.length > 0
+      ? row.available_durations.map(Number)
+      : [durationMonths],
+    firstMonthInstalment: Number(row.first_month_instalment || calc?.firstMonthInstalment || 0),
+    minInstalment: Number(row.min_instalment || calc?.minInstalment || 0),
+    maxInstalment: Number(row.max_instalment || calc?.maxInstalment || 0),
+    totalInstalmentsPaid: Number(row.total_instalments_paid || calc?.totalInstalmentsPaid || 0),
+    dividendBenefit: Number(row.dividend_benefit || calc?.dividendBenefit || 0),
+    promptBonus,
+    lastMonthBonus,
+    totalBonus: Number(row.total_bonus ?? promptBonus + lastMonthBonus),
+    taglineEn: row.tagline_en || '',
+    taglineTa: row.tagline_ta || '',
+    documentImage: row.document_image || '/images/5-lakh-scheme.jpeg',
+    schedule: Array.isArray(row.schedule_json) && row.schedule_json.length > 0 ? row.schedule_json : (calc?.schedule || []),
+    rulesEn: Array.isArray(row.rules_en) && row.rules_en.length > 0 ? row.rules_en : getDefaultRulesEn(promptBonus, lastMonthBonus, durationMonths),
+    rulesTa: Array.isArray(row.rules_ta) && row.rules_ta.length > 0 ? row.rules_ta : getDefaultRulesTa(promptBonus, lastMonthBonus),
+    status: row.status || 'active',
+    startDate: row.start_date || undefined,
+    version: Number(row.version || 1),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function schemeVersionToDbRow(v: any) {
+  return {
+    id: v.id,
+    scheme_id: v.scheme_id,
+    version: Number(v.version || 1),
+    name_en: v.name_en,
+    chit_value: Number(v.chit_value),
+    duration_months: Number(v.duration_months || 20),
+    available_durations: Array.isArray(v.available_durations) ? v.available_durations.map(Number) : [Number(v.duration_months || 20)],
+    snapshot_data: v.snapshot_data || {},
+    change_reason: v.change_reason || null,
+    created_by: v.created_by || 'Admin',
+    created_at: v.created_at || new Date().toISOString()
+  };
+}
+
+function groupToDbRow(g: any) {
+  return {
+    id: g.id,
+    name: g.name,
+    scheme_id: g.scheme_id || null,
+    scheme_version: Number(g.scheme_version || 1),
+    scheme_name: g.scheme_name,
+    chit_value: Number(g.chit_value),
+    duration_months: Number(g.duration_months || 20),
+    start_date: g.start_date ? String(g.start_date).split('T')[0] : new Date().toISOString().split('T')[0],
+    status: g.status || 'active',
+    max_members: Number(g.max_members || 99),
+    created_at: g.created_at || new Date().toISOString(),
+    updated_at: g.updated_at || g.created_at || new Date().toISOString()
+  };
+}
+
+function dbRowToGroup(row: any) {
+  return {
+    id: row.id,
+    name: row.name,
+    scheme_id: row.scheme_id || undefined,
+    scheme_version: Number(row.scheme_version || 1),
+    scheme_name: row.scheme_name,
+    chit_value: Number(row.chit_value),
+    duration_months: Number(row.duration_months || 20),
+    start_date: row.start_date,
+    status: row.status || 'active',
+    max_members: Number(row.max_members || 99),
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
+function userToDbRow(u: any) {
+  return {
+    id: u.id,
+    user_id: u.user_id,
+    full_name: u.full_name,
+    mobile_number: u.mobile_number,
+    address: u.address,
+    city: u.city || 'Villukuri',
+    email: u.email || null,
+    group_id: u.group_id || null,
+    group_name: u.group_name || null,
+    password_hash: u.password_hash,
+    status: u.status || 'active',
+    is_deleted: Boolean(u.is_deleted),
+    deleted_at: u.deleted_at || null,
+    auth_uid: u.auth_uid || null,
+    role: 'user',
+    created_at: u.created_at || new Date().toISOString(),
+    updated_at: u.updated_at || u.created_at || new Date().toISOString()
+  };
+}
+
+function paymentConfigToDbRow(c: any) {
+  return {
+    id: c.id,
+    group_id: c.group_id,
+    group_name: c.group_name || null,
+    month: Number(c.month),
+    month_label: c.month_label,
+    year: Number(c.year),
+    payment_amount: Number(c.payment_amount),
+    due_date: c.due_date ? String(c.due_date).split('T')[0] : new Date().toISOString().split('T')[0],
+    created_by: c.created_by || 'Admin',
+    created_at: c.created_at || new Date().toISOString()
+  };
+}
+
+function paymentToDbRow(p: any) {
+  return {
+    id: p.id,
+    user_id: p.user_id,
+    user_name: p.user_name,
+    group_id: p.group_id,
+    group_name: p.group_name,
+    payment_month: Number(p.payment_month),
+    month_name: p.month_name,
+    payment_year: Number(p.payment_year),
+    payment_amount: Number(p.payment_amount),
+    payment_status: p.payment_status || 'UNPAID',
+    payment_date: p.payment_date || null,
+    updated_by: p.updated_by || 'Admin',
+    receipt_number: p.receipt_number || null,
+    notes: p.notes || null,
+    last_updated: p.last_updated || new Date().toISOString(),
+    created_at: p.created_at || new Date().toISOString()
+  };
+}
+
+function dbRowToPayment(row: any) {
+  return {
+    ...row,
+    payment_month: Number(row.payment_month),
+    payment_year: Number(row.payment_year),
+    payment_amount: Number(row.payment_amount),
+    receipt_number: row.receipt_number || undefined
+  };
+}
+
+function announcementToDbRow(a: any) {
+  return {
+    id: a.id,
+    title: a.title,
+    description: a.description,
+    category: a.category || 'General',
+    target_type: a.target_type || (a.target_group_id && a.target_group_id !== 'all' ? 'group' : 'all'),
+    target_group_id: a.target_group_id || null,
+    target_group_name: a.target_group_name || null,
+    target_scheme_id: a.target_scheme_id || null,
+    target_scheme_name: a.target_scheme_name || null,
+    is_auto_generated: Boolean(a.is_auto_generated),
+    source_event_key: a.source_event_key || null,
+    is_published: a.is_published !== undefined ? Boolean(a.is_published) : true,
+    is_archived: Boolean(a.is_archived),
+    archived_at: a.archived_at || null,
+    publish_date: a.publish_date ? String(a.publish_date).split('T')[0] : new Date().toISOString().split('T')[0],
+    created_by: a.created_by || 'Admin',
+    created_at: a.created_at || new Date().toISOString(),
+    updated_at: a.updated_at || a.created_at || new Date().toISOString()
+  };
+}
+
+function auditLogToDbRow(l: any) {
+  return {
+    id: l.id,
+    action: l.action,
+    details: l.details,
+    performed_by: l.performed_by || 'Admin',
+    target_id: l.target_id || null,
+    timestamp: l.timestamp || new Date().toISOString()
+  };
+}
+
 // Security & Password Hashing (scrypt + backwards compatibility for legacy SHA-256 hashes)
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -256,7 +533,7 @@ function saveLocalSchemeVersions(versions: any[]): void {
 
 function recordSchemeVersion(scheme: any, changeReason: string, createdBy: string = 'Admin') {
   const versions = getLocalSchemeVersions();
-  versions.unshift({
+  const entry = {
     id: `schv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     scheme_id: scheme.id,
     version: scheme.version || 1,
@@ -268,8 +545,10 @@ function recordSchemeVersion(scheme: any, changeReason: string, createdBy: strin
     change_reason: changeReason,
     created_by: createdBy,
     created_at: new Date().toISOString()
-  });
+  };
+  versions.unshift(entry);
   saveLocalSchemeVersions(versions);
+  void syncTableUpsert('scheme_versions', [schemeVersionToDbRow(entry)], 'id');
 }
 
 if (!fs.existsSync(SCHEMES_FILE)) {
@@ -753,17 +1032,19 @@ function saveLocalAuditLogs(logs: any[]): void {
 
 function recordAuditLog(action: string, details: string, performed_by: string = 'Admin', target_id?: string): void {
   const all = getLocalAuditLogs();
-  all.unshift({
+  const entry = {
     id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     action,
     details,
     performed_by,
     target_id,
     timestamp: new Date().toISOString()
-  });
+  };
+  all.unshift(entry);
   // Keep latest 500 logs
   if (all.length > 500) all.length = 500;
   saveLocalAuditLogs(all);
+  void syncTableUpsert('audit_logs', [auditLogToDbRow(entry)], 'id');
 }
 
 if (!fs.existsSync(AUDIT_LOGS_FILE)) {
@@ -814,34 +1095,158 @@ function createAutoAnnouncement(params: {
 
   announcements.unshift(newAnn);
   saveLocalAnnouncements(announcements);
+  void syncTableUpsert('announcements', [announcementToDbRow(newAnn)], 'id');
   return newAnn;
 }
 
-// Supabase Client initialization
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey =
-  process.env.SUPABASE_SECRET_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_KEY;
-const supabaseKeyMode = process.env.SUPABASE_SECRET_KEY
-  ? 'secret'
-  : process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? 'service_role'
-  : process.env.SUPABASE_KEY
-  ? 'key'
-  : 'none';
-const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project'));
-
-let supabase: ReturnType<typeof createClient> | null = null;
-if (isSupabaseConfigured) {
+// Supabase Startup Hydration & Idempotent First-Run Seeding
+async function bootstrapSupabaseData(): Promise<void> {
+  if (!supabase) return;
   try {
-    supabase = createClient(supabaseUrl!, supabaseKey!);
-    console.log(`[Supabase] Client initialized (${supabaseKeyMode} key).`);
+    const sb = supabase as any;
+    const { data: remoteSchemes, error: schErr } = await sb.from('chit_schemes').select('*');
+    if (schErr) {
+      supabaseTablesReady = false;
+      console.warn('[Supabase] Database tables not ready yet:', schErr.message);
+      return;
+    }
+
+    supabaseTablesReady = true;
+
+    // 1. chit_schemes
+    if (remoteSchemes && remoteSchemes.length > 0) {
+      saveLocalSchemes(remoteSchemes.map(dbRowToScheme));
+    } else {
+      const localSchemes = getLocalSchemes();
+      if (localSchemes.length > 0) {
+        await syncTableUpsert('chit_schemes', localSchemes.map(schemeToDbRow), 'id');
+      }
+    }
+
+    // 2. scheme_versions
+    const { data: remoteVersions, error: verErr } = await sb
+      .from('scheme_versions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!verErr && remoteVersions) {
+      if (remoteVersions.length > 0) {
+        saveLocalSchemeVersions(remoteVersions);
+      } else {
+        const localVersions = getLocalSchemeVersions();
+        if (localVersions.length > 0) {
+          await syncTableUpsert('scheme_versions', localVersions.map(schemeVersionToDbRow), 'id');
+        }
+      }
+    }
+
+    // 3. chit_groups
+    const { data: remoteGroups, error: grpErr } = await sb.from('chit_groups').select('*');
+    if (!grpErr && remoteGroups) {
+      if (remoteGroups.length > 0) {
+        saveLocalGroups(remoteGroups.map(dbRowToGroup));
+      } else {
+        const localGroups = getLocalGroups();
+        if (localGroups.length > 0) {
+          await syncTableUpsert('chit_groups', localGroups.map(groupToDbRow), 'id');
+        }
+      }
+    }
+
+    // 4. chit_users
+    const { data: remoteUsers, error: usrErr } = await sb.from('chit_users').select('*');
+    if (!usrErr && remoteUsers) {
+      if (remoteUsers.length > 0) {
+        saveLocalUsers(remoteUsers);
+      } else {
+        const localUsers = getLocalUsers();
+        if (localUsers.length > 0) {
+          await syncTableUpsert('chit_users', localUsers.map(userToDbRow), 'id');
+        }
+      }
+    }
+
+    // 5. monthly_payment_configs
+    const { data: remoteConfigs, error: cfgErr } = await sb
+      .from('monthly_payment_configs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!cfgErr && remoteConfigs) {
+      if (remoteConfigs.length > 0) {
+        saveLocalPaymentConfigs(remoteConfigs.map((c: any) => ({ ...c, month: Number(c.month), year: Number(c.year), payment_amount: Number(c.payment_amount) })));
+      } else {
+        const localConfigs = getLocalPaymentConfigs();
+        if (localConfigs.length > 0) {
+          await syncTableUpsert('monthly_payment_configs', localConfigs.map(paymentConfigToDbRow), 'id');
+        }
+      }
+    }
+
+    // 6. payment_records
+    const { data: remotePayments, error: payErr } = await sb.from('payment_records').select('*');
+    if (!payErr && remotePayments) {
+      if (remotePayments.length > 0) {
+        saveLocalPayments(remotePayments.map(dbRowToPayment));
+      } else {
+        const localPayments = getLocalPayments();
+        if (localPayments.length > 0) {
+          await syncTableUpsert('payment_records', localPayments.map(paymentToDbRow), 'id');
+        }
+      }
+    }
+
+    // 7. announcements
+    const { data: remoteAnnouncements, error: annErr } = await sb
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!annErr && remoteAnnouncements) {
+      if (remoteAnnouncements.length > 0) {
+        saveLocalAnnouncements(remoteAnnouncements);
+      } else {
+        const localAnnouncements = getLocalAnnouncements();
+        if (localAnnouncements.length > 0) {
+          await syncTableUpsert('announcements', localAnnouncements.map(announcementToDbRow), 'id');
+        }
+      }
+    }
+
+    // 8. enquiries
+    const { data: remoteEnquiries, error: enqErr } = await sb
+      .from('enquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!enqErr && remoteEnquiries) {
+      if (remoteEnquiries.length > 0) {
+        fs.writeFileSync(ENQUIRIES_FILE, JSON.stringify(remoteEnquiries, null, 2));
+      } else {
+        const localEnquiries = getLocalEnquiries();
+        if (localEnquiries.length > 0) {
+          await syncTableUpsert('enquiries', localEnquiries, 'id');
+        }
+      }
+    }
+
+    // 9. audit_logs
+    const { data: remoteLogs, error: logErr } = await sb
+      .from('audit_logs')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(500);
+    if (!logErr && remoteLogs) {
+      if (remoteLogs.length > 0) {
+        saveLocalAuditLogs(remoteLogs);
+      } else {
+        const localLogs = getLocalAuditLogs().slice(0, 100);
+        if (localLogs.length > 0) {
+          await syncTableUpsert('audit_logs', localLogs.map(auditLogToDbRow), 'id');
+        }
+      }
+    }
+
+    console.log('[Supabase] Database tables verified, hydrated, and auto-seeded where empty.');
   } catch (err) {
-    console.warn('[Supabase] Initialization failed:', err);
+    console.warn('[Supabase] Bootstrap error:', err);
   }
-} else {
-  console.log('[Supabase] Credentials not set in env. Using persistent local storage.');
 }
 
 // Resend Email Client initialization
@@ -876,12 +1281,25 @@ app.get('/api/schemes', (_req: Request, res: Response) => {
 app.get('/api/system/status', async (_req: Request, res: Response) => {
   const localEnquiries = getLocalEnquiries();
   let supabaseConnected = false;
+  let tablesReady = supabaseTablesReady;
   if (supabase) {
     try {
-      const { error } = await supabase.from('enquiries').select('id', { count: 'exact', head: true });
-      supabaseConnected = !error;
+      const { error: pingErr } = await supabase.from('enquiries').select('id', { count: 'exact', head: true });
+      const { error: schemeErr } = await supabase.from('chit_schemes').select('id', { count: 'exact', head: true });
+      if (!pingErr && !schemeErr) {
+        supabaseConnected = true;
+        tablesReady = true;
+        if (!supabaseTablesReady) {
+          supabaseTablesReady = true;
+          void bootstrapSupabaseData();
+        }
+      } else {
+        supabaseConnected = !pingErr;
+        tablesReady = !schemeErr;
+      }
     } catch {
       supabaseConnected = false;
+      tablesReady = false;
     }
   }
   res.json({
@@ -889,6 +1307,7 @@ app.get('/api/system/status', async (_req: Request, res: Response) => {
     cin: "U64990TN2025PTC181717",
     supabaseConfigured: isSupabaseConfigured,
     supabaseConnected,
+    supabaseTablesReady: tablesReady,
     supabaseKeyMode,
     resendConfigured: isResendConfigured,
     notificationEmail: NOTIFICATION_EMAIL,
@@ -960,8 +1379,9 @@ app.post('/api/enquiries', async (req: Request, res: Response) => {
     let savedInSupabase = false;
     if (supabase) {
       try {
-        const { error: sbError } = await (supabase as any).from('enquiries').insert([
+        const { error: sbError } = await (supabase as any).from('enquiries').upsert([
           {
+            id: newEnquiry.id,
             full_name: newEnquiry.full_name,
             mobile_number: newEnquiry.mobile_number,
             email: newEnquiry.email,
@@ -970,9 +1390,10 @@ app.post('/api/enquiries', async (req: Request, res: Response) => {
             preferred_language: newEnquiry.preferred_language,
             message: newEnquiry.message,
             consent: newEnquiry.consent,
-            enquiry_status: newEnquiry.enquiry_status
+            enquiry_status: newEnquiry.enquiry_status,
+            created_at: newEnquiry.created_at
           }
-        ]);
+        ], { onConflict: 'id' });
         if (!sbError) {
           savedInSupabase = true;
           console.log('[Supabase] Enquiry saved to remote database.');
@@ -1517,7 +1938,7 @@ app.get('/api/admin/schemes/:id/versions', (req: Request, res: Response) => {
   return res.json({ versions });
 });
 
-app.post('/api/admin/schemes', (req: Request, res: Response) => {
+app.post('/api/admin/schemes', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1592,6 +2013,7 @@ app.post('/api/admin/schemes', (req: Request, res: Response) => {
 
   schemes.push(newScheme);
   saveLocalSchemes(schemes);
+  await syncTableUpsert('chit_schemes', [schemeToDbRow(newScheme)], 'id');
   recordSchemeVersion(newScheme, 'Created new chit scheme', 'Admin');
   recordAuditLog('SCHEME_CREATE', `Created Scheme: ${newScheme.nameEn} (${newScheme.durationMonths} Months, ${newScheme.chitValueFormatted})`, 'Admin', newScheme.id);
 
@@ -1610,7 +2032,7 @@ app.post('/api/admin/schemes', (req: Request, res: Response) => {
   return res.status(201).json({ success: true, scheme: newScheme, message: `Scheme "${newScheme.nameEn}" created successfully.` });
 });
 
-app.put('/api/admin/schemes/:id', (req: Request, res: Response) => {
+app.put('/api/admin/schemes/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1690,6 +2112,7 @@ app.put('/api/admin/schemes/:id', (req: Request, res: Response) => {
   target.version = (target.version || 1) + 1;
   target.updatedAt = new Date().toISOString();
   saveLocalSchemes(schemes);
+  await syncTableUpsert('chit_schemes', [schemeToDbRow(target)], 'id');
   recordSchemeVersion(target, coreTermsChanged ? 'Modified chit amount/duration terms' : 'Updated scheme details', 'Admin');
   recordAuditLog('SCHEME_UPDATE', `Updated Scheme ${target.id} to v${target.version} (${target.nameEn}, ${target.durationMonths}M)`, 'Admin', target.id);
 
@@ -1708,7 +2131,7 @@ app.put('/api/admin/schemes/:id', (req: Request, res: Response) => {
   return res.json({ success: true, scheme: target, message: `Scheme updated (v${target.version}).` });
 });
 
-app.patch('/api/admin/schemes/:id/status', (req: Request, res: Response) => {
+app.patch('/api/admin/schemes/:id/status', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1725,6 +2148,7 @@ app.patch('/api/admin/schemes/:id/status', (req: Request, res: Response) => {
   target.status = status;
   target.updatedAt = new Date().toISOString();
   saveLocalSchemes(schemes);
+  await syncTableUpsert('chit_schemes', [schemeToDbRow(target)], 'id');
   recordAuditLog('SCHEME_STATUS_CHANGE', `Changed Scheme ${target.nameEn} status from ${prevStatus} to ${status}`, 'Admin', target.id);
 
   if (prevStatus !== status && (status === 'active' || status === 'inactive')) {
@@ -1745,7 +2169,7 @@ app.patch('/api/admin/schemes/:id/status', (req: Request, res: Response) => {
   return res.json({ success: true, scheme: target, message: `Scheme status changed to ${status}.` });
 });
 
-app.delete('/api/admin/schemes/:id', (req: Request, res: Response) => {
+app.delete('/api/admin/schemes/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1762,6 +2186,7 @@ app.delete('/api/admin/schemes/:id', (req: Request, res: Response) => {
     target.status = 'archived';
     target.updatedAt = new Date().toISOString();
     saveLocalSchemes(schemes);
+    await syncTableUpsert('chit_schemes', [schemeToDbRow(target)], 'id');
     recordAuditLog('SCHEME_ARCHIVE', `Archived Scheme ${target.nameEn} (referenced by existing chit groups)`, 'Admin', target.id);
     return res.json({
       success: true,
@@ -1772,6 +2197,7 @@ app.delete('/api/admin/schemes/:id', (req: Request, res: Response) => {
 
   schemes.splice(idx, 1);
   saveLocalSchemes(schemes);
+  await syncTableDelete('chit_schemes', 'id', id);
   recordAuditLog('SCHEME_DELETE', `Deleted unused scheme: ${target.nameEn}`, 'Admin', target.id);
   return res.json({ success: true, archived: false, message: `Scheme "${target.nameEn}" deleted.` });
 });
@@ -1796,7 +2222,7 @@ app.get('/api/admin/groups', (req: Request, res: Response) => {
 });
 
 // Create new group (Enforces Max 99 members & snapshots scheme version)
-app.post('/api/admin/groups', (req: Request, res: Response) => {
+app.post('/api/admin/groups', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1835,6 +2261,7 @@ app.post('/api/admin/groups', (req: Request, res: Response) => {
 
   groups.push(newGroup);
   saveLocalGroups(groups);
+  await syncTableUpsert('chit_groups', [groupToDbRow(newGroup)], 'id');
   recordAuditLog('GROUP_CREATE', `Created Group: ${newGroup.id} (${newGroup.name}, ${newGroup.duration_months}M)`, 'Admin', newGroup.id);
 
   createAutoAnnouncement({
@@ -1855,7 +2282,7 @@ app.post('/api/admin/groups', (req: Request, res: Response) => {
 });
 
 // Update group
-app.put('/api/admin/groups/:id', (req: Request, res: Response) => {
+app.put('/api/admin/groups/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1879,6 +2306,7 @@ app.put('/api/admin/groups/:id', (req: Request, res: Response) => {
   target.updated_at = new Date().toISOString();
 
   saveLocalGroups(groups);
+  await syncTableUpsert('chit_groups', [groupToDbRow(target)], 'id');
   recordAuditLog('GROUP_UPDATE', `Updated Group: ${target.id} (${target.name})`, 'Admin', target.id);
 
   createAutoAnnouncement({
@@ -1895,7 +2323,7 @@ app.put('/api/admin/groups/:id', (req: Request, res: Response) => {
 });
 
 // Toggle group active/inactive status
-app.patch('/api/admin/groups/:id/status', (req: Request, res: Response) => {
+app.patch('/api/admin/groups/:id/status', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1914,6 +2342,7 @@ app.patch('/api/admin/groups/:id/status', (req: Request, res: Response) => {
   target.status = status;
   target.updated_at = new Date().toISOString();
   saveLocalGroups(groups);
+  await syncTableUpsert('chit_groups', [groupToDbRow(target)], 'id');
 
   recordAuditLog('GROUP_STATUS_CHANGE', `Set Group ${target.id} status to ${status}`, 'Admin', target.id);
 
@@ -1986,7 +2415,7 @@ app.get('/api/admin/users', (req: Request, res: Response) => {
 });
 
 // Create new user (Enforces unique User ID and Max 99 members per group)
-app.post('/api/admin/users', (req: Request, res: Response) => {
+app.post('/api/admin/users', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2037,6 +2466,7 @@ app.post('/api/admin/users', (req: Request, res: Response) => {
 
   users.push(newUser);
   saveLocalUsers(users);
+  await syncTableUpsert('chit_users', [userToDbRow(newUser)], 'id');
 
   recordAuditLog('USER_CREATE', `Created User: ${newUser.user_id} (${newUser.full_name}) in Group ${group.name}`, 'Admin', newUser.user_id);
 
@@ -2049,7 +2479,7 @@ app.post('/api/admin/users', (req: Request, res: Response) => {
 });
 
 // Update user details
-app.put('/api/admin/users/:id', (req: Request, res: Response) => {
+app.put('/api/admin/users/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2086,6 +2516,7 @@ app.put('/api/admin/users/:id', (req: Request, res: Response) => {
   target.updated_at = new Date().toISOString();
 
   saveLocalUsers(users);
+  await syncTableUpsert('chit_users', [userToDbRow(target)], 'id');
   recordAuditLog('USER_UPDATE', `Updated User details for ${target.user_id} (${target.full_name})`, 'Admin', target.user_id);
 
   const { password_hash, ...safeUser } = target;
@@ -2145,7 +2576,7 @@ app.patch('/api/admin/users/:id/password', async (req: Request, res: Response) =
 });
 
 // Toggle user status (Active / Inactive)
-app.patch('/api/admin/users/:id/status', (req: Request, res: Response) => {
+app.patch('/api/admin/users/:id/status', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2173,6 +2604,7 @@ app.patch('/api/admin/users/:id/status', (req: Request, res: Response) => {
   }
   target.updated_at = new Date().toISOString();
   saveLocalUsers(users);
+  await syncTableUpsert('chit_users', [userToDbRow(target)], 'id');
 
   recordAuditLog('USER_STATUS_CHANGE', `Changed User ${target.user_id} status to ${status}`, 'Admin', target.user_id);
   return res.json({ success: true, user_id: target.user_id, status });
@@ -2305,7 +2737,7 @@ app.get('/api/admin/payments', (req: Request, res: Response) => {
 });
 
 // Configure Variable Monthly Payment & Apply to Group Members (Default status: UNPAID)
-app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
+app.post('/api/admin/payments/configure', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2338,6 +2770,7 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
   }
 
   const payments = getLocalPayments();
+  const newlyCreatedPayments: any[] = [];
   let createdCount = 0;
   let existingCount = 0;
 
@@ -2355,7 +2788,7 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
       existingCount++;
     } else {
       createdCount++;
-      payments.push({
+      const newPay = {
         id: `pay-${member.user_id}-m${month}-${year}`,
         user_id: member.user_id,
         user_name: member.full_name,
@@ -2372,15 +2805,20 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
         notes: `Variable monthly instalment set for ${monthLabelText}. Awaiting physical cash collection.`,
         last_updated: new Date().toISOString(),
         created_at: new Date().toISOString()
-      });
+      };
+      payments.push(newPay);
+      newlyCreatedPayments.push(newPay);
     }
   });
 
   saveLocalPayments(payments);
+  if (newlyCreatedPayments.length > 0) {
+    await syncTableUpsert('payment_records', newlyCreatedPayments.map(paymentToDbRow), 'id');
+  }
 
   // Save payment config
   const configs = getLocalPaymentConfigs();
-  configs.unshift({
+  const newConfig = {
     id: `cfg-${group_id}-m${month}-${year}`,
     group_id: group.id,
     group_name: group.name,
@@ -2391,8 +2829,10 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
     due_date: due_date || `${year}-${String(Math.min(12, Number(month))).padStart(2, '0')}-10`,
     created_by: 'Admin',
     created_at: new Date().toISOString()
-  });
+  };
+  configs.unshift(newConfig);
   saveLocalPaymentConfigs(configs);
+  await syncTableUpsert('monthly_payment_configs', [paymentConfigToDbRow(newConfig)], 'id');
 
   recordAuditLog(
     'MONTHLY_PAYMENT_CONFIGURED',
@@ -2422,7 +2862,7 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
 });
 
 // Update individual payment status (Physical cash collection workflow)
-app.patch('/api/admin/payments/:id/status', (req: Request, res: Response) => {
+app.patch('/api/admin/payments/:id/status', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2441,7 +2881,6 @@ app.patch('/api/admin/payments/:id/status', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Payment record not found.' });
   }
 
-  const prevStatus = target.payment_status;
   target.payment_status = status;
   target.updated_by = 'Admin (Cash Desk)';
   target.last_updated = new Date().toISOString();
@@ -2469,6 +2908,7 @@ app.patch('/api/admin/payments/:id/status', (req: Request, res: Response) => {
   }
 
   saveLocalPayments(payments);
+  await syncTableUpsert('payment_records', [paymentToDbRow(target)], 'id');
 
   return res.json({
     success: true,
@@ -2478,7 +2918,7 @@ app.patch('/api/admin/payments/:id/status', (req: Request, res: Response) => {
 });
 
 // Batch Update multiple payment statuses (e.g. marking multiple cash receipts)
-app.post('/api/admin/payments/batch-status', (req: Request, res: Response) => {
+app.post('/api/admin/payments/batch-status', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2490,6 +2930,7 @@ app.post('/api/admin/payments/batch-status', (req: Request, res: Response) => {
   }
 
   const payments = getLocalPayments();
+  const updatedRows: any[] = [];
   let updatedCount = 0;
   const now = new Date().toISOString();
 
@@ -2504,11 +2945,15 @@ app.post('/api/admin/payments/batch-status', (req: Request, res: Response) => {
       } else {
         p.payment_date = null;
       }
+      updatedRows.push(p);
       updatedCount++;
     }
   });
 
   saveLocalPayments(payments);
+  if (updatedRows.length > 0) {
+    await syncTableUpsert('payment_records', updatedRows.map(paymentToDbRow), 'id');
+  }
   recordAuditLog('BATCH_PAYMENT_UPDATE', `Batch updated ${updatedCount} payment records to ${status}`, 'Admin');
 
   return res.json({
@@ -2538,7 +2983,7 @@ app.get('/api/admin/announcements', (req: Request, res: Response) => {
   return res.json({ announcements });
 });
 
-app.post('/api/admin/announcements', (req: Request, res: Response) => {
+app.post('/api/admin/announcements', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2591,12 +3036,13 @@ app.post('/api/admin/announcements', (req: Request, res: Response) => {
 
   announcements.unshift(newAnnouncement);
   saveLocalAnnouncements(announcements);
+  await syncTableUpsert('announcements', [announcementToDbRow(newAnnouncement)], 'id');
 
   recordAuditLog('ANNOUNCEMENT_CREATE', `Published announcement: "${newAnnouncement.title}"`, 'Admin', newAnnouncement.id);
   return res.status(201).json({ success: true, announcement: newAnnouncement, message: 'Announcement published successfully.' });
 });
 
-app.put('/api/admin/announcements/:id', (req: Request, res: Response) => {
+app.put('/api/admin/announcements/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -2618,6 +3064,7 @@ app.put('/api/admin/announcements/:id', (req: Request, res: Response) => {
   target.updated_at = new Date().toISOString();
 
   saveLocalAnnouncements(announcements);
+  await syncTableUpsert('announcements', [announcementToDbRow(target)], 'id');
   recordAuditLog('ANNOUNCEMENT_UPDATE', `Updated announcement: "${target.title}"`, 'Admin', target.id);
 
   return res.json({ success: true, announcement: target, message: 'Announcement updated.' });
@@ -2703,6 +3150,7 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] TEAM STARS CHITS portal running at http://0.0.0.0:${PORT}`);
     console.log(`[Mode] ${isProd ? 'Production' : 'Development'}`);
+    void bootstrapSupabaseData();
   });
 }
 
