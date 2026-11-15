@@ -52,10 +52,10 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
         </div>
 
         {/* Category Tabs (Interactive Segmented Control) */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8 p-1.5 bg-slate-200/60 rounded-xl">
+        <div className={`flex flex-wrap items-center justify-center mb-8 p-1.5 bg-slate-200/60 rounded-xl ${lang === 'ta' ? 'gap-1.5' : 'gap-2'}`}>
           <button
             onClick={() => setActiveCategory('all')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'all'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -65,7 +65,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('general')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'general'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -75,7 +75,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('schemes')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'schemes'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -85,7 +85,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('auction')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'auction'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -95,7 +95,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('documents')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'documents'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'

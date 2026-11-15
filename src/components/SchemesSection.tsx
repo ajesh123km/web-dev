@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChitScheme, Language } from '../types';
 import { CHIT_SCHEMES } from '../data/schemes';
 import { TRANSLATIONS } from '../data/translations';
 import { SchemeModal } from './SchemeModal';
-import { Calendar, ArrowRight, Table, Award, Check } from 'lucide-react';
+import { Calendar, ArrowRight, Table, Award } from 'lucide-react';
 
 interface SchemesSectionProps {
   lang: Language;
@@ -14,9 +14,25 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
   lang,
   onSelectSchemeForEnquiry
 }) => {
+  const [schemes, setSchemes] = useState<ChitScheme[]>(CHIT_SCHEMES);
   const [selectedScheme, setSelectedScheme] = useState<ChitScheme | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const t = TRANSLATIONS[lang];
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/schemes')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (active && data?.schemes?.length > 0) {
+          setSchemes(data.schemes);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleOpenDetails = (scheme: ChitScheme) => {
     setSelectedScheme(scheme);
@@ -41,33 +57,44 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
           </p>
         </div>
 
-        {/* 3 Scheme Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-12">
-          {CHIT_SCHEMES.map((scheme, idx) => {
+        {/* Scheme Cards Grid */}
+        <div className={`grid grid-cols-1 gap-6 items-stretch mb-12 ${
+          schemes.length >= 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-3 gap-8'
+        }`}>
+          {schemes.map((scheme) => {
             const isPopular = scheme.id === 'scheme-2-lakh';
+            const isTenLakh = scheme.id === 'scheme-10-lakh' || scheme.chitValue === 1000000;
             const schemeName = lang === 'ta' ? scheme.nameTa : scheme.nameEn;
             const tagline = lang === 'ta' ? scheme.taglineTa : scheme.taglineEn;
 
             return (
               <div
                 key={scheme.id}
-                className={`flex flex-col justify-between rounded-2xl bg-white transition-all duration-200 p-6 sm:p-7 relative border ${
-                  isPopular 
-                    ? 'border-[#075C32] shadow-lg ring-1 ring-[#075C32]/20' 
+                className={`flex flex-col justify-between rounded-2xl bg-white transition-all duration-200 p-6 relative border ${
+                  isPopular
+                    ? 'border-[#075C32] shadow-lg ring-1 ring-[#075C32]/20'
+                    : isTenLakh
+                    ? 'border-[#C9A64A] shadow-md ring-1 ring-[#C9A64A]/20'
                     : 'border-slate-200/90 shadow-sm hover:border-[#12834B]/40 hover:shadow-md'
                 }`}
               >
-                {/* Popular Indicator (clean unboxed banner) */}
+                {/* Top highlight caption */}
                 {isPopular && (
                   <div className="text-[11px] font-bold text-[#075C32] tracking-wider uppercase mb-2 flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-[#12834B]" />
                     <span>{lang === 'ta' ? 'பெரும்பான்மையினர் தேர்வு' : 'Most Popular Choice'}</span>
                   </div>
                 )}
+                {isTenLakh && (
+                  <div className="text-[11px] font-bold text-amber-800 tracking-wider uppercase mb-2 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-[#C9A64A]" />
+                    <span>{lang === 'ta' ? 'பெருந்தொகை சிறப்பு திட்டம்' : 'High-Value Enterprise Plan'}</span>
+                  </div>
+                )}
 
                 <div>
                   {/* Scheme Header */}
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
                       {scheme.chitValueFormatted}
                     </h3>
@@ -76,50 +103,52 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                     </p>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed min-h-[36px] mb-6">
+                  <p className="text-xs text-slate-600 leading-relaxed min-h-[40px] mb-5">
                     {tagline}
                   </p>
 
                   {/* Highlights Summary Box */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 mb-6 space-y-3 text-xs">
-                    <div className="flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 mb-5 space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-slate-500">{t.schemes.tenure}:</span>
-                      <span className="font-bold text-slate-800">{scheme.durationMonths} Months</span>
+                      <span className="font-bold text-slate-800 whitespace-nowrap">
+                        {scheme.durationMonths} {lang === 'ta' ? 'மாதங்கள்' : 'Months'}
+                      </span>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-slate-500">{t.schemes.firstMonth}:</span>
-                      <span className="font-bold font-mono text-slate-900 tabular-nums">
+                      <span className="font-bold font-mono text-slate-900 tabular-nums whitespace-nowrap">
                         ₹{scheme.firstMonthInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-slate-500">{t.schemes.instalmentRange}:</span>
-                      <span className="font-bold font-mono text-slate-900 tabular-nums">
+                      <span className="font-bold font-mono text-slate-900 tabular-nums whitespace-nowrap">
                         ₹{scheme.minInstalment.toLocaleString('en-IN')} – ₹{scheme.maxInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
                     <div className="h-px bg-slate-200" />
 
-                    <div className="flex items-center justify-between text-[#075C32] font-semibold">
+                    <div className="flex items-center justify-between gap-2 text-[#075C32] font-semibold">
                       <span>{t.schemes.totalPaid}:</span>
-                      <span className="font-mono font-bold tabular-nums">
+                      <span className="font-mono font-bold tabular-nums whitespace-nowrap">
                         ₹{scheme.totalInstalmentsPaid.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[#12834B] font-semibold">
+                    <div className="flex items-center justify-between gap-2 text-[#12834B] font-semibold">
                       <span>{t.schemes.dividendGain}:</span>
-                      <span className="font-mono font-bold tabular-nums">
+                      <span className="font-mono font-bold tabular-nums whitespace-nowrap">
                         +₹{scheme.dividendBenefit.toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
 
                   {/* Bonus Reward Badge */}
-                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200/80 mb-6 flex items-start gap-2.5">
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200/80 mb-5 flex items-start gap-2.5">
                     <Award className="w-4 h-4 text-[#C9A64A] shrink-0 mt-0.5" />
                     <div>
                       <span className="text-xs font-bold text-amber-900 block">
@@ -136,18 +165,18 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                 <div className="space-y-2.5 pt-2">
                   <button
                     onClick={() => handleOpenDetails(scheme)}
-                    className="w-full py-2.5 px-4 text-xs font-bold text-[#075C32] bg-[#E5F2E8] hover:bg-[#d4ead9] border border-[#12834B]/20 rounded-lg transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 px-3 text-xs font-bold text-[#075C32] bg-[#E5F2E8] hover:bg-[#d4ead9] border border-[#12834B]/20 rounded-lg transition-all flex items-center justify-center gap-1.5"
                   >
-                    <Table className="w-3.5 h-3.5" />
-                    <span>{t.schemes.viewFullSchedule}</span>
+                    <Table className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{t.schemes.viewFullSchedule}</span>
                   </button>
 
                   <button
-                    onClick={() => onSelectSchemeForEnquiry(scheme.nameEn)}
-                    className="w-full py-2.5 px-4 text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-98"
+                    onClick={() => onSelectSchemeForEnquiry(`${scheme.chitValueFormatted} Scheme`)}
+                    className="w-full py-2.5 px-3 text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-98"
                   >
-                    <span>{t.schemes.enquireThisScheme}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span className="truncate">{t.schemes.enquireThisScheme}</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
               </div>
@@ -164,7 +193,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
       </div>
 
-      {/* Full 20-Month Schedule & Rules Modal */}
+      {/* Full Schedule & Rules Modal */}
       <SchemeModal
         scheme={selectedScheme}
         isOpen={modalOpen}

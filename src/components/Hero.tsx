@@ -113,21 +113,21 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
 
                 {/* Verified Metadata List */}
                 <div className="w-full space-y-2.5 text-left text-xs text-slate-600 my-3">
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                    <span className="font-semibold text-slate-500">CIN:</span>
+                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                    <span className="font-semibold text-slate-500 shrink-0">CIN:</span>
                     <span className="font-mono font-bold text-slate-800">U64990TN2025PTC181717</span>
                   </div>
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                    <span className="font-semibold text-slate-500">{lang === 'ta' ? 'மாத தவணை' : 'Auction / Draw'}:</span>
-                    <span className="font-semibold text-[#075C32]">11th of every month</span>
+                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                    <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'மாத தவணை' : 'Auction / Draw'}:</span>
+                    <span className="font-semibold text-[#075C32] text-right">{lang === 'ta' ? 'மாதம் 11-ஆம் தேதி' : '11th of every month'}</span>
                   </div>
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                    <span className="font-semibold text-slate-500">{lang === 'ta' ? 'தொகை வழங்கல்' : 'Disbursement'}:</span>
-                    <span className="font-semibold text-[#075C32]">By 25th of month</span>
+                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                    <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'தொகை வழங்கல்' : 'Disbursement'}:</span>
+                    <span className="font-semibold text-[#075C32] text-right">{lang === 'ta' ? 'மாதம் 25-ஆம் தேதிக்குள்' : 'By 25th of month'}</span>
                   </div>
-                  <div className="flex items-start justify-between py-1">
+                  <div className="flex items-start justify-between gap-3 py-1">
                     <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'அலுவலகம்' : 'Location'}:</span>
-                    <span className="text-right text-slate-700 font-medium">Villukuri, Kanyakumari</span>
+                    <span className="text-right text-slate-700 font-medium">{lang === 'ta' ? 'விள்ளுக்குறி, கன்னியாகுமரி' : 'Villukuri, Kanyakumari'}</span>
                   </div>
                 </div>
 
@@ -155,7 +155,9 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
             </div>
           </div>
           <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#075C32] font-mono tabular-nums">
+            <div className={`font-extrabold text-[#075C32] tabular-nums ${
+              lang === 'ta' ? 'text-xl sm:text-2xl leading-snug' : 'text-2xl sm:text-3xl font-mono'
+            }`}>
               {t.hero.trustStat2Value}
             </div>
             <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">

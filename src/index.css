@@ -6,9 +6,35 @@
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  /* Specific font rules when Tamil is active */
-  html[lang="ta"], .font-tamil {
-    font-family: 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Specific font and metric normalization rules ONLY when Tamil is active */
+  html[lang="ta"],
+  html[lang="ta"] body,
+  .font-tamil {
+    font-family: 'Noto Sans Tamil', 'Latha', 'Vijaya', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    overflow-x: clip;
+  }
+
+  /* Prevent Tamil glyphs inside font-mono blocks from falling back to oversized system monospace metrics */
+  html[lang="ta"] .font-mono {
+    font-family: 'Noto Sans Tamil', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* Prevent Tamil headings from creating excessive vertical line-box height */
+  html[lang="ta"] h1,
+  html[lang="ta"] h2,
+  html[lang="ta"] h3,
+  html[lang="ta"] h4 {
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+  }
+
+  html[lang="ta"] h1 {
+    font-size: clamp(1.65rem, 3.2vw, 2.65rem);
+  }
+
+  html[lang="ta"] h2 {
+    font-size: clamp(1.45rem, 2.5vw, 2.05rem);
   }
 }
 

@@ -16,6 +16,7 @@ interface UserPortalProps {
 export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose }) => {
   const t = TRANSLATIONS[lang];
   const isTa = lang === 'ta';
+  const [durationMonths, setDurationMonths] = useState<number>(20);
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [token, setToken] = useState<string>('');
@@ -62,6 +63,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
       if (profRes.ok) {
         const profData = await profRes.json();
         setProfile(profData.user);
+        setDurationMonths(Number(profData.user?.duration_months) || 20);
       } else if (profRes.status === 401) {
         handleLogout();
         return;
@@ -117,6 +119,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
         setToken(data.token);
         localStorage.setItem('teamstars_user_token', data.token);
         setProfile(data.user);
+        setDurationMonths(Number(data.user?.duration_months) || 20);
         setIsAuthenticated(true);
         setPasswordInput('');
       } else {
@@ -327,17 +330,22 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                   </button>
                   <div className="px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-right">
                     <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-bold">
-                      {isTa ? 'குழு' : 'Assigned Group'}
+                      {isTa ? 'குழு & திட்டம்' : 'Assigned Group & Scheme'}
                     </span>
                     <span className="text-xs font-bold text-[#075C32] block">
                       {profile?.group_name || 'Active Chit Group'}
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-600 block">
+                      {profile?.scheme_name || 'Chit Scheme'}
+                      {profile?.chit_value ? ` · ₹${Number(profile.chit_value).toLocaleString('en-IN')}` : ''}
+                      {` · ${durationMonths} ${isTa ? 'மாதங்கள்' : 'Months'}`}
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+              <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
                 <button
                   onClick={() => setActiveTab('overview')}
                   className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
@@ -484,10 +492,10 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                         <Calendar className="w-4 h-4 text-[#C9A64A]" />
                       </div>
                       <div className="text-2xl font-black text-slate-900 font-mono">
-                        {totalPaidCount} / 20
+                        {totalPaidCount} / {durationMonths}
                       </div>
                       <span className="text-[11px] text-slate-400 mt-1 block">
-                        {20 - totalPaidCount > 0 ? `${20 - totalPaidCount} ${isTa ? 'மாதங்கள் மீதம்' : 'months remaining'}` : 'Chit Completed'}
+                        {durationMonths - totalPaidCount > 0 ? `${durationMonths - totalPaidCount} ${isTa ? 'மாதங்கள் மீதம்' : 'months remaining'}` : 'Chit Completed'}
                       </span>
                     </div>
                   </div>
@@ -562,7 +570,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                   <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                     <div>
                       <h5 className="font-bold text-sm text-slate-900">
-                        {isTa ? 'முழுமையான தவணை வரலாறு' : 'Complete 20-Month Payment History'}
+                        {isTa ? `முழுமையான ${durationMonths}-மாத தவணை வரலாறு` : `Complete ${durationMonths}-Month Payment History`}
                       </h5>
                       <p className="text-xs text-slate-500">
                         {isTa ? 'உங்கள் கணக்கின் அனைத்து மாத தவணைகள் மற்றும் ரொக்க ரசீது விவரங்கள்.' : 'Detailed record of all monthly instalments and cash receipts for your account.'}
@@ -656,24 +664,44 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {announcements.map((ann) => (
-                        <div key={ann.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                          <div className="flex items-center justify-between gap-3 flex-wrap">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
-                              {ann.category}
-                            </span>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              {new Date(ann.publish_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            </span>
+                      {announcements.map((ann) => {
+                        const audienceLabel =
+                          ann.target_type === 'group' || (ann.target_group_id && ann.target_group_id !== 'all')
+                            ? `${isTa ? 'குழு' : 'Group'}: ${ann.target_group_name || ann.target_group_id}`
+                            : ann.target_type === 'scheme'
+                            ? `${isTa ? 'திட்டம்' : 'Scheme'}: ${ann.target_scheme_name || ann.target_scheme_id}`
+                            : isTa
+                            ? 'அனைத்து உறுப்பினர்கள்'
+                            : 'All Members';
+                        return (
+                          <div key={ann.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
+                                  {ann.category}
+                                </span>
+                                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {audienceLabel}
+                                </span>
+                                {ann.is_auto_generated && (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/20">
+                                    {isTa ? 'தானியங்கி அறிவிப்பு' : 'System Update'}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[11px] text-slate-400 font-mono">
+                                {new Date(ann.publish_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </span>
+                            </div>
+                            <h6 className="text-sm font-bold text-slate-900">{ann.title}</h6>
+                            <p className="text-xs text-slate-600 leading-relaxed">{ann.description}</p>
+                            <div className="pt-2 text-[10px] text-slate-400 flex items-center justify-between">
+                              <span>Published by: {ann.created_by}</span>
+                              <span className="italic">Read-only notice</span>
+                            </div>
                           </div>
-                          <h6 className="text-sm font-bold text-slate-900">{ann.title}</h6>
-                          <p className="text-xs text-slate-600 leading-relaxed">{ann.description}</p>
-                          <div className="pt-2 text-[10px] text-slate-400 flex items-center justify-between">
-                            <span>Published by: {ann.created_by}</span>
-                            <span className="italic">Read-only notice</span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

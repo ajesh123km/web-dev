@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { CustomerEnquiry, Language, SystemStatus, ChitUser, ChitGroup, PaymentRecord, Announcement, AdminOverviewStats } from '../types';
+import { CustomerEnquiry, Language, SystemStatus, ChitUser, ChitGroup, ChitScheme, SchemeVersion, PaymentRecord, Announcement, AdminOverviewStats } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { 
   ShieldCheck, Lock, LogOut, Search, Filter, Download, 
-  Eye, RefreshCw, CheckCircle2, Clock, CheckCircle, Database, Mail, X,
+  Eye, EyeOff, RefreshCw, CheckCircle2, Clock, CheckCircle, Database, Mail, X,
   Users, Layers, CreditCard, Bell, BarChart3, Plus, Edit, Trash2, Key,
   Check, AlertCircle, Phone, Calendar, ArrowRight, UserCheck, UserX, AlertTriangle,
-  FileText, UserPlus
+  FileText, UserPlus, History, Archive, Power, Settings
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -15,7 +15,7 @@ interface AdminPortalProps {
   onClose: () => void;
 }
 
-type AdminTab = 'overview' | 'users' | 'groups' | 'payments' | 'history' | 'announcements' | 'reports' | 'enquiries';
+type AdminTab = 'overview' | 'users' | 'groups' | 'schemes' | 'payments' | 'history' | 'announcements' | 'reports' | 'enquiries';
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose }) => {
   const t = TRANSLATIONS[lang];
@@ -63,23 +63,84 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
     email: '',
     group_id: ''
   });
-  const [newPasswordValue, setNewPasswordValue] = useState<string>('user123');
+  const [newPasswordValue, setNewPasswordValue] = useState<string>('');
+  const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>('');
+  const [showResetPasswordText, setShowResetPasswordText] = useState<boolean>(false);
+  const [passwordModalError, setPasswordModalError] = useState<string | null>(null);
+  const [resettingPassword, setResettingPassword] = useState<boolean>(false);
+  const [userPendingDelete, setUserPendingDelete] = useState<ChitUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<boolean>(false);
   const [userActionMsg, setUserActionMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Schemes Management
+  const [schemes, setSchemes] = useState<ChitScheme[]>([]);
+  const [loadingSchemes, setLoadingSchemes] = useState<boolean>(false);
+  const [showCreateSchemeModal, setShowCreateSchemeModal] = useState<boolean>(false);
+  const [showEditSchemeModal, setShowEditSchemeModal] = useState<boolean>(false);
+  const [showSchemeVersionsModal, setShowSchemeVersionsModal] = useState<boolean>(false);
+  const [schemeVersions, setSchemeVersions] = useState<SchemeVersion[]>([]);
+  const [selectedSchemeVersionsTitle, setSelectedSchemeVersionsTitle] = useState<string>('');
+  const [schemePendingDelete, setSchemePendingDelete] = useState<ChitScheme | null>(null);
+  const [schemeActionMsg, setSchemeActionMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [schemeModalError, setSchemeModalError] = useState<string | null>(null);
+  const [schemeImpactWarning, setSchemeImpactWarning] = useState<string | null>(null);
+  const [newSchemeForm, setNewSchemeForm] = useState({
+    schemeCode: '',
+    nameEn: '',
+    nameTa: '',
+    chitValue: '1000000',
+    durationMonths: 20,
+    customDuration: '',
+    promptBonus: '20000',
+    lastMonthBonus: '4000',
+    taglineEn: '',
+    taglineTa: '',
+    status: 'active' as 'active' | 'inactive' | 'archived',
+    autoAnnounce: true
+  });
+  const [editSchemeForm, setEditSchemeForm] = useState({
+    id: '',
+    schemeCode: '',
+    nameEn: '',
+    nameTa: '',
+    chitValue: '',
+    durationMonths: 20,
+    customDuration: '',
+    promptBonus: '',
+    lastMonthBonus: '',
+    taglineEn: '',
+    taglineTa: '',
+    status: 'active' as 'active' | 'inactive' | 'archived',
+    autoAnnounce: true,
+    confirm_running_impact: false
+  });
 
   // Groups Management
   const [groups, setGroups] = useState<ChitGroup[]>([]);
   const [loadingGroups, setLoadingGroups] = useState<boolean>(false);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState<boolean>(false);
+  const [showEditGroupModal, setShowEditGroupModal] = useState<boolean>(false);
   const [showGroupMembersModal, setShowGroupMembersModal] = useState<boolean>(false);
   const [selectedGroupForMembers, setSelectedGroupForMembers] = useState<ChitGroup | null>(null);
   const [groupMembersList, setGroupMembersList] = useState<ChitUser[]>([]);
   const [newGroupForm, setNewGroupForm] = useState({
     id: '',
     name: '',
+    scheme_id: 'scheme-2-lakh',
     scheme_name: '₹2,00,000 Scheme',
     chit_value: 200000,
     duration_months: 20,
     start_date: new Date().toISOString().split('T')[0]
+  });
+  const [editGroupForm, setEditGroupForm] = useState({
+    id: '',
+    name: '',
+    scheme_id: '',
+    scheme_name: '',
+    chit_value: 200000,
+    duration_months: 20,
+    start_date: '',
+    status: 'active' as 'active' | 'inactive'
   });
   const [groupActionMsg, setGroupActionMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -104,11 +165,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState<boolean>(false);
   const [showCreateAnnModal, setShowCreateAnnModal] = useState<boolean>(false);
+  const [showArchivedAnnouncements, setShowArchivedAnnouncements] = useState<boolean>(false);
+  const [annPendingDelete, setAnnPendingDelete] = useState<Announcement | null>(null);
+  const [deletingAnn, setDeletingAnn] = useState<boolean>(false);
   const [newAnnForm, setNewAnnForm] = useState({
     title: '',
     description: '',
-    category: 'General' as const,
+    category: 'General' as Announcement['category'],
+    target_type: 'all' as 'all' | 'group' | 'scheme',
     target_group_id: 'all',
+    target_scheme_id: '',
     publish_date: new Date().toISOString().split('T')[0],
     is_published: true
   });
@@ -144,6 +210,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
       fetchOverview();
       fetchUsers();
       fetchGroups();
+      fetchSchemes();
       fetchPayments();
       fetchAnnouncements();
       fetchReports();
@@ -232,10 +299,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
     }
   };
 
-  const fetchAnnouncements = async () => {
+  const fetchSchemes = async () => {
+    setLoadingSchemes(true);
+    try {
+      const res = await fetch('/api/admin/schemes', { headers: authHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setSchemes(data.schemes || []);
+      }
+    } catch (e) {
+      console.error('Fetch schemes error:', e);
+    } finally {
+      setLoadingSchemes(false);
+    }
+  };
+
+  const fetchAnnouncements = async (includeArchived = showArchivedAnnouncements) => {
     setLoadingAnnouncements(true);
     try {
-      const res = await fetch('/api/admin/announcements', { headers: authHeaders });
+      const url = `/api/admin/announcements${includeArchived ? '?include_archived=true' : ''}`;
+      const res = await fetch(url, { headers: authHeaders });
       if (res.ok) {
         const data = await res.json();
         setAnnouncements(data.announcements || []);
@@ -374,8 +457,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
+    setPasswordModalError(null);
     setUserActionMsg(null);
 
+    if (newPasswordValue.length < 6) {
+      setPasswordModalError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (/\s/.test(newPasswordValue)) {
+      setPasswordModalError('Password must not contain spaces.');
+      return;
+    }
+    if (!/[a-zA-Z]/.test(newPasswordValue) || !/[0-9]/.test(newPasswordValue)) {
+      setPasswordModalError('Password must contain at least one letter and one number (e.g. Member2026).');
+      return;
+    }
+    if (newPasswordValue !== confirmPasswordValue) {
+      setPasswordModalError('New password and confirmation do not match.');
+      return;
+    }
+
+    setResettingPassword(true);
     try {
       const res = await fetch(`/api/admin/users/${selectedUser.user_id}/password`, {
         method: 'PATCH',
@@ -387,12 +489,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
       if (res.ok) {
         setUserActionMsg({ type: 'success', text: data.message });
         setShowPasswordModal(false);
-        setNewPasswordValue('user123');
+        setNewPasswordValue('');
+        setConfirmPasswordValue('');
+        setPasswordModalError(null);
+        fetchOverview();
       } else {
-        setUserActionMsg({ type: 'error', text: data.error || 'Failed to reset password.' });
+        setPasswordModalError(data.error || 'Failed to reset password.');
       }
     } catch {
-      setUserActionMsg({ type: 'error', text: 'Error resetting password.' });
+      setPasswordModalError('Error connecting to server while resetting password.');
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -406,18 +513,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
       });
       if (res.ok) {
         fetchUsers();
+        fetchGroups();
       }
     } catch (e) {
       console.error('Toggle status error:', e);
     }
   };
 
-  const handleDeleteUser = async (user: ChitUser) => {
-    if (!window.confirm(`Are you sure you want to delete user ${user.full_name} (${user.user_id})?`)) return;
+  const handleConfirmDeleteUser = async () => {
+    if (!userPendingDelete) return;
     setUserActionMsg(null);
+    setDeletingUser(true);
 
     try {
-      const res = await fetch(`/api/admin/users/${user.user_id}`, {
+      const res = await fetch(`/api/admin/users/${userPendingDelete.user_id}`, {
         method: 'DELETE',
         headers: authHeaders
       });
@@ -425,13 +534,194 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
 
       if (res.ok) {
         setUserActionMsg({ type: 'success', text: data.message });
+        setUserPendingDelete(null);
         fetchUsers();
+        fetchGroups();
         fetchOverview();
       } else {
-        setUserActionMsg({ type: 'error', text: data.error });
+        setUserActionMsg({ type: 'error', text: data.error || 'Failed to delete user.' });
+        setUserPendingDelete(null);
       }
     } catch {
-      setUserActionMsg({ type: 'error', text: 'Failed to delete user.' });
+      setUserActionMsg({ type: 'error', text: 'Failed to connect to server while deleting user.' });
+      setUserPendingDelete(null);
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
+  // Scheme Management Actions
+  const handleCreateScheme = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSchemeModalError(null);
+    setSchemeActionMsg(null);
+
+    const finalDuration = newSchemeForm.customDuration ? Number(newSchemeForm.customDuration) : Number(newSchemeForm.durationMonths);
+    const finalValue = Number(newSchemeForm.chitValue);
+    if (!newSchemeForm.nameEn.trim() || !finalValue || finalValue < 10000) {
+      setSchemeModalError('Please enter a Scheme Name and valid Chit Value (min ₹10,000).');
+      return;
+    }
+    if (!finalDuration || finalDuration < 2 || finalDuration > 60) {
+      setSchemeModalError('Duration must be between 2 and 60 months.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/schemes', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          schemeCode: newSchemeForm.schemeCode,
+          nameEn: newSchemeForm.nameEn,
+          nameTa: newSchemeForm.nameTa,
+          chitValue: finalValue,
+          durationMonths: finalDuration,
+          availableDurations: Array.from(new Set([10, 12, 15, 20, 24, finalDuration])).sort((a, b) => a - b),
+          promptBonus: newSchemeForm.promptBonus ? Number(newSchemeForm.promptBonus) : undefined,
+          lastMonthBonus: newSchemeForm.lastMonthBonus ? Number(newSchemeForm.lastMonthBonus) : undefined,
+          taglineEn: newSchemeForm.taglineEn,
+          taglineTa: newSchemeForm.taglineTa,
+          status: newSchemeForm.status,
+          autoAnnounce: newSchemeForm.autoAnnounce
+        })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setSchemeActionMsg({ type: 'success', text: data.message });
+        setShowCreateSchemeModal(false);
+        setNewSchemeForm({
+          schemeCode: '',
+          nameEn: '',
+          nameTa: '',
+          chitValue: '1000000',
+          durationMonths: 20,
+          customDuration: '',
+          promptBonus: '20000',
+          lastMonthBonus: '4000',
+          taglineEn: '',
+          taglineTa: '',
+          status: 'active',
+          autoAnnounce: true
+        });
+        fetchSchemes();
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        setSchemeModalError(data.error || 'Failed to create scheme.');
+      }
+    } catch {
+      setSchemeModalError('Network error while creating scheme.');
+    }
+  };
+
+  const handleEditScheme = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSchemeModalError(null);
+    setSchemeImpactWarning(null);
+    setSchemeActionMsg(null);
+
+    const finalDuration = editSchemeForm.customDuration ? Number(editSchemeForm.customDuration) : Number(editSchemeForm.durationMonths);
+    const finalValue = Number(editSchemeForm.chitValue);
+
+    try {
+      const res = await fetch(`/api/admin/schemes/${editSchemeForm.id}`, {
+        method: 'PUT',
+        headers: authHeaders,
+        body: JSON.stringify({
+          nameEn: editSchemeForm.nameEn,
+          nameTa: editSchemeForm.nameTa,
+          chitValue: finalValue,
+          durationMonths: finalDuration,
+          promptBonus: editSchemeForm.promptBonus !== '' ? Number(editSchemeForm.promptBonus) : undefined,
+          lastMonthBonus: editSchemeForm.lastMonthBonus !== '' ? Number(editSchemeForm.lastMonthBonus) : undefined,
+          taglineEn: editSchemeForm.taglineEn,
+          taglineTa: editSchemeForm.taglineTa,
+          status: editSchemeForm.status,
+          autoAnnounce: editSchemeForm.autoAnnounce,
+          confirm_running_impact: editSchemeForm.confirm_running_impact
+        })
+      });
+      const data = await res.json();
+
+      if (res.status === 409 && data.requiresConfirmation) {
+        setSchemeImpactWarning(data.error);
+        return;
+      }
+
+      if (res.ok) {
+        setSchemeActionMsg({ type: 'success', text: data.message });
+        setShowEditSchemeModal(false);
+        setSchemeImpactWarning(null);
+        fetchSchemes();
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        setSchemeModalError(data.error || 'Failed to update scheme.');
+      }
+    } catch {
+      setSchemeModalError('Network error while updating scheme.');
+    }
+  };
+
+  const handleToggleSchemeStatus = async (scheme: ChitScheme) => {
+    const nextStatus = scheme.status === 'active' ? 'inactive' : 'active';
+    setSchemeActionMsg(null);
+    try {
+      const res = await fetch(`/api/admin/schemes/${scheme.id}/status`, {
+        method: 'PATCH',
+        headers: authHeaders,
+        body: JSON.stringify({ status: nextStatus })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSchemeActionMsg({ type: 'success', text: data.message });
+        fetchSchemes();
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        setSchemeActionMsg({ type: 'error', text: data.error || 'Failed to update scheme status.' });
+      }
+    } catch {
+      setSchemeActionMsg({ type: 'error', text: 'Failed to update scheme status.' });
+    }
+  };
+
+  const handleViewSchemeVersions = async (scheme: ChitScheme) => {
+    setSelectedSchemeVersionsTitle(`${scheme.nameEn} (${scheme.schemeCode || scheme.id})`);
+    setShowSchemeVersionsModal(true);
+    try {
+      const res = await fetch(`/api/admin/schemes/${scheme.id}/versions`, { headers: authHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setSchemeVersions(data.versions || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch scheme versions:', e);
+    }
+  };
+
+  const handleConfirmDeleteScheme = async () => {
+    if (!schemePendingDelete) return;
+    setSchemeActionMsg(null);
+    try {
+      const res = await fetch(`/api/admin/schemes/${schemePendingDelete.id}`, {
+        method: 'DELETE',
+        headers: authHeaders
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSchemeActionMsg({ type: 'success', text: data.message });
+        fetchSchemes();
+        fetchOverview();
+      } else {
+        setSchemeActionMsg({ type: 'error', text: data.error || 'Failed to delete/archive scheme.' });
+      }
+    } catch {
+      setSchemeActionMsg({ type: 'error', text: 'Error deleting scheme.' });
+    } finally {
+      setSchemePendingDelete(null);
     }
   };
 
@@ -451,21 +741,72 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
       if (res.ok) {
         setGroupActionMsg({ type: 'success', text: data.message });
         setShowCreateGroupModal(false);
+        const defaultScheme = schemes.find((s) => s.status === 'active') || schemes[0];
         setNewGroupForm({
           id: '',
           name: '',
-          scheme_name: '₹2,00,000 Scheme',
-          chit_value: 200000,
-          duration_months: 20,
+          scheme_id: defaultScheme?.id || 'scheme-2-lakh',
+          scheme_name: defaultScheme ? `${defaultScheme.chitValueFormatted} Scheme` : '₹2,00,000 Scheme',
+          chit_value: defaultScheme?.chitValue || 200000,
+          duration_months: defaultScheme?.durationMonths || 20,
           start_date: new Date().toISOString().split('T')[0]
         });
         fetchGroups();
+        fetchSchemes();
+        fetchAnnouncements();
         fetchOverview();
       } else {
         setGroupActionMsg({ type: 'error', text: data.error || 'Failed to create group.' });
       }
     } catch {
       setGroupActionMsg({ type: 'error', text: 'Error connecting to server.' });
+    }
+  };
+
+  const handleEditGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGroupActionMsg(null);
+    try {
+      const res = await fetch(`/api/admin/groups/${editGroupForm.id}`, {
+        method: 'PUT',
+        headers: authHeaders,
+        body: JSON.stringify(editGroupForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGroupActionMsg({ type: 'success', text: data.message });
+        setShowEditGroupModal(false);
+        fetchGroups();
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        setGroupActionMsg({ type: 'error', text: data.error || 'Failed to update group.' });
+      }
+    } catch {
+      setGroupActionMsg({ type: 'error', text: 'Error updating group.' });
+    }
+  };
+
+  const handleToggleGroupStatus = async (group: ChitGroup) => {
+    const nextStatus = group.status === 'active' ? 'inactive' : 'active';
+    setGroupActionMsg(null);
+    try {
+      const res = await fetch(`/api/admin/groups/${group.id}/status`, {
+        method: 'PATCH',
+        headers: authHeaders,
+        body: JSON.stringify({ status: nextStatus })
+      });
+      if (res.ok) {
+        setGroupActionMsg({ type: 'success', text: `Group "${group.name}" status updated to ${nextStatus.toUpperCase()}.` });
+        fetchGroups();
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        const data = await res.json();
+        setGroupActionMsg({ type: 'error', text: data.error || 'Failed to toggle group status.' });
+      }
+    } catch {
+      setGroupActionMsg({ type: 'error', text: 'Error updating group status.' });
     }
   };
 
@@ -599,30 +940,48 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
           title: '',
           description: '',
           category: 'General',
+          target_type: 'all',
           target_group_id: 'all',
+          target_scheme_id: '',
           publish_date: new Date().toISOString().split('T')[0],
           is_published: true
         });
         fetchAnnouncements();
       } else {
-        setAnnActionMsg({ type: 'error', text: data.error });
+        setAnnActionMsg({ type: 'error', text: data.error || 'Failed to publish announcement.' });
       }
     } catch {
       setAnnActionMsg({ type: 'error', text: 'Failed to create announcement.' });
     }
   };
 
-  const handleDeleteAnnouncement = async (id: string, title: string) => {
-    if (!window.confirm(`Delete announcement: "${title}"?`)) return;
+  const handleConfirmDeleteAnnouncement = async () => {
+    if (!annPendingDelete) return;
+    setAnnActionMsg(null);
+    setDeletingAnn(true);
 
     try {
-      const res = await fetch(`/api/admin/announcements/${id}`, {
+      const res = await fetch(`/api/admin/announcements/${annPendingDelete.id}`, {
         method: 'DELETE',
         headers: authHeaders
       });
-      if (res.ok) fetchAnnouncements();
+      const data = await res.json();
+
+      if (res.ok) {
+        setAnnActionMsg({ type: 'success', text: data.message });
+        setAnnPendingDelete(null);
+        fetchAnnouncements();
+        fetchOverview();
+      } else {
+        setAnnActionMsg({ type: 'error', text: data.error || 'Failed to delete announcement.' });
+        setAnnPendingDelete(null);
+      }
     } catch (e) {
       console.error('Delete announcement error:', e);
+      setAnnActionMsg({ type: 'error', text: 'Server connection error while deleting announcement.' });
+      setAnnPendingDelete(null);
+    } finally {
+      setDeletingAnn(false);
     }
   };
 
@@ -835,6 +1194,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                 </button>
 
                 <button
+                  onClick={() => { setActiveTab('schemes'); fetchSchemes(); }}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
+                    activeTab === 'schemes' ? 'bg-[#075C32] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>{isTa ? 'சீட்டு திட்ட மேலாண்மை' : 'Scheme Management'}</span>
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">{schemes.length}</span>
+                </button>
+
+                <button
                   onClick={() => { setActiveTab('payments'); fetchPayments(); }}
                   className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
                     activeTab === 'payments' ? 'bg-[#075C32] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
@@ -951,6 +1321,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                         >
                           <Layers className="w-3.5 h-3.5" />
                           <span>Create Group</span>
+                        </button>
+                        <button
+                          onClick={() => { setActiveTab('schemes'); setSchemeModalError(null); setShowCreateSchemeModal(true); }}
+                          className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Settings className="w-3.5 h-3.5 text-[#075C32]" />
+                          <span>Manage Schemes</span>
                         </button>
                         <button
                           onClick={() => setActiveTab('payments')}
@@ -1189,6 +1566,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                                       <button
                                         onClick={() => {
                                           setSelectedUser(u);
+                                          setNewPasswordValue('');
+                                          setConfirmPasswordValue('');
+                                          setPasswordModalError(null);
+                                          setShowResetPasswordText(false);
                                           setShowPasswordModal(true);
                                         }}
                                         className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-md transition-colors"
@@ -1197,7 +1578,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                                         <Key className="w-3.5 h-3.5" />
                                       </button>
                                       <button
-                                        onClick={() => handleDeleteUser(u)}
+                                        onClick={() => setUserPendingDelete(u)}
                                         className="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-md transition-colors"
                                         title="Delete User"
                                       >
@@ -1250,9 +1631,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                               <span className="px-2 py-0.5 rounded font-mono text-[11px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/30">
                                 {grp.id}
                               </span>
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 uppercase">
-                                {grp.status}
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                {grp.scheme_version && (
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600">
+                                    v{grp.scheme_version}
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => handleToggleGroupStatus(grp)}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase cursor-pointer border ${
+                                    grp.status === 'active'
+                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                      : 'bg-slate-100 text-slate-600 border-slate-300'
+                                  }`}
+                                  title="Click to toggle group status"
+                                >
+                                  {grp.status}
+                                </button>
+                              </div>
                             </div>
                             <h5 className="font-bold text-base text-slate-900">{grp.name}</h5>
                             <span className="text-xs font-semibold text-[#075C32] block">{grp.scheme_name}</span>
@@ -1281,14 +1677,35 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-2">
-                            <button
-                              onClick={() => handleViewGroupMembers(grp)}
-                              className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
-                            >
-                              <Users className="w-3.5 h-3.5 text-[#075C32]" />
-                              <span>View Members ({grp.member_count || 0})</span>
-                            </button>
+                          <div className="flex items-center justify-between pt-2 gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleViewGroupMembers(grp)}
+                                className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
+                              >
+                                <Users className="w-3.5 h-3.5 text-[#075C32]" />
+                                <span>Members ({grp.member_count || 0})</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditGroupForm({
+                                    id: grp.id,
+                                    name: grp.name,
+                                    scheme_id: grp.scheme_id || '',
+                                    scheme_name: grp.scheme_name,
+                                    chit_value: grp.chit_value,
+                                    duration_months: grp.duration_months || 20,
+                                    start_date: grp.start_date,
+                                    status: grp.status
+                                  });
+                                  setShowEditGroupModal(true);
+                                }}
+                                className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                title="Edit Group"
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                             <span className="text-[10px] text-slate-400">
                               Started: {grp.start_date}
                             </span>
@@ -1299,8 +1716,174 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                   </div>
                 )}
 
+                {/* TAB 3B: SCHEME MANAGEMENT */}
+                {activeTab === 'schemes' && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">
+                          {isTa ? 'சீட்டு திட்ட மேலாண்மை & கால அளவு கட்டுப்பாடு' : 'Chit Fund Scheme Management & Custom Durations'}
+                        </h4>
+                        <p className="text-xs text-slate-500">
+                          Create, modify, or toggle schemes (e.g. ₹1L, ₹2L, ₹5L, ₹10L or custom values & durations). Running batches retain snapshot terms safely.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setSchemeModalError(null);
+                          setShowCreateSchemeModal(true);
+                        }}
+                        className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Create New Scheme</span>
+                      </button>
+                    </div>
+
+                    {schemeActionMsg && (
+                      <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${
+                        schemeActionMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+                      }`}>
+                        {schemeActionMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                        <span>{schemeActionMsg.text}</span>
+                      </div>
+                    )}
+
+                    {loadingSchemes && schemes.length === 0 ? (
+                      <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200">
+                        Loading schemes...
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {schemes.map((scheme) => (
+                          <div key={scheme.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+                            <div>
+                              <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="px-2 py-0.5 rounded font-mono text-[11px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/30">
+                                    {scheme.schemeCode || scheme.id}
+                                  </span>
+                                  <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-100 text-slate-700">
+                                    v{scheme.version || 1}
+                                  </span>
+                                </div>
+
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                                  (scheme.status || 'active') === 'active'
+                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                    : scheme.status === 'archived'
+                                    ? 'bg-slate-200 text-slate-700 border-slate-300'
+                                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                                }`}>
+                                  {scheme.status || 'active'}
+                                </span>
+                              </div>
+
+                              <h5 className="font-bold text-base text-slate-900">{scheme.nameEn}</h5>
+                              <span className="text-xs text-slate-500 block">{scheme.nameTa}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Chit Value</span>
+                                <span className="font-mono font-black text-slate-900">{scheme.chitValueFormatted}</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Duration Cycle</span>
+                                <span className="font-bold text-[#075C32]">{scheme.durationMonths} Months</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Instalment Range</span>
+                                <span className="font-mono font-semibold text-slate-800">
+                                  ₹{scheme.minInstalment.toLocaleString('en-IN')} – ₹{scheme.maxInstalment.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Prompt + Last Bonus</span>
+                                <span className="font-mono font-semibold text-amber-700">
+                                  ₹{scheme.totalBonus.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                              <div className="col-span-2 pt-1 border-t border-slate-200/70 flex items-center justify-between text-[11px]">
+                                <span className="text-slate-500">Active Running Batches:</span>
+                                <span className="font-bold text-slate-800">{scheme.runningGroupsCount || 0} Groups</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => {
+                                    setSchemeModalError(null);
+                                    setSchemeImpactWarning(null);
+                                    setEditSchemeForm({
+                                      id: scheme.id,
+                                      schemeCode: scheme.schemeCode || '',
+                                      nameEn: scheme.nameEn,
+                                      nameTa: scheme.nameTa,
+                                      chitValue: String(scheme.chitValue),
+                                      durationMonths: scheme.durationMonths,
+                                      customDuration: ![10, 12, 15, 20, 24].includes(scheme.durationMonths) ? String(scheme.durationMonths) : '',
+                                      promptBonus: String(scheme.promptBonus),
+                                      lastMonthBonus: String(scheme.lastMonthBonus),
+                                      taglineEn: scheme.taglineEn,
+                                      taglineTa: scheme.taglineTa,
+                                      status: (scheme.status || 'active') as any,
+                                      autoAnnounce: true,
+                                      confirm_running_impact: false
+                                    });
+                                    setShowEditSchemeModal(true);
+                                  }}
+                                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleToggleSchemeStatus(scheme)}
+                                  className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer ${
+                                    (scheme.status || 'active') === 'active'
+                                      ? 'border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100'
+                                      : 'border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100'
+                                  }`}
+                                >
+                                  <Power className="w-3.5 h-3.5" />
+                                  <span>{(scheme.status || 'active') === 'active' ? 'Deactivate' : 'Activate'}</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleViewSchemeVersions(scheme)}
+                                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
+                                  title="View Version History"
+                                >
+                                  <History className="w-3.5 h-3.5 text-[#075C32]" />
+                                  <span>Versions</span>
+                                </button>
+                              </div>
+
+                              <button
+                                onClick={() => setSchemePendingDelete(scheme)}
+                                className="px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                                title={scheme.isReferenced ? 'Safely archive referenced scheme' : 'Delete unused scheme'}
+                              >
+                                {scheme.isReferenced ? <Archive className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
+                                <span>{scheme.isReferenced ? 'Archive' : 'Delete'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* TAB 4: MONTHLY PAYMENT MANAGEMENT */}
-                {activeTab === 'payments' && (
+                {activeTab === 'payments' && (() => {
+                  const selectedConfigGroupObj = groups.find((g) => g.id === configGroup);
+                  const selectedConfigMaxMonths = Number(selectedConfigGroupObj?.duration_months) || 20;
+                  return (
                   <div className="space-y-6">
                     {/* Variable Monthly Payment Configuration Form */}
                     <div className="p-5 rounded-2xl bg-white border border-[#075C32]/30 shadow-xs space-y-4">
@@ -1324,28 +1907,37 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                           <label className="block text-[11px] font-bold text-slate-700 mb-1">Target Group *</label>
                           <select
                             value={configGroup}
-                            onChange={(e) => setConfigGroup(e.target.value)}
+                            onChange={(e) => {
+                              const nextGroupId = e.target.value;
+                              setConfigGroup(nextGroupId);
+                              const grpObj = groups.find((g) => g.id === nextGroupId);
+                              const grpMax = Number(grpObj?.duration_months) || 20;
+                              if (configMonth > grpMax) {
+                                setConfigMonth(grpMax);
+                                setConfigMonthLabel(`Month ${grpMax} - ${configYear}`);
+                              }
+                            }}
                             className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-hidden"
                             required
                           >
                             {groups.map((g) => (
-                              <option key={g.id} value={g.id}>{g.name} ({g.id})</option>
+                              <option key={g.id} value={g.id}>{g.name} ({g.id} · {g.duration_months || 20}M)</option>
                             ))}
                           </select>
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">Month Cycle (1-20) *</label>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1">Month Cycle (1-{selectedConfigMaxMonths}) *</label>
                           <select
-                            value={configMonth}
+                            value={Math.min(configMonth, selectedConfigMaxMonths)}
                             onChange={(e) => {
                               const m = Number(e.target.value);
                               setConfigMonth(m);
-                              setConfigMonthLabel(`Month ${m} - 2026`);
+                              setConfigMonthLabel(`Month ${m} - ${configYear}`);
                             }}
                             className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-hidden"
                           >
-                            {Array.from({ length: 20 }, (_, i) => i + 1).map((m) => (
+                            {Array.from({ length: selectedConfigMaxMonths }, (_, i) => i + 1).map((m) => (
                               <option key={m} value={m}>Month {m} (Cycle #{m})</option>
                             ))}
                           </select>
@@ -1582,7 +2174,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                       </div>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
 
                 {/* TAB 5: PAYMENT HISTORY */}
                 {activeTab === 'history' && (
@@ -1652,58 +2245,98 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                 {/* TAB 6: NEWS & ANNOUNCEMENTS */}
                 {activeTab === 'announcements' && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <h4 className="font-bold text-sm text-slate-900">Company News & Notices Management</h4>
                         <p className="text-xs text-slate-500">Publish monthly auction dates, bonus reminders, and office announcements directly to member dashboards.</p>
                       </div>
 
-                      <button
-                        onClick={() => setShowCreateAnnModal(true)}
-                        className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Publish New Announcement</span>
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                        <label className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={showArchivedAnnouncements}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setShowArchivedAnnouncements(checked);
+                              fetchAnnouncements(checked);
+                            }}
+                            className="accent-[#075C32]"
+                          />
+                          <span>Show Archived</span>
+                        </label>
+
+                        <button
+                          onClick={() => setShowCreateAnnModal(true)}
+                          className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Publish New Announcement</span>
+                        </button>
+                      </div>
                     </div>
 
                     {annActionMsg && (
                       <div className={`p-3 rounded-lg text-xs flex items-center gap-2 ${
                         annActionMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
                       }`}>
-                        {annActionMsg.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                        {annActionMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
                         <span>{annActionMsg.text}</span>
                       </div>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {announcements.map((ann) => (
-                        <div key={ann.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
-                                {ann.category}
-                              </span>
-                              <span className="text-[11px] text-slate-400 font-mono">
-                                {new Date(ann.publish_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                              </span>
+                      {announcements.map((ann) => {
+                        const targetDisplay =
+                          ann.target_type === 'group' || (ann.target_group_id && ann.target_group_id !== 'all')
+                            ? `Group: ${ann.target_group_name || ann.target_group_id}`
+                            : ann.target_type === 'scheme'
+                            ? `Scheme: ${ann.target_scheme_name || ann.target_scheme_id}`
+                            : 'All Members';
+                        return (
+                          <div key={ann.id} className={`p-5 rounded-2xl border shadow-xs space-y-3 flex flex-col justify-between ${
+                            ann.is_archived ? 'bg-slate-50 border-slate-300 opacity-80' : 'bg-white border-slate-200'
+                          }`}>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
+                                    {ann.category}
+                                  </span>
+                                  {ann.is_auto_generated && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/20">
+                                      Auto Notice
+                                    </span>
+                                  )}
+                                  {ann.is_archived && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700">
+                                      Archived
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[11px] text-slate-400 font-mono">
+                                  {new Date(ann.publish_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </span>
+                              </div>
+                              <h5 className="font-bold text-base text-slate-900">{ann.title}</h5>
+                              <p className="text-xs text-slate-600 leading-relaxed">{ann.description}</p>
                             </div>
-                            <h5 className="font-bold text-base text-slate-900">{ann.title}</h5>
-                            <p className="text-xs text-slate-600 leading-relaxed">{ann.description}</p>
-                          </div>
 
-                          <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
-                            <span className="text-slate-400 text-[11px]">Target: {ann.target_group_id === 'all' ? 'All Groups' : ann.target_group_id}</span>
-                            <button
-                              onClick={() => handleDeleteAnnouncement(ann.id, ann.title)}
-                              className="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1 cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Delete</span>
-                            </button>
+                            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                              <span className="text-slate-500 text-[11px]">Target: {targetDisplay}</span>
+                              {!ann.is_archived && (
+                                <button
+                                  onClick={() => setAnnPendingDelete(ann)}
+                                  className="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete</span>
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -1854,6 +2487,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                           <option value="1,00,000">₹1,00,000 Scheme</option>
                           <option value="2,00,000">₹2,00,000 Scheme</option>
                           <option value="5,00,000">₹5,00,000 Scheme</option>
+                          <option value="10,00,000">₹10,00,000 Scheme</option>
                         </select>
 
                         <select
@@ -2195,45 +2829,155 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
             <div className="bg-white max-w-sm w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
               <div className="flex items-center justify-between border-b pb-3">
                 <h4 className="font-bold text-base text-slate-900">Reset Member Password</h4>
-                <button onClick={() => setShowPasswordModal(false)} className="p-1 rounded text-slate-400">
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPasswordModalError(null);
+                    setNewPasswordValue('');
+                    setConfirmPasswordValue('');
+                  }}
+                  className="p-1 rounded text-slate-400 hover:text-slate-600"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form onSubmit={handleResetPassword} className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-500 block">Member:</span>
+                  <span className="text-slate-500 block">Member Account:</span>
                   <span className="font-bold text-slate-900 block text-sm">{selectedUser.full_name} ({selectedUser.user_id})</span>
                 </div>
 
+                {passwordModalError && (
+                  <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{passwordModalError}</span>
+                  </div>
+                )}
+
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">New Password (Min 4 chars) *</label>
+                  <label className="font-bold text-slate-700 block mb-1">New Password *</label>
+                  <div className="relative">
+                    <input
+                      type={showResetPasswordText ? 'text' : 'password'}
+                      value={newPasswordValue}
+                      onChange={(e) => {
+                        setNewPasswordValue(e.target.value);
+                        if (passwordModalError) setPasswordModalError(null);
+                      }}
+                      placeholder="Min 6 chars (letters + numbers)"
+                      className="w-full px-3 py-2 pr-9 rounded-lg border border-slate-300 font-mono text-sm"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPasswordText((v) => !v)}
+                      className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"
+                      title={showResetPasswordText ? 'Hide password' : 'Show password'}
+                    >
+                      {showResetPasswordText ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Confirm New Password *</label>
                   <input
-                    type="text"
-                    value={newPasswordValue}
-                    onChange={(e) => setNewPasswordValue(e.target.value)}
-                    placeholder="Enter new password..."
+                    type={showResetPasswordText ? 'text' : 'password'}
+                    value={confirmPasswordValue}
+                    onChange={(e) => {
+                      setConfirmPasswordValue(e.target.value);
+                      if (passwordModalError) setPasswordModalError(null);
+                    }}
+                    placeholder="Re-enter new password..."
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm"
                     required
                   />
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    Min 6 characters, at least 1 letter & 1 number, no spaces. Existing member sessions will be revoked immediately.
+                  </span>
                 </div>
 
                 <div className="pt-3 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setShowPasswordModal(false)}
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      setPasswordModalError(null);
+                      setNewPasswordValue('');
+                      setConfirmPasswordValue('');
+                    }}
                     className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white font-bold"
+                    disabled={resettingPassword}
+                    className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white font-bold disabled:opacity-60"
                   >
-                    Update Password
+                    {resettingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CONFIRM USER DELETION */}
+        {userPendingDelete && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-rose-600" />
+                  <span>Confirm Member Removal</span>
+                </h4>
+                <button onClick={() => setUserPendingDelete(null)} className="p-1 rounded text-slate-400 hover:text-slate-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-xs text-slate-700">
+                <p>
+                  You are removing <strong className="text-slate-900">{userPendingDelete.full_name}</strong>{' '}
+                  (<span className="font-mono font-bold text-[#075C32]">{userPendingDelete.user_id}</span>) from active rosters.
+                </p>
+
+                {userPendingDelete.has_payments || (userPendingDelete.paid_instalments || 0) + (userPendingDelete.unpaid_instalments || 0) > 0 ? (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 leading-relaxed">
+                    <strong>Financial Safeguard Active:</strong> This member has{' '}
+                    {(userPendingDelete.paid_instalments || 0) + (userPendingDelete.unpaid_instalments || 0)} recorded instalment(s).
+                    The account will be <strong>soft-deleted &amp; deactivated</strong> immediately while preserving all payment receipts and audit history.
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 leading-relaxed">
+                    This member has no financial payment records. Confirming will permanently delete this user account and revoke any active login sessions.
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setUserPendingDelete(null)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingUser}
+                  onClick={handleConfirmDeleteUser}
+                  className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold disabled:opacity-60"
+                >
+                  {deletingUser
+                    ? 'Removing...'
+                    : userPendingDelete.has_payments || (userPendingDelete.paid_instalments || 0) + (userPendingDelete.unpaid_instalments || 0) > 0
+                    ? 'Deactivate & Preserve Records'
+                    : 'Permanently Delete'}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -2256,7 +3000,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                     type="text"
                     value={newGroupForm.id}
                     onChange={(e) => setNewGroupForm({ ...newGroupForm, id: e.target.value.toUpperCase() })}
-                    placeholder="e.g. GRP-2L-02"
+                    placeholder="e.g. GRP-10L-01"
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
                     required
                   />
@@ -2268,46 +3012,77 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                     type="text"
                     value={newGroupForm.name}
                     onChange={(e) => setNewGroupForm({ ...newGroupForm, name: e.target.value })}
-                    placeholder="e.g. ₹2 Lakh Scheme - Batch 2026C"
+                    placeholder="e.g. ₹10 Lakh Scheme - Batch 2026"
                     className="w-full px-3 py-2 rounded-lg border border-slate-300"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Scheme Category *</label>
+                  <label className="font-bold text-slate-700 block mb-1">Select Chit Scheme *</label>
                   <select
-                    value={newGroupForm.scheme_name}
+                    value={newGroupForm.scheme_id}
                     onChange={(e) => {
-                      const scheme = e.target.value;
-                      let val = 200000;
-                      if (scheme.includes('1,00,000')) val = 100000;
-                      if (scheme.includes('5,00,000')) val = 500000;
-                      setNewGroupForm({ ...newGroupForm, scheme_name: scheme, chit_value: val });
+                      const pickedId = e.target.value;
+                      const found = schemes.find((s) => s.id === pickedId);
+                      if (found) {
+                        setNewGroupForm({
+                          ...newGroupForm,
+                          scheme_id: found.id,
+                          scheme_name: `${found.chitValueFormatted} Scheme`,
+                          chit_value: found.chitValue,
+                          duration_months: found.durationMonths
+                        });
+                      }
                     }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
                   >
-                    <option value="₹1,00,000 Scheme">₹1,00,000 Scheme (20 Months)</option>
-                    <option value="₹2,00,000 Scheme">₹2,00,000 Scheme (20 Months)</option>
-                    <option value="₹5,00,000 Scheme">₹5,00,000 Scheme (20 Months)</option>
+                    {schemes.filter((s) => (s.status || 'active') !== 'archived').length === 0 ? (
+                      <>
+                        <option value="scheme-1-lakh">₹1,00,000 Scheme (20 Months)</option>
+                        <option value="scheme-2-lakh">₹2,00,000 Scheme (20 Months)</option>
+                        <option value="scheme-5-lakh">₹5,00,000 Scheme (20 Months)</option>
+                        <option value="scheme-10-lakh">₹10,00,000 Scheme (20 Months)</option>
+                      </>
+                    ) : (
+                      schemes
+                        .filter((s) => (s.status || 'active') !== 'archived')
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.chitValueFormatted} — {s.nameEn} ({s.durationMonths}M)
+                          </option>
+                        ))
+                    )}
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <div>
                     <label className="font-bold text-slate-700 block mb-1">Chit Value (₹)</label>
                     <input
                       type="number"
                       value={newGroupForm.chit_value}
-                      disabled
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 font-mono font-bold"
+                      onChange={(e) => setNewGroupForm({ ...newGroupForm, chit_value: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Duration (Months) *</label>
+                    <input
+                      type="number"
+                      min={2}
+                      max={60}
+                      value={newGroupForm.duration_months}
+                      onChange={(e) => setNewGroupForm({ ...newGroupForm, duration_months: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
+                      required
                     />
                   </div>
                   <div>
                     <label className="font-bold text-slate-700 block mb-1">Max Capacity</label>
                     <input
                       type="text"
-                      value="99 Members (Fixed)"
+                      value="99 Members"
                       disabled
                       className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 font-bold text-slate-600"
                     />
@@ -2341,6 +3116,507 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT GROUP */}
+        {showEditGroupModal && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900">Edit Chit Group ({editGroupForm.id})</h4>
+                <button onClick={() => setShowEditGroupModal(false)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleEditGroup} className="space-y-3 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Group Name *</label>
+                  <input
+                    type="text"
+                    value={editGroupForm.name}
+                    onChange={(e) => setEditGroupForm({ ...editGroupForm, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Duration (Months)</label>
+                    <input
+                      type="number"
+                      min={2}
+                      max={60}
+                      value={editGroupForm.duration_months}
+                      onChange={(e) => setEditGroupForm({ ...editGroupForm, duration_months: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Status</label>
+                    <select
+                      value={editGroupForm.status}
+                      onChange={(e) => setEditGroupForm({ ...editGroupForm, status: e.target.value as 'active' | 'inactive' })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={editGroupForm.start_date}
+                    onChange={(e) => setEditGroupForm({ ...editGroupForm, start_date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                    required
+                  />
+                </div>
+
+                <div className="pt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditGroupModal(false)}
+                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white font-bold"
+                  >
+                    Save Group Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CREATE SCHEME */}
+        {showCreateSchemeModal && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4 my-6">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900">Create New Chit Scheme</h4>
+                <button onClick={() => setShowCreateSchemeModal(false)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateScheme} className="space-y-3 text-xs">
+                {schemeModalError && (
+                  <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{schemeModalError}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Scheme Name (English) *</label>
+                    <input
+                      type="text"
+                      value={newSchemeForm.nameEn}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, nameEn: e.target.value })}
+                      placeholder="e.g. ₹3,00,000 Chit Scheme"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Scheme Name (Tamil)</label>
+                    <input
+                      type="text"
+                      value={newSchemeForm.nameTa}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, nameTa: e.target.value })}
+                      placeholder="e.g. ₹3,00,000 சீட்டு திட்டம்"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Chit Value (₹) *</label>
+                    <input
+                      type="number"
+                      min={10000}
+                      value={newSchemeForm.chitValue}
+                      onChange={(e) => {
+                        const v = Number(e.target.value) || 0;
+                        setNewSchemeForm({
+                          ...newSchemeForm,
+                          chitValue: e.target.value,
+                          promptBonus: String(Math.round(v * 0.02)),
+                          lastMonthBonus: String(Math.round(v * 0.004))
+                        });
+                      }}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Scheme Code (Optional)</label>
+                    <input
+                      type="text"
+                      value={newSchemeForm.schemeCode}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, schemeCode: e.target.value.toUpperCase() })}
+                      placeholder="e.g. TSC-3L-15M"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Duration (Months) — Preset or Custom (2–60)</label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {[10, 12, 15, 20, 24].map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setNewSchemeForm({ ...newSchemeForm, durationMonths: d, customDuration: '' })}
+                        className={`px-2.5 py-1 rounded border text-xs font-bold cursor-pointer ${
+                          !newSchemeForm.customDuration && newSchemeForm.durationMonths === d
+                            ? 'bg-[#075C32] text-white border-[#075C32]'
+                            : 'bg-slate-50 text-slate-700 border-slate-300'
+                        }`}
+                      >
+                        {d} Months
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    min={2}
+                    max={60}
+                    value={newSchemeForm.customDuration}
+                    onChange={(e) => setNewSchemeForm({ ...newSchemeForm, customDuration: e.target.value })}
+                    placeholder="Or enter custom months (e.g. 18, 30, 36)"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Prompt Bonus (₹)</label>
+                    <input
+                      type="number"
+                      value={newSchemeForm.promptBonus}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, promptBonus: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Last Month Bonus (₹)</label>
+                    <input
+                      type="number"
+                      value={newSchemeForm.lastMonthBonus}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, lastMonthBonus: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Status</label>
+                    <select
+                      value={newSchemeForm.status}
+                      onChange={(e) => setNewSchemeForm({ ...newSchemeForm, status: e.target.value as any })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-2 pt-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newSchemeForm.autoAnnounce}
+                    onChange={(e) => setNewSchemeForm({ ...newSchemeForm, autoAnnounce: e.target.checked })}
+                    className="accent-[#075C32]"
+                  />
+                  <span className="text-slate-700 font-semibold">
+                    Auto-publish member announcement when scheme is saved active
+                  </span>
+                </label>
+
+                <div className="pt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateSchemeModal(false)}
+                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white font-bold"
+                  >
+                    Create Scheme
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT SCHEME */}
+        {showEditSchemeModal && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white max-w-lg w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4 my-6">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900">Edit Scheme ({editSchemeForm.schemeCode || editSchemeForm.id})</h4>
+                <button onClick={() => setShowEditSchemeModal(false)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleEditScheme} className="space-y-3 text-xs">
+                {schemeModalError && (
+                  <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{schemeModalError}</span>
+                  </div>
+                )}
+
+                {schemeImpactWarning && (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>{schemeImpactWarning}</span>
+                    </div>
+                    <label className="flex items-center gap-2 font-bold cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editSchemeForm.confirm_running_impact}
+                        onChange={(e) => setEditSchemeForm({ ...editSchemeForm, confirm_running_impact: e.target.checked })}
+                        className="accent-[#075C32]"
+                      />
+                      <span>Confirm versioning &amp; preserve historical snapshots for running groups</span>
+                    </label>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Scheme Name (English) *</label>
+                    <input
+                      type="text"
+                      value={editSchemeForm.nameEn}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, nameEn: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Scheme Name (Tamil)</label>
+                    <input
+                      type="text"
+                      value={editSchemeForm.nameTa}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, nameTa: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Chit Value (₹) *</label>
+                    <input
+                      type="number"
+                      min={10000}
+                      value={editSchemeForm.chitValue}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, chitValue: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Status</label>
+                    <select
+                      value={editSchemeForm.status}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, status: e.target.value as any })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Duration (Months) — Preset or Custom (2–60)</label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {[10, 12, 15, 20, 24].map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setEditSchemeForm({ ...editSchemeForm, durationMonths: d, customDuration: '' })}
+                        className={`px-2.5 py-1 rounded border text-xs font-bold cursor-pointer ${
+                          !editSchemeForm.customDuration && editSchemeForm.durationMonths === d
+                            ? 'bg-[#075C32] text-white border-[#075C32]'
+                            : 'bg-slate-50 text-slate-700 border-slate-300'
+                        }`}
+                      >
+                        {d} Months
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    min={2}
+                    max={60}
+                    value={editSchemeForm.customDuration}
+                    onChange={(e) => setEditSchemeForm({ ...editSchemeForm, customDuration: e.target.value })}
+                    placeholder="Or custom months (2–60)"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Prompt Bonus (₹)</label>
+                    <input
+                      type="number"
+                      value={editSchemeForm.promptBonus}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, promptBonus: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Last Month Bonus (₹)</label>
+                    <input
+                      type="number"
+                      value={editSchemeForm.lastMonthBonus}
+                      onChange={(e) => setEditSchemeForm({ ...editSchemeForm, lastMonthBonus: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditSchemeModal(false)}
+                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-[#075C32] hover:bg-[#12834B] text-white font-bold"
+                  >
+                    {schemeImpactWarning ? 'Confirm & Save New Version' : 'Save Scheme Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: SCHEME VERSION HISTORY */}
+        {showSchemeVersionsModal && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white max-w-xl w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[82vh] flex flex-col">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h4 className="font-bold text-base text-slate-900">Scheme Version History</h4>
+                  <span className="text-xs text-slate-500">{selectedSchemeVersionsTitle}</span>
+                </div>
+                <button onClick={() => setShowSchemeVersionsModal(false)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 space-y-2.5 text-xs">
+                {schemeVersions.length === 0 ? (
+                  <p className="text-center py-8 text-slate-400">No historical version snapshots recorded yet.</p>
+                ) : (
+                  schemeVersions.map((ver) => (
+                    <div key={ver.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 rounded bg-[#E5F2E8] text-[#075C32] font-mono font-bold">
+                          v{ver.version}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {new Date(ver.created_at).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="font-bold text-slate-900">
+                        {ver.name_en} — ₹{Number(ver.chit_value).toLocaleString('en-IN')} ({ver.duration_months} Months)
+                      </div>
+                      <div className="text-slate-600">{ver.change_reason || 'Snapshot saved'} · By {ver.created_by}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end border-t">
+                <button
+                  onClick={() => setShowSchemeVersionsModal(false)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-xs font-bold text-slate-700"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CONFIRM SCHEME DELETE / ARCHIVE */}
+        {schemePendingDelete && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <span>{schemePendingDelete.isReferenced ? 'Confirm Scheme Archival' : 'Confirm Scheme Deletion'}</span>
+                </h4>
+                <button onClick={() => setSchemePendingDelete(null)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-700 space-y-2">
+                <p>
+                  Selected scheme: <strong className="text-slate-900">{schemePendingDelete.nameEn}</strong>
+                </p>
+                {schemePendingDelete.isReferenced ? (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+                    This scheme is referenced by existing chit groups. To protect financial records, it will be safely <strong>archived</strong> instead of permanently deleted.
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900">
+                    This scheme has no linked groups and will be permanently deleted.
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setSchemePendingDelete(null)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteScheme}
+                  className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold"
+                >
+                  {schemePendingDelete.isReferenced ? 'Archive Scheme' : 'Delete Scheme'}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -2456,24 +3732,63 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                       <option value="Auction Date">Auction Date</option>
                       <option value="Payment Notice">Payment Notice</option>
                       <option value="Bonus Update">Bonus Update</option>
+                      <option value="Scheme Update">Scheme Update</option>
+                      <option value="Group Update">Group Update</option>
                       <option value="Important">Important</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Target Group</label>
+                    <label className="font-bold text-slate-700 block mb-1">Target Audience</label>
+                    <select
+                      value={newAnnForm.target_type}
+                      onChange={(e) => {
+                        const tt = e.target.value as 'all' | 'group' | 'scheme';
+                        setNewAnnForm({
+                          ...newAnnForm,
+                          target_type: tt,
+                          target_group_id: tt === 'group' ? (groups[0]?.id || 'all') : 'all',
+                          target_scheme_id: tt === 'scheme' ? (schemes[0]?.id || '') : ''
+                        });
+                      }}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                    >
+                      <option value="all">All Members</option>
+                      <option value="group">Specific Group</option>
+                      <option value="scheme">Specific Scheme</option>
+                    </select>
+                  </div>
+                </div>
+
+                {newAnnForm.target_type === 'group' && (
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Select Target Group</label>
                     <select
                       value={newAnnForm.target_group_id}
                       onChange={(e) => setNewAnnForm({ ...newAnnForm, target_group_id: e.target.value })}
                       className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
                     >
-                      <option value="all">All Groups</option>
                       {groups.map((g) => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
+                        <option key={g.id} value={g.id}>{g.name} ({g.id})</option>
                       ))}
                     </select>
                   </div>
-                </div>
+                )}
+
+                {newAnnForm.target_type === 'scheme' && (
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Select Target Scheme</label>
+                    <select
+                      value={newAnnForm.target_scheme_id}
+                      onChange={(e) => setNewAnnForm({ ...newAnnForm, target_scheme_id: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                    >
+                      {schemes.map((s) => (
+                        <option key={s.id} value={s.id}>{s.nameEn}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">Publication Date *</label>
@@ -2502,6 +3817,50 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CONFIRM ANNOUNCEMENT DELETE / ARCHIVE */}
+        {annPendingDelete && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+            <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <h4 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-rose-600" />
+                  <span>Confirm Notice Removal</span>
+                </h4>
+                <button onClick={() => setAnnPendingDelete(null)} className="p-1 rounded text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-700 space-y-2">
+                <p>
+                  Remove announcement: <strong className="text-slate-900">&ldquo;{annPendingDelete.title}&rdquo;</strong>
+                </p>
+                <p className="text-slate-500">
+                  Historical (&gt;7 days) or auto-generated notices are archived safely and immediately hidden from all member portals; recent manual notices are deleted cleanly.
+                </p>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setAnnPendingDelete(null)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingAnn}
+                  onClick={handleConfirmDeleteAnnouncement}
+                  className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold disabled:opacity-60"
+                >
+                  {deletingAnn ? 'Removing...' : 'Confirm Remove'}
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -79,7 +79,7 @@ export const SchemeModal: React.FC<SchemeModalProps> = ({
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#12834B]" />
-              <span>{lang === 'ta' ? 'மாதாந்திர தவணை மற்றும் தொகை அட்டவணை' : '20-Month Schedule Table'}</span>
+              <span>{lang === 'ta' ? `${scheme.durationMonths} மாத தவணை மற்றும் தொகை அட்டவணை` : `${scheme.durationMonths}-Month Schedule Table`}</span>
             </h4>
 
             <button
@@ -124,7 +124,7 @@ export const SchemeModal: React.FC<SchemeModalProps> = ({
                     {scheme.schedule.map((row) => (
                       <tr 
                         key={row.month} 
-                        className={row.month === 1 || row.month === 20 ? 'bg-emerald-50/50 font-semibold' : 'hover:bg-slate-50'}
+                        className={row.month === 1 || row.month === scheme.durationMonths ? 'bg-emerald-50/50 font-semibold' : 'hover:bg-slate-50'}
                       >
                         <td className="py-2 px-4 text-center font-bold text-slate-700">
                           {row.month}
@@ -137,8 +137,8 @@ export const SchemeModal: React.FC<SchemeModalProps> = ({
                         </td>
                         <td className="py-2 px-4 text-left text-[11px] font-sans text-slate-500 hidden sm:table-cell">
                           {row.month === 1 && (lang === 'ta' ? 'முதல் மாத ஆரம்பம்' : 'Initial Month')}
-                          {row.month === 20 && (lang === 'ta' ? 'முடிவு & சிறப்பு போனஸ்' : 'Final Month + Bonus')}
-                          {row.month > 1 && row.month < 20 && (lang === 'ta' ? '11-ல் குலுக்கல் / 25-ல் வழங்கல்' : '11th Draw / 25th Payout')}
+                          {row.month === scheme.durationMonths && (lang === 'ta' ? 'முடிவு & சிறப்பு போனஸ்' : 'Final Month + Bonus')}
+                          {row.month > 1 && row.month < scheme.durationMonths && (lang === 'ta' ? '11-ல் குலுக்கல் / 25-ல் வழங்கல்' : '11th Draw / 25th Payout')}
                         </td>
                       </tr>
                     ))}
@@ -151,7 +151,7 @@ export const SchemeModal: React.FC<SchemeModalProps> = ({
                         —
                       </td>
                       <td className="py-2.5 px-4 text-left text-[11px] font-sans text-slate-600 hidden sm:table-cell">
-                        {lang === 'ta' ? '20 மாதங்களின் மொத்த தவணை' : 'Sum of 20 instalments'}
+                        {lang === 'ta' ? `${scheme.durationMonths} மாதங்களின் மொத்த தவணை` : `Sum of ${scheme.durationMonths} instalments`}
                       </td>
                     </tr>
                   </tbody>
@@ -194,7 +194,7 @@ export const SchemeModal: React.FC<SchemeModalProps> = ({
           <button
             onClick={() => {
               onClose();
-              onEnquireThisScheme(scheme.nameEn);
+              onEnquireThisScheme(`${scheme.chitValueFormatted} Scheme`);
             }}
             className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-sm transition-all flex items-center gap-1.5"
           >

@@ -14,8 +14,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
 const isProd = process.env.NODE_ENV === 'production';
+const PORT = !isProd ? 3000 : parseInt(process.env.PORT || '3000', 10);
 
 app.use(express.json());
 
@@ -87,7 +87,8 @@ function updateLocalEnquiryStatus(id: string, status: string): boolean {
   return false;
 }
 
-// Additional Persistent JSON Storage Files
+const SCHEMES_FILE = path.join(DATA_DIR, 'schemes.json');
+const SCHEME_VERSIONS_FILE = path.join(DATA_DIR, 'scheme_versions.json');
 const GROUPS_FILE = path.join(DATA_DIR, 'groups.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PAYMENT_CONFIGS_FILE = path.join(DATA_DIR, 'payment_configs.json');
@@ -95,14 +96,40 @@ const PAYMENTS_FILE = path.join(DATA_DIR, 'payments.json');
 const ANNOUNCEMENTS_FILE = path.join(DATA_DIR, 'announcements.json');
 const AUDIT_LOGS_FILE = path.join(DATA_DIR, 'audit_logs.json');
 
-// Security & Password Hashing
+// Security & Password Hashing (scrypt + backwards compatibility for legacy SHA-256 hashes)
 function hashPassword(password: string): string {
-  const salt = 'teamstars_chit_salt_2025';
-  return crypto.createHash('sha256').update(password + salt).digest('hex');
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt:${salt}:${derived}`;
 }
 
-function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
+function verifyPassword(password: string, storedHash: string): boolean {
+  if (!storedHash || typeof password !== 'string') return false;
+  if (storedHash.startsWith('scrypt:')) {
+    const parts = storedHash.split(':');
+    if (parts.length !== 3) return false;
+    const [, salt, hex] = parts;
+    const derived = crypto.scryptSync(password, salt, 64);
+    const storedBuf = Buffer.from(hex, 'hex');
+    if (derived.length !== storedBuf.length) return false;
+    return crypto.timingSafeEqual(derived, storedBuf);
+  }
+  const legacySalt = 'teamstars_chit_salt_2025';
+  const legacyHash = crypto.createHash('sha256').update(password + legacySalt).digest('hex');
+  return legacyHash === storedHash;
+}
+
+function validateStrongPassword(password: string): string | null {
+  if (typeof password !== 'string' || password.length < 6) {
+    return 'Password must be at least 6 characters long.';
+  }
+  if (/\s/.test(password)) {
+    return 'Password must not contain spaces.';
+  }
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    return 'Password must include at least one letter and one number.';
+  }
+  return null;
 }
 
 // User In-Memory Sessions
@@ -117,6 +144,17 @@ function generateUserToken(userId: string): string {
   return token;
 }
 
+function revokeUserSessions(userId: string): number {
+  let removed = 0;
+  for (const [tok, sess] of userSessions.entries()) {
+    if (sess.userId.toLowerCase() === userId.toLowerCase()) {
+      userSessions.delete(tok);
+      removed++;
+    }
+  }
+  return removed;
+}
+
 function getAuthenticatedUser(req: Request): any | null {
   const authHeader = req.headers.authorization;
   if (!authHeader) return null;
@@ -128,7 +166,275 @@ function getAuthenticatedUser(req: Request): any | null {
     return null;
   }
   const users = getLocalUsers();
-  return users.find((u: any) => u.user_id === session.userId && u.status === 'active') || null;
+  return users.find((u: any) => u.user_id === session.userId && u.status === 'active' && !u.is_deleted) || null;
+}
+
+// 0. Schemes & Version History Storage & Seeding
+function buildProportionalSchedule(chitValue: number, durationMonths: number) {
+  const safeMonths = Math.max(2, Math.min(60, Math.round(durationMonths) || 20));
+  const baseInstalment = Math.round(chitValue / safeMonths);
+  const schedule = [];
+  for (let m = 1; m <= safeMonths; m++) {
+    const progress = safeMonths > 1 ? (m - 1) / (safeMonths - 1) : 1;
+    const factor = m === 1 || m === safeMonths ? 1 : 0.83 + 0.17 * progress;
+    const instalment = Math.round((baseInstalment * factor) / 10) * 10;
+    const prizeFactor = m === 1 || m === safeMonths ? 0.95 : 0.78 + 0.17 * progress;
+    const chitAmount = Math.round((chitValue * prizeFactor) / 100) * 100;
+    schedule.push({ month: m, instalment, chitAmount });
+  }
+  const totalInstalmentsPaid = schedule.reduce((acc, r) => acc + r.instalment, 0);
+  const minInstalment = Math.min(...schedule.map((r) => r.instalment));
+  const maxInstalment = Math.max(...schedule.map((r) => r.instalment));
+  const dividendBenefit = Math.max(0, chitValue - totalInstalmentsPaid);
+  return {
+    schedule,
+    firstMonthInstalment: schedule[0]?.instalment || baseInstalment,
+    minInstalment,
+    maxInstalment,
+    totalInstalmentsPaid,
+    dividendBenefit
+  };
+}
+
+function formatInr(amount: number): string {
+  return `₹${Number(amount || 0).toLocaleString('en-IN')}`;
+}
+
+function getDefaultRulesEn(promptBonus: number, lastMonthBonus: number, durationMonths: number) {
+  return [
+    'Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.',
+    'Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.',
+    'Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).',
+    'Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.',
+    'Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.',
+    'Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.',
+    'Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.',
+    `Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ${formatInr(promptBonus)} at chit conclusion.`,
+    `Last Month Special Benefit: For the member taking the chit in the final (${durationMonths}th) month, if all previous monthly instalments were paid on time, an additional ${formatInr(lastMonthBonus)} is given (Total: ${formatInr(promptBonus)} + ${formatInr(lastMonthBonus)} = ${formatInr(promptBonus + lastMonthBonus)}).`
+  ];
+}
+
+function getDefaultRulesTa(promptBonus: number, lastMonthBonus: number) {
+  return [
+    'தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம்.',
+    'தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.',
+    'குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.',
+    'தொகை வழங்குதல்: தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் தொகை வழங்கப்படும்.',
+    'உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 உத்தரவாத கையொப்பம், 2 வெற்று காசோலைகள் மற்றும் KYC ஆவணங்களை வழங்க வேண்டும்.',
+    'பணம் வழங்கும் முறை: தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாக வழங்கப்படும்.',
+    'அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவன விதிமுறைகளை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.',
+    `சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ${formatInr(promptBonus)} வழங்கப்படும்.`,
+    `கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ${formatInr(lastMonthBonus)} வழங்கப்படும் (மொத்தம்: ${formatInr(promptBonus + lastMonthBonus)}).`
+  ];
+}
+
+function getLocalSchemes(): any[] {
+  try {
+    if (!fs.existsSync(SCHEMES_FILE)) return [];
+    return JSON.parse(fs.readFileSync(SCHEMES_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalSchemes(schemes: any[]): void {
+  fs.writeFileSync(SCHEMES_FILE, JSON.stringify(schemes, null, 2));
+}
+
+function getLocalSchemeVersions(): any[] {
+  try {
+    if (!fs.existsSync(SCHEME_VERSIONS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(SCHEME_VERSIONS_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalSchemeVersions(versions: any[]): void {
+  fs.writeFileSync(SCHEME_VERSIONS_FILE, JSON.stringify(versions, null, 2));
+}
+
+function recordSchemeVersion(scheme: any, changeReason: string, createdBy: string = 'Admin') {
+  const versions = getLocalSchemeVersions();
+  versions.unshift({
+    id: `schv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    scheme_id: scheme.id,
+    version: scheme.version || 1,
+    name_en: scheme.nameEn,
+    chit_value: scheme.chitValue,
+    duration_months: scheme.durationMonths,
+    available_durations: scheme.availableDurations || [scheme.durationMonths],
+    snapshot_data: scheme,
+    change_reason: changeReason,
+    created_by: createdBy,
+    created_at: new Date().toISOString()
+  });
+  saveLocalSchemeVersions(versions);
+}
+
+if (!fs.existsSync(SCHEMES_FILE)) {
+  const now = new Date().toISOString();
+  const base1L = {
+    id: 'scheme-1-lakh',
+    schemeCode: 'TSC-1L-20M',
+    nameEn: '₹1,00,000 Chit Scheme',
+    nameTa: '₹1,00,000 சீட்டு திட்டம் (1 லக்)',
+    chitValue: 100000,
+    chitValueFormatted: '₹1,00,000',
+    chitValueFormattedTa: '₹1,00,000',
+    durationMonths: 20,
+    availableDurations: [20],
+    firstMonthInstalment: 5000,
+    minInstalment: 4150,
+    maxInstalment: 5000,
+    totalInstalmentsPaid: 90375,
+    dividendBenefit: 9625,
+    promptBonus: 2000,
+    lastMonthBonus: 400,
+    totalBonus: 2400,
+    taglineEn: 'Ideal for disciplined individual savings, household planning, and festival preparedness.',
+    taglineTa: 'தனிநபர் சேமிப்பு, குடும்ப திட்டமிடல் மற்றும் திருவிழா செலவுகளுக்கு ஏற்ற சிறந்த திட்டம்.',
+    documentImage: '/images/1-lakh-scheme.jpeg',
+    status: 'active',
+    version: 1,
+    rulesEn: getDefaultRulesEn(2000, 400, 20),
+    rulesTa: getDefaultRulesTa(2000, 400),
+    schedule: [
+      { month: 1, instalment: 5000, chitAmount: 95000 },
+      { month: 2, instalment: 4150, chitAmount: 78000 },
+      { month: 3, instalment: 4170, chitAmount: 78400 },
+      { month: 4, instalment: 4200, chitAmount: 79000 },
+      { month: 5, instalment: 4220, chitAmount: 79400 },
+      { month: 6, instalment: 4250, chitAmount: 80000 },
+      { month: 7, instalment: 4280, chitAmount: 80600 },
+      { month: 8, instalment: 4310, chitAmount: 81200 },
+      { month: 9, instalment: 4350, chitAmount: 82000 },
+      { month: 10, instalment: 4400, chitAmount: 83000 },
+      { month: 11, instalment: 4420, chitAmount: 83400 },
+      { month: 12, instalment: 4450, chitAmount: 84000 },
+      { month: 13, instalment: 4500, chitAmount: 85000 },
+      { month: 14, instalment: 4575, chitAmount: 86500 },
+      { month: 15, instalment: 4650, chitAmount: 88000 },
+      { month: 16, instalment: 4750, chitAmount: 90000 },
+      { month: 17, instalment: 4850, chitAmount: 92000 },
+      { month: 18, instalment: 4900, chitAmount: 93000 },
+      { month: 19, instalment: 4950, chitAmount: 94000 },
+      { month: 20, instalment: 5000, chitAmount: 95000 }
+    ],
+    createdAt: now,
+    updatedAt: now
+  };
+  const scaleScheme = (base: any, mult: number, id: string, code: string, nameEn: string, nameTa: string, taglineEn: string, taglineTa: string, img: string) => ({
+    ...base,
+    id,
+    schemeCode: code,
+    nameEn,
+    nameTa,
+    chitValue: base.chitValue * mult,
+    chitValueFormatted: formatInr(base.chitValue * mult),
+    chitValueFormattedTa: formatInr(base.chitValue * mult),
+    firstMonthInstalment: base.firstMonthInstalment * mult,
+    minInstalment: base.minInstalment * mult,
+    maxInstalment: base.maxInstalment * mult,
+    totalInstalmentsPaid: base.totalInstalmentsPaid * mult,
+    dividendBenefit: base.dividendBenefit * mult,
+    promptBonus: base.promptBonus * mult,
+    lastMonthBonus: base.lastMonthBonus * mult,
+    totalBonus: base.totalBonus * mult,
+    taglineEn,
+    taglineTa,
+    documentImage: img,
+    rulesEn: getDefaultRulesEn(base.promptBonus * mult, base.lastMonthBonus * mult, 20),
+    rulesTa: getDefaultRulesTa(base.promptBonus * mult, base.lastMonthBonus * mult),
+    schedule: base.schedule.map((r: any) => ({
+      month: r.month,
+      instalment: r.instalment * mult,
+      chitAmount: r.chitAmount * mult
+    }))
+  });
+  const seededSchemes = [
+    base1L,
+    scaleScheme(
+      base1L,
+      2,
+      'scheme-2-lakh',
+      'TSC-2L-20M',
+      '₹2,00,000 Chit Scheme',
+      '₹2,00,000 சீட்டு திட்டம் (2 லக்)',
+      'Our most popular scheme for family milestones, medical contingencies, and education funds.',
+      'குடும்ப நிகழ்வுகள், கல்விச் செலவுகள் மற்றும் அவசர நிதிக்கான வாடிக்கையாளர்களின் விருப்பத் திட்டம்.',
+      '/images/2-lakh-scheme.jpeg'
+    ),
+    scaleScheme(
+      base1L,
+      5,
+      'scheme-5-lakh',
+      'TSC-5L-20M',
+      '₹5,00,000 Chit Scheme',
+      '₹5,00,000 சீட்டு திட்டம் (5 லக்)',
+      'High-value scheme engineered for small business working capital, asset purchase, and property development.',
+      'சிறு தொழில் மூலதனம், சொத்து உருவாக்கம் மற்றும் வணிக விரிவாக்கத்திற்கான பிரீமியம் திட்டம்.',
+      '/images/5-lakh-scheme.jpeg'
+    ),
+    scaleScheme(
+      base1L,
+      10,
+      'scheme-10-lakh',
+      'TSC-10L-20M',
+      '₹10,00,000 Chit Scheme',
+      '₹10,00,000 சீட்டு திட்டம் (10 லக்)',
+      'Enterprise-scale 20-month chit plan built for commercial expansion, real estate milestones, and major capital needs.',
+      'பெரிய வணிக விரிவாக்கம், சொத்து வாங்குதல் மற்றும் பெருந்தொகை மூலதனத் தேவைகளுக்கான 20 மாத பிரத்யேக திட்டம்.',
+      '/images/5-lakh-scheme.jpeg'
+    )
+  ];
+  saveLocalSchemes(seededSchemes);
+  if (!fs.existsSync(SCHEME_VERSIONS_FILE)) {
+    seededSchemes.forEach((s) => recordSchemeVersion(s, 'Initial seeded scheme', 'System'));
+  }
+} else {
+  // Non-destructive upgrade: ensure ₹10,00,000 scheme exists if not already present
+  const existingSchemes = getLocalSchemes();
+  if (!existingSchemes.some((s: any) => s.id === 'scheme-10-lakh' || Number(s.chitValue) === 1000000)) {
+    const base1L = existingSchemes.find((s: any) => s.id === 'scheme-1-lakh');
+    const now = new Date().toISOString();
+    const tenLakh = {
+      id: 'scheme-10-lakh',
+      schemeCode: 'TSC-10L-20M',
+      nameEn: '₹10,00,000 Chit Scheme',
+      nameTa: '₹10,00,000 சீட்டு திட்டம் (10 லக்)',
+      chitValue: 1000000,
+      chitValueFormatted: '₹10,00,000',
+      chitValueFormattedTa: '₹10,00,000',
+      durationMonths: 20,
+      availableDurations: [20],
+      firstMonthInstalment: 50000,
+      minInstalment: 41500,
+      maxInstalment: 50000,
+      totalInstalmentsPaid: 903750,
+      dividendBenefit: 96250,
+      promptBonus: 20000,
+      lastMonthBonus: 4000,
+      totalBonus: 24000,
+      taglineEn: 'Enterprise-scale 20-month chit plan built for commercial expansion, real estate milestones, and major capital needs.',
+      taglineTa: 'பெரிய வணிக விரிவாக்கம், சொத்து வாங்குதல் மற்றும் பெருந்தொகை மூலதனத் தேவைகளுக்கான 20 மாத பிரத்யேக திட்டம்.',
+      documentImage: '/images/5-lakh-scheme.jpeg',
+      status: 'active',
+      version: 1,
+      rulesEn: getDefaultRulesEn(20000, 4000, 20),
+      rulesTa: getDefaultRulesTa(20000, 4000),
+      schedule: (base1L?.schedule || buildProportionalSchedule(100000, 20).schedule).map((r: any) => ({
+        month: r.month,
+        instalment: r.instalment * 10,
+        chitAmount: r.chitAmount * 10
+      })),
+      createdAt: now,
+      updatedAt: now
+    };
+    existingSchemes.push(tenLakh);
+    saveLocalSchemes(existingSchemes);
+    recordSchemeVersion(tenLakh, 'Added default ₹10,00,000 scheme', 'System');
+  }
 }
 
 // 1. Groups Storage & Seeding
@@ -465,16 +771,72 @@ if (!fs.existsSync(AUDIT_LOGS_FILE)) {
 }
 
 
+// Helper: Automatic Announcement Engine (triggered ONLY after confirmed DB/file save, with deduplication)
+function createAutoAnnouncement(params: {
+  title: string;
+  description: string;
+  category: 'Scheme Update' | 'Group Update' | 'Payment Notice' | 'Important' | 'General';
+  target_type: 'all' | 'group' | 'scheme';
+  target_group_id?: string;
+  target_group_name?: string;
+  target_scheme_id?: string;
+  target_scheme_name?: string;
+  source_event_key: string;
+}) {
+  const announcements = getLocalAnnouncements();
+  const cutoff = Date.now() - 5 * 60 * 1000;
+  const duplicate = announcements.find(
+    (a: any) =>
+      !a.is_archived &&
+      a.source_event_key === params.source_event_key &&
+      new Date(a.created_at).getTime() >= cutoff
+  );
+  if (duplicate) return null;
+
+  const newAnn = {
+    id: `ann-auto-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    title: params.title,
+    description: params.description,
+    category: params.category,
+    target_type: params.target_type,
+    target_group_id: params.target_group_id || (params.target_type === 'all' ? 'all' : undefined),
+    target_group_name: params.target_group_name,
+    target_scheme_id: params.target_scheme_id,
+    target_scheme_name: params.target_scheme_name,
+    is_auto_generated: true,
+    source_event_key: params.source_event_key,
+    is_published: true,
+    is_archived: false,
+    publish_date: new Date().toISOString().split('T')[0],
+    created_by: 'System Automation',
+    created_at: new Date().toISOString()
+  };
+
+  announcements.unshift(newAnn);
+  saveLocalAnnouncements(announcements);
+  return newAnn;
+}
+
 // Supabase Client initialization
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+const supabaseKey =
+  process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_KEY;
+const supabaseKeyMode = process.env.SUPABASE_SECRET_KEY
+  ? 'secret'
+  : process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? 'service_role'
+  : process.env.SUPABASE_KEY
+  ? 'key'
+  : 'none';
 const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project'));
 
 let supabase: ReturnType<typeof createClient> | null = null;
 if (isSupabaseConfigured) {
   try {
     supabase = createClient(supabaseUrl!, supabaseKey!);
-    console.log('[Supabase] Client initialized successfully.');
+    console.log(`[Supabase] Client initialized (${supabaseKeyMode} key).`);
   } catch (err) {
     console.warn('[Supabase] Initialization failed:', err);
   }
@@ -502,13 +864,32 @@ function isValidAdminAuth(req: Request): boolean {
 
 // ======================== API ROUTES ========================
 
+// Public: Active Chit Schemes
+app.get('/api/schemes', (_req: Request, res: Response) => {
+  const schemes = getLocalSchemes()
+    .filter((s: any) => (s.status || 'active') === 'active')
+    .sort((a: any, b: any) => Number(a.chitValue) - Number(b.chitValue));
+  res.json({ schemes });
+});
+
 // Health & System status endpoint
-app.get('/api/system/status', (_req: Request, res: Response) => {
+app.get('/api/system/status', async (_req: Request, res: Response) => {
   const localEnquiries = getLocalEnquiries();
+  let supabaseConnected = false;
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('enquiries').select('id', { count: 'exact', head: true });
+      supabaseConnected = !error;
+    } catch {
+      supabaseConnected = false;
+    }
+  }
   res.json({
     company: "TEAM STARS CHITS PRIVATE LIMITED",
     cin: "U64990TN2025PTC181717",
     supabaseConfigured: isSupabaseConfigured,
+    supabaseConnected,
+    supabaseKeyMode,
     resendConfigured: isResendConfigured,
     notificationEmail: NOTIFICATION_EMAIL,
     totalEnquiries: localEnquiries.length,
@@ -851,8 +1232,8 @@ app.post('/api/user/login', (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid User ID or password.' });
     }
 
-    if (user.status !== 'active') {
-      return res.status(403).json({ error: 'This account has been deactivated. Please contact the administrator.' });
+    if (user.is_deleted || user.status !== 'active') {
+      return res.status(403).json({ error: 'This account has been deactivated or removed. Please contact the administrator.' });
     }
 
     if (!verifyPassword(password, user.password_hash)) {
@@ -862,12 +1243,21 @@ app.post('/api/user/login', (req: Request, res: Response) => {
     const token = generateUserToken(user.user_id);
     recordAuditLog('USER_LOGIN', `Member logged in: ${user.user_id} (${user.full_name})`, user.user_id, user.id);
 
+    const groups = getLocalGroups();
+    const group = groups.find((g: any) => g.id === user.group_id);
+
     // Return sanitized user profile (without password_hash)
     const { password_hash, ...safeUser } = user;
     return res.json({
       success: true,
       token,
-      user: safeUser,
+      user: {
+        ...safeUser,
+        group_name: group?.name || user.group_name || 'Assigned Group',
+        scheme_name: group?.scheme_name || 'Chit Scheme',
+        chit_value: group?.chit_value || 0,
+        duration_months: group?.duration_months || 20
+      },
       message: `Welcome, ${user.full_name}!`
     });
   } catch (err) {
@@ -892,7 +1282,8 @@ app.get('/api/user/profile', (req: Request, res: Response) => {
       ...safeUser,
       group_name: group?.name || authUser.group_name || 'Assigned Group',
       scheme_name: group?.scheme_name || 'Chit Scheme',
-      chit_value: group?.chit_value || 0
+      chit_value: group?.chit_value || 0,
+      duration_months: group?.duration_months || 20
     }
   });
 });
@@ -933,19 +1324,30 @@ app.get('/api/user/payments', (req: Request, res: Response) => {
   });
 });
 
-// Member Announcements (Read-only)
+// Member Announcements (Read-only, filtered strictly by non-archived, published, and audience targeting)
 app.get('/api/user/announcements', (req: Request, res: Response) => {
   const authUser = getAuthenticatedUser(req);
   if (!authUser) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
+  const groups = getLocalGroups();
+  const userGroup = groups.find((g: any) => g.id === authUser.group_id);
   const announcements = getLocalAnnouncements();
-  const published = announcements.filter((a: any) => 
-    a.is_published && (a.target_group_id === 'all' || a.target_group_id === authUser.group_id)
-  );
 
-  published.sort((a: any, b: any) => new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime());
+  const published = announcements.filter((a: any) => {
+    if (!a.is_published || a.is_archived) return false;
+    const tType = a.target_type || (a.target_group_id === 'all' || !a.target_group_id ? 'all' : 'group');
+    if (tType === 'all' || a.target_group_id === 'all') return true;
+    if (tType === 'group' && a.target_group_id === authUser.group_id) return true;
+    if (tType === 'scheme' && userGroup) {
+      if (a.target_scheme_id && userGroup.scheme_id && a.target_scheme_id === userGroup.scheme_id) return true;
+      if (a.target_scheme_name && userGroup.scheme_name && a.target_scheme_name === userGroup.scheme_name) return true;
+    }
+    return false;
+  });
+
+  published.sort((a: any, b: any) => new Date(b.created_at || b.publish_date).getTime() - new Date(a.created_at || a.publish_date).getTime());
   return res.json({ announcements: published });
 });
 
@@ -966,13 +1368,15 @@ app.get('/api/admin/overview', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
-  const users = getLocalUsers();
+  const users = getLocalUsers().filter((u: any) => !u.is_deleted);
   const groups = getLocalGroups();
+  const schemes = getLocalSchemes();
   const payments = getLocalPayments();
   const auditLogs = getLocalAuditLogs();
 
   const totalUsers = users.length;
   const totalGroups = groups.length;
+  const totalSchemes = schemes.filter((s: any) => (s.status || 'active') === 'active').length;
 
   const paidPayments = payments.filter((p: any) => p.payment_status === 'PAID');
   const unpaidPayments = payments.filter((p: any) => p.payment_status === 'UNPAID');
@@ -992,6 +1396,7 @@ app.get('/api/admin/overview', (req: Request, res: Response) => {
       groupName: g.name,
       schemeName: g.scheme_name,
       chitValue: g.chit_value,
+      durationMonths: g.duration_months || 20,
       memberCount: groupUsers.length,
       maxMembers: g.max_members || 99,
       paidCount: groupPaid.length,
@@ -1005,6 +1410,7 @@ app.get('/api/admin/overview', (req: Request, res: Response) => {
   return res.json({
     totalUsers,
     totalGroups,
+    totalSchemes,
     totalPaidCount: paidPayments.length,
     totalUnpaidCount: unpaidPayments.length,
     totalCashCollected,
@@ -1079,6 +1485,297 @@ app.get('/api/admin/audit-logs', (req: Request, res: Response) => {
   return res.json({ logs: getLocalAuditLogs() });
 });
 
+// ======================== ADMIN SCHEME MANAGEMENT & VERSIONING ========================
+
+app.get('/api/admin/schemes', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const schemes = getLocalSchemes();
+  const groups = getLocalGroups();
+  const versions = getLocalSchemeVersions();
+
+  const enriched = schemes.map((s: any) => {
+    const refGroups = groups.filter((g: any) => g.scheme_id === s.id || Number(g.chit_value) === Number(s.chitValue));
+    const runningGroups = refGroups.filter((g: any) => g.status === 'active');
+    return {
+      ...s,
+      runningGroupsCount: runningGroups.length,
+      isReferenced: refGroups.length > 0
+    };
+  });
+
+  return res.json({ schemes: enriched, versions });
+});
+
+app.get('/api/admin/schemes/:id/versions', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const { id } = req.params;
+  const versions = getLocalSchemeVersions().filter((v: any) => v.scheme_id === id);
+  return res.json({ versions });
+});
+
+app.post('/api/admin/schemes', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const {
+    schemeCode,
+    nameEn,
+    nameTa,
+    chitValue,
+    durationMonths = 20,
+    availableDurations,
+    promptBonus,
+    lastMonthBonus,
+    taglineEn,
+    taglineTa,
+    status = 'active',
+    startDate,
+    autoAnnounce = true
+  } = req.body;
+
+  const numValue = Number(chitValue);
+  const numDuration = Number(durationMonths);
+  if (!nameEn || !numValue || numValue < 10000) {
+    return res.status(400).json({ error: 'Please provide Scheme Name and a valid Chit Value (min ₹10,000).' });
+  }
+  if (!numDuration || numDuration < 2 || numDuration > 60) {
+    return res.status(400).json({ error: 'Duration must be between 2 and 60 months.' });
+  }
+
+  const schemes = getLocalSchemes();
+  const cleanCode = (schemeCode || `TSC-${Math.round(numValue / 1000)}K-${numDuration}M`).trim().toUpperCase();
+  const slugId = `scheme-${Date.now()}-${Math.round(numValue / 1000)}k`;
+
+  const calc = buildProportionalSchedule(numValue, numDuration);
+  const pBonus = promptBonus !== undefined ? Number(promptBonus) : Math.round(numValue * 0.02);
+  const lBonus = lastMonthBonus !== undefined ? Number(lastMonthBonus) : Math.round(numValue * 0.004);
+  const durationsArr = Array.isArray(availableDurations) && availableDurations.length > 0
+    ? availableDurations.map((d: any) => Number(d)).filter((d: number) => d >= 2 && d <= 60)
+    : [numDuration];
+  if (!durationsArr.includes(numDuration)) durationsArr.unshift(numDuration);
+
+  const now = new Date().toISOString();
+  const newScheme = {
+    id: slugId,
+    schemeCode: cleanCode,
+    nameEn: nameEn.trim(),
+    nameTa: (nameTa || `${formatInr(numValue)} சீட்டு திட்டம்`).trim(),
+    chitValue: numValue,
+    chitValueFormatted: formatInr(numValue),
+    chitValueFormattedTa: formatInr(numValue),
+    durationMonths: numDuration,
+    availableDurations: durationsArr,
+    firstMonthInstalment: calc.firstMonthInstalment,
+    minInstalment: calc.minInstalment,
+    maxInstalment: calc.maxInstalment,
+    totalInstalmentsPaid: calc.totalInstalmentsPaid,
+    dividendBenefit: calc.dividendBenefit,
+    promptBonus: pBonus,
+    lastMonthBonus: lBonus,
+    totalBonus: pBonus + lBonus,
+    taglineEn: (taglineEn || `Structured ${numDuration}-month ${formatInr(numValue)} chit scheme with transparent monthly auctions and timely bonus.`).trim(),
+    taglineTa: (taglineTa || `${numDuration} மாத கால ${formatInr(numValue)} சீட்டு திட்டம் — வெளிப்படையான குலுக்கல் மற்றும் சிறப்பு போனஸ்.`).trim(),
+    documentImage: '/images/5-lakh-scheme.jpeg',
+    status: ['active', 'inactive', 'archived'].includes(status) ? status : 'active',
+    startDate: startDate || now.split('T')[0],
+    version: 1,
+    rulesEn: getDefaultRulesEn(pBonus, lBonus, numDuration),
+    rulesTa: getDefaultRulesTa(pBonus, lBonus),
+    schedule: calc.schedule,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  schemes.push(newScheme);
+  saveLocalSchemes(schemes);
+  recordSchemeVersion(newScheme, 'Created new chit scheme', 'Admin');
+  recordAuditLog('SCHEME_CREATE', `Created Scheme: ${newScheme.nameEn} (${newScheme.durationMonths} Months, ${newScheme.chitValueFormatted})`, 'Admin', newScheme.id);
+
+  if (autoAnnounce && newScheme.status === 'active') {
+    createAutoAnnouncement({
+      title: `New Chit Scheme Launched: ${newScheme.nameEn} (${newScheme.durationMonths} Months)`,
+      description: `We have introduced the ${newScheme.nameEn} for a ${newScheme.durationMonths}-month cycle with monthly instalments starting at ${formatInr(newScheme.firstMonthInstalment)} and prompt payment bonus up to ${formatInr(newScheme.totalBonus)}. Contact our Villukuri office to join.`,
+      category: 'Scheme Update',
+      target_type: 'all',
+      target_scheme_id: newScheme.id,
+      target_scheme_name: newScheme.nameEn,
+      source_event_key: `scheme:create:${newScheme.id}:v1`
+    });
+  }
+
+  return res.status(201).json({ success: true, scheme: newScheme, message: `Scheme "${newScheme.nameEn}" created successfully.` });
+});
+
+app.put('/api/admin/schemes/:id', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const { id } = req.params;
+  const schemes = getLocalSchemes();
+  const target = schemes.find((s: any) => s.id === id);
+  if (!target) {
+    return res.status(404).json({ error: 'Scheme not found.' });
+  }
+
+  const {
+    nameEn,
+    nameTa,
+    chitValue,
+    durationMonths,
+    availableDurations,
+    promptBonus,
+    lastMonthBonus,
+    taglineEn,
+    taglineTa,
+    status,
+    confirm_running_impact,
+    autoAnnounce = true
+  } = req.body;
+
+  const groups = getLocalGroups();
+  const runningGroupsCount = groups.filter(
+    (g: any) => g.status === 'active' && (g.scheme_id === target.id || Number(g.chit_value) === Number(target.chitValue))
+  ).length;
+
+  const nextValue = chitValue !== undefined ? Number(chitValue) : target.chitValue;
+  const nextDuration = durationMonths !== undefined ? Number(durationMonths) : target.durationMonths;
+  const coreTermsChanged = nextValue !== target.chitValue || nextDuration !== target.durationMonths;
+
+  if (runningGroupsCount > 0 && coreTermsChanged && !confirm_running_impact) {
+    return res.status(409).json({
+      requiresConfirmation: true,
+      runningGroupsCount,
+      error: `${runningGroupsCount} active group(s) are currently running under this scheme. Existing running groups will retain their historical snapshot terms, while new batches will adopt v${(target.version || 1) + 1}. Confirm to save.`
+    });
+  }
+
+  if (nextValue < 10000 || nextDuration < 2 || nextDuration > 60) {
+    return res.status(400).json({ error: 'Chit value must be at least ₹10,000 and duration between 2 and 60 months.' });
+  }
+
+  if (coreTermsChanged) {
+    const calc = buildProportionalSchedule(nextValue, nextDuration);
+    target.chitValue = nextValue;
+    target.chitValueFormatted = formatInr(nextValue);
+    target.chitValueFormattedTa = formatInr(nextValue);
+    target.durationMonths = nextDuration;
+    target.schedule = calc.schedule;
+    target.firstMonthInstalment = calc.firstMonthInstalment;
+    target.minInstalment = calc.minInstalment;
+    target.maxInstalment = calc.maxInstalment;
+    target.totalInstalmentsPaid = calc.totalInstalmentsPaid;
+    target.dividendBenefit = calc.dividendBenefit;
+  }
+
+  if (nameEn) target.nameEn = nameEn.trim();
+  if (nameTa) target.nameTa = nameTa.trim();
+  if (taglineEn) target.taglineEn = taglineEn.trim();
+  if (taglineTa) target.taglineTa = taglineTa.trim();
+  if (Array.isArray(availableDurations) && availableDurations.length > 0) {
+    const cleanDurs = availableDurations.map((d: any) => Number(d)).filter((d: number) => d >= 2 && d <= 60);
+    if (!cleanDurs.includes(target.durationMonths)) cleanDurs.unshift(target.durationMonths);
+    target.availableDurations = cleanDurs;
+  }
+  if (promptBonus !== undefined) target.promptBonus = Number(promptBonus);
+  if (lastMonthBonus !== undefined) target.lastMonthBonus = Number(lastMonthBonus);
+  target.totalBonus = Number(target.promptBonus || 0) + Number(target.lastMonthBonus || 0);
+  target.rulesEn = getDefaultRulesEn(target.promptBonus, target.lastMonthBonus, target.durationMonths);
+  target.rulesTa = getDefaultRulesTa(target.promptBonus, target.lastMonthBonus);
+  if (status && ['active', 'inactive', 'archived'].includes(status)) target.status = status;
+
+  target.version = (target.version || 1) + 1;
+  target.updatedAt = new Date().toISOString();
+  saveLocalSchemes(schemes);
+  recordSchemeVersion(target, coreTermsChanged ? 'Modified chit amount/duration terms' : 'Updated scheme details', 'Admin');
+  recordAuditLog('SCHEME_UPDATE', `Updated Scheme ${target.id} to v${target.version} (${target.nameEn}, ${target.durationMonths}M)`, 'Admin', target.id);
+
+  if (autoAnnounce) {
+    createAutoAnnouncement({
+      title: `Scheme Updated (v${target.version}): ${target.nameEn}`,
+      description: `Scheme "${target.nameEn}" (${target.chitValueFormatted}, ${target.durationMonths} Months) has been updated by Administration. Ongoing batches retain their original enrolled terms unless notified otherwise.`,
+      category: 'Scheme Update',
+      target_type: runningGroupsCount > 0 ? 'scheme' : 'all',
+      target_scheme_id: target.id,
+      target_scheme_name: target.nameEn,
+      source_event_key: `scheme:update:${target.id}:v${target.version}`
+    });
+  }
+
+  return res.json({ success: true, scheme: target, message: `Scheme updated (v${target.version}).` });
+});
+
+app.patch('/api/admin/schemes/:id/status', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!['active', 'inactive', 'archived'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid scheme status.' });
+  }
+  const schemes = getLocalSchemes();
+  const target = schemes.find((s: any) => s.id === id);
+  if (!target) return res.status(404).json({ error: 'Scheme not found.' });
+
+  const prevStatus = target.status || 'active';
+  target.status = status;
+  target.updatedAt = new Date().toISOString();
+  saveLocalSchemes(schemes);
+  recordAuditLog('SCHEME_STATUS_CHANGE', `Changed Scheme ${target.nameEn} status from ${prevStatus} to ${status}`, 'Admin', target.id);
+
+  if (prevStatus !== status && (status === 'active' || status === 'inactive')) {
+    createAutoAnnouncement({
+      title: `Scheme ${status === 'active' ? 'Activated' : 'Deactivated'}: ${target.nameEn}`,
+      description:
+        status === 'active'
+          ? `The ${target.nameEn} (${target.chitValueFormatted}, ${target.durationMonths} Months) is now active and open for enquiries and batch creation.`
+          : `New enrolments for ${target.nameEn} have been paused by Administration. Existing active groups under this scheme continue normally.`,
+      category: 'Scheme Update',
+      target_type: 'all',
+      target_scheme_id: target.id,
+      target_scheme_name: target.nameEn,
+      source_event_key: `scheme:status:${target.id}:${status}`
+    });
+  }
+
+  return res.json({ success: true, scheme: target, message: `Scheme status changed to ${status}.` });
+});
+
+app.delete('/api/admin/schemes/:id', (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const { id } = req.params;
+  const schemes = getLocalSchemes();
+  const idx = schemes.findIndex((s: any) => s.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Scheme not found.' });
+
+  const target = schemes[idx];
+  const groups = getLocalGroups();
+  const referenced = groups.some((g: any) => g.scheme_id === target.id || Number(g.chit_value) === Number(target.chitValue));
+
+  if (referenced) {
+    target.status = 'archived';
+    target.updatedAt = new Date().toISOString();
+    saveLocalSchemes(schemes);
+    recordAuditLog('SCHEME_ARCHIVE', `Archived Scheme ${target.nameEn} (referenced by existing chit groups)`, 'Admin', target.id);
+    return res.json({
+      success: true,
+      archived: true,
+      message: `Scheme "${target.nameEn}" is linked to existing chit groups, so it has been safely archived instead of permanently deleted.`
+    });
+  }
+
+  schemes.splice(idx, 1);
+  saveLocalSchemes(schemes);
+  recordAuditLog('SCHEME_DELETE', `Deleted unused scheme: ${target.nameEn}`, 'Admin', target.id);
+  return res.json({ success: true, archived: false, message: `Scheme "${target.nameEn}" deleted.` });
+});
+
 // ======================== ADMIN GROUP MANAGEMENT ========================
 
 // Get all groups with member counts
@@ -1088,7 +1785,7 @@ app.get('/api/admin/groups', (req: Request, res: Response) => {
   }
 
   const groups = getLocalGroups();
-  const users = getLocalUsers();
+  const users = getLocalUsers().filter((u: any) => !u.is_deleted);
 
   const groupsWithCount = groups.map((g: any) => ({
     ...g,
@@ -1098,16 +1795,16 @@ app.get('/api/admin/groups', (req: Request, res: Response) => {
   return res.json({ groups: groupsWithCount });
 });
 
-// Create new group (Enforces Max 99 members)
+// Create new group (Enforces Max 99 members & snapshots scheme version)
 app.post('/api/admin/groups', (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
-  const { id, name, scheme_name, chit_value, duration_months = 20, start_date } = req.body;
+  const { id, name, scheme_id, scheme_name, chit_value, duration_months = 20, start_date } = req.body;
 
-  if (!id || !name || !scheme_name || !chit_value) {
-    return res.status(400).json({ error: 'Please provide Group ID, Group Name, Scheme Name, and Chit Value.' });
+  if (!id || !name || (!scheme_name && !scheme_id) || !chit_value) {
+    return res.status(400).json({ error: 'Please provide Group ID, Group Name, Scheme, and Chit Value.' });
   }
 
   const cleanId = id.trim().toUpperCase();
@@ -1117,21 +1814,38 @@ app.post('/api/admin/groups', (req: Request, res: Response) => {
     return res.status(400).json({ error: `Group ID "${cleanId}" already exists. Please choose a unique ID.` });
   }
 
+  const schemes = getLocalSchemes();
+  const linkedScheme = scheme_id
+    ? schemes.find((s: any) => s.id === scheme_id)
+    : schemes.find((s: any) => Number(s.chitValue) === Number(chit_value));
+
   const newGroup = {
     id: cleanId,
     name: name.trim(),
-    scheme_name: scheme_name.trim(),
+    scheme_id: linkedScheme?.id || scheme_id,
+    scheme_version: linkedScheme?.version || 1,
+    scheme_name: (scheme_name || linkedScheme?.nameEn || `${formatInr(Number(chit_value))} Scheme`).trim(),
     chit_value: Number(chit_value),
-    duration_months: Number(duration_months) || 20,
+    duration_months: Number(duration_months) || linkedScheme?.durationMonths || 20,
     start_date: start_date || new Date().toISOString().split('T')[0],
     status: 'active',
-    max_members: 99, // Max 99 members strictly enforced
+    max_members: 99,
     created_at: new Date().toISOString()
   };
 
   groups.push(newGroup);
   saveLocalGroups(groups);
-  recordAuditLog('GROUP_CREATE', `Created Group: ${newGroup.id} (${newGroup.name})`, 'Admin', newGroup.id);
+  recordAuditLog('GROUP_CREATE', `Created Group: ${newGroup.id} (${newGroup.name}, ${newGroup.duration_months}M)`, 'Admin', newGroup.id);
+
+  createAutoAnnouncement({
+    title: `New Chit Group Opened: ${newGroup.name}`,
+    description: `Batch ${newGroup.id} (${newGroup.scheme_name} · ${newGroup.duration_months} Months) is now active starting ${newGroup.start_date}.`,
+    category: 'Group Update',
+    target_type: 'all',
+    target_group_id: newGroup.id,
+    target_group_name: newGroup.name,
+    source_event_key: `group:create:${newGroup.id}`
+  });
 
   return res.status(201).json({
     success: true,
@@ -1147,7 +1861,7 @@ app.put('/api/admin/groups/:id', (req: Request, res: Response) => {
   }
 
   const { id } = req.params;
-  const { name, scheme_name, chit_value, status } = req.body;
+  const { name, scheme_id, scheme_name, chit_value, duration_months, start_date, status } = req.body;
   const groups = getLocalGroups();
   const target = groups.find((g: any) => g.id === id);
 
@@ -1156,13 +1870,26 @@ app.put('/api/admin/groups/:id', (req: Request, res: Response) => {
   }
 
   if (name) target.name = name.trim();
+  if (scheme_id) target.scheme_id = scheme_id;
   if (scheme_name) target.scheme_name = scheme_name.trim();
   if (chit_value) target.chit_value = Number(chit_value);
+  if (duration_months) target.duration_months = Number(duration_months);
+  if (start_date) target.start_date = start_date;
   if (status && ['active', 'inactive'].includes(status)) target.status = status;
   target.updated_at = new Date().toISOString();
 
   saveLocalGroups(groups);
   recordAuditLog('GROUP_UPDATE', `Updated Group: ${target.id} (${target.name})`, 'Admin', target.id);
+
+  createAutoAnnouncement({
+    title: `Group Details Updated: ${target.name}`,
+    description: `Administration updated details for ${target.name} (${target.id} · ${target.scheme_name}, ${target.duration_months || 20} Months).`,
+    category: 'Group Update',
+    target_type: 'group',
+    target_group_id: target.id,
+    target_group_name: target.name,
+    source_event_key: `group:update:${target.id}:${target.updated_at.slice(0, 16)}`
+  });
 
   return res.json({ success: true, group: target, message: 'Group updated successfully.' });
 });
@@ -1183,11 +1910,25 @@ app.patch('/api/admin/groups/:id/status', (req: Request, res: Response) => {
   const target = groups.find((g: any) => g.id === id);
   if (!target) return res.status(404).json({ error: 'Group not found.' });
 
+  const prevStatus = target.status;
   target.status = status;
   target.updated_at = new Date().toISOString();
   saveLocalGroups(groups);
 
   recordAuditLog('GROUP_STATUS_CHANGE', `Set Group ${target.id} status to ${status}`, 'Admin', target.id);
+
+  if (prevStatus !== status) {
+    createAutoAnnouncement({
+      title: `Group ${status === 'active' ? 'Activated' : 'Paused'}: ${target.name}`,
+      description: `Group ${target.name} (${target.id}) status has been set to ${status.toUpperCase()}.`,
+      category: 'Group Update',
+      target_type: 'group',
+      target_group_id: target.id,
+      target_group_name: target.name,
+      source_event_key: `group:status:${target.id}:${status}`
+    });
+  }
+
   return res.json({ success: true, group: target });
 });
 
@@ -1198,7 +1939,7 @@ app.get('/api/admin/groups/:id/members', (req: Request, res: Response) => {
   }
 
   const { id } = req.params;
-  const users = getLocalUsers();
+  const users = getLocalUsers().filter((u: any) => !u.is_deleted);
   const members = users.filter((u: any) => u.group_id === id);
 
   const safeMembers = members.map((m: any) => {
@@ -1217,7 +1958,8 @@ app.get('/api/admin/users', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
-  const users = getLocalUsers();
+  const includeDeleted = req.query.include_deleted === 'true';
+  const users = getLocalUsers().filter((u: any) => includeDeleted || !u.is_deleted);
   const groups = getLocalGroups();
   const payments = getLocalPayments();
 
@@ -1231,6 +1973,10 @@ app.get('/api/admin/users', (req: Request, res: Response) => {
     return {
       ...safe,
       group_name: group?.name || u.group_name || 'N/A',
+      scheme_name: group?.scheme_name || 'Chit Scheme',
+      chit_value: group?.chit_value || 0,
+      duration_months: group?.duration_months || 20,
+      has_payments: userPayments.length > 0,
       unpaid_instalments: unpaidCount,
       paid_instalments: paidCount
     };
@@ -1266,7 +2012,7 @@ app.post('/api/admin/users', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Selected group does not exist.' });
   }
 
-  const currentMembersInGroup = users.filter((u: any) => u.group_id === group_id).length;
+  const currentMembersInGroup = users.filter((u: any) => !u.is_deleted && u.group_id === group_id).length;
   if (currentMembersInGroup >= 99) {
     return res.status(400).json({ error: `Cannot add member. Group "${group.name}" has reached the maximum capacity of 99 members.` });
   }
@@ -1284,6 +2030,7 @@ app.post('/api/admin/users', (req: Request, res: Response) => {
     group_name: group.name,
     password_hash: hashPassword(initialPassword),
     status: 'active',
+    is_deleted: false,
     role: 'user',
     created_at: new Date().toISOString()
   };
@@ -1323,7 +2070,7 @@ app.put('/api/admin/users/:id', (req: Request, res: Response) => {
     const newGroup = groups.find((g: any) => g.id === group_id);
     if (!newGroup) return res.status(400).json({ error: 'Target group does not exist.' });
 
-    const memberCount = users.filter((u: any) => u.group_id === group_id).length;
+    const memberCount = users.filter((u: any) => !u.is_deleted && u.group_id === group_id).length;
     if (memberCount >= 99) {
       return res.status(400).json({ error: `Cannot reassign. Group "${newGroup.name}" is already at full capacity (99 members).` });
     }
@@ -1345,8 +2092,8 @@ app.put('/api/admin/users/:id', (req: Request, res: Response) => {
   return res.json({ success: true, user: safeUser, message: 'User updated successfully.' });
 });
 
-// Reset user password
-app.patch('/api/admin/users/:id/password', (req: Request, res: Response) => {
+// Reset user password (salted scrypt + session invalidation + optional Supabase Auth Admin update)
+app.patch('/api/admin/users/:id/password', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1354,8 +2101,9 @@ app.patch('/api/admin/users/:id/password', (req: Request, res: Response) => {
   const { id } = req.params;
   const { new_password } = req.body;
 
-  if (!new_password || new_password.trim().length < 4) {
-    return res.status(400).json({ error: 'Password must be at least 4 characters long.' });
+  const pwError = validateStrongPassword(new_password);
+  if (pwError) {
+    return res.status(400).json({ error: pwError });
   }
 
   const users = getLocalUsers();
@@ -1365,12 +2113,35 @@ app.patch('/api/admin/users/:id/password', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'User not found.' });
   }
 
-  target.password_hash = hashPassword(new_password.trim());
+  const newHash = hashPassword(new_password);
+  target.password_hash = newHash;
   target.updated_at = new Date().toISOString();
   saveLocalUsers(users);
 
-  recordAuditLog('PASSWORD_RESET', `Reset login password for ${target.user_id} (${target.full_name})`, 'Admin', target.user_id);
-  return res.json({ success: true, message: `Password for ${target.full_name} (${target.user_id}) reset successfully.` });
+  // Sync to Supabase DB / Auth Admin API if configured
+  if (supabase) {
+    try {
+      await (supabase as any)
+        .from('chit_users')
+        .update({ password_hash: newHash, updated_at: target.updated_at })
+        .eq('user_id', target.user_id);
+      if ((target as any).auth_uid) {
+        await (supabase as any).auth.admin.updateUserById((target as any).auth_uid, { password: new_password });
+      }
+    } catch (sbErr) {
+      console.warn('[Supabase] Password sync warning:', sbErr);
+    }
+  }
+
+  // Force logout of existing sessions for this user
+  const revokedCount = revokeUserSessions(target.user_id);
+
+  recordAuditLog('PASSWORD_RESET', `Admin reset login password for ${target.user_id} (${target.full_name}); invalidated ${revokedCount} active session(s)`, 'Admin', target.user_id);
+  return res.json({
+    success: true,
+    revokedSessions: revokedCount,
+    message: `Password for ${target.full_name} (${target.user_id}) updated securely. Active sessions invalidated.`
+  });
 });
 
 // Toggle user status (Active / Inactive)
@@ -1394,6 +2165,12 @@ app.patch('/api/admin/users/:id/status', (req: Request, res: Response) => {
   }
 
   target.status = status;
+  if (status === 'active') {
+    target.is_deleted = false;
+    delete target.deleted_at;
+  } else {
+    revokeUserSessions(target.user_id);
+  }
   target.updated_at = new Date().toISOString();
   saveLocalUsers(users);
 
@@ -1401,8 +2178,8 @@ app.patch('/api/admin/users/:id/status', (req: Request, res: Response) => {
   return res.json({ success: true, user_id: target.user_id, status });
 });
 
-// Delete user with safeguard
-app.delete('/api/admin/users/:id', (req: Request, res: Response) => {
+// Delete user (Safe soft-delete when financial payment records exist; hard delete only when clean)
+app.delete('/api/admin/users/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
@@ -1419,17 +2196,60 @@ app.delete('/api/admin/users/:id', (req: Request, res: Response) => {
   const payments = getLocalPayments();
   const hasPayments = payments.some((p: any) => p.user_id === user.user_id);
 
+  // Immediately revoke any open member sessions
+  revokeUserSessions(user.user_id);
+
   if (hasPayments) {
-    return res.status(400).json({
-      error: `Cannot delete ${user.full_name} (${user.user_id}) because active financial payment records exist. Please deactivate the user instead to preserve the financial audit history.`
+    const now = new Date().toISOString();
+    user.status = 'inactive';
+    user.is_deleted = true;
+    user.deleted_at = now;
+    user.updated_at = now;
+    saveLocalUsers(users);
+
+    if (supabase) {
+      try {
+        await (supabase as any)
+          .from('chit_users')
+          .update({ status: 'inactive', is_deleted: true, deleted_at: now, updated_at: now })
+          .eq('user_id', user.user_id);
+      } catch (sbErr) {
+        console.warn('[Supabase] Soft-delete sync warning:', sbErr);
+      }
+    }
+
+    recordAuditLog(
+      'USER_SOFT_DELETE',
+      `Soft-deleted & deactivated User ${user.user_id} (${user.full_name}); financial payment history preserved`,
+      'Admin',
+      user.user_id
+    );
+
+    return res.json({
+      success: true,
+      softDeleted: true,
+      message: `${user.full_name} (${user.user_id}) removed from active list and deactivated. Historical payment records preserved for audit.`
     });
   }
 
   users.splice(userIndex, 1);
   saveLocalUsers(users);
-  recordAuditLog('USER_DELETE', `Deleted User: ${user.user_id} (${user.full_name})`, 'Admin', user.user_id);
 
-  return res.json({ success: true, message: `User ${user.user_id} deleted successfully.` });
+  if (supabase) {
+    try {
+      await (supabase as any).from('chit_users').delete().eq('user_id', user.user_id);
+    } catch (sbErr) {
+      console.warn('[Supabase] User delete sync warning:', sbErr);
+    }
+  }
+
+  recordAuditLog('USER_DELETE', `Permanently deleted User: ${user.user_id} (${user.full_name}) (no financial records)`, 'Admin', user.user_id);
+
+  return res.json({
+    success: true,
+    softDeleted: false,
+    message: `User ${user.full_name} (${user.user_id}) permanently deleted.`
+  });
 });
 
 // ======================== ADMIN MONTHLY PAYMENT MANAGEMENT ========================
@@ -1506,10 +2326,15 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
   if (!group) return res.status(404).json({ error: 'Selected group does not exist.' });
 
   const users = getLocalUsers();
-  const groupMembers = users.filter((u: any) => u.group_id === group_id && u.status === 'active');
+  const groupMembers = users.filter((u: any) => !u.is_deleted && u.group_id === group_id && u.status === 'active');
 
   if (groupMembers.length === 0) {
     return res.status(400).json({ error: `Group "${group.name}" has no active members to apply payments to.` });
+  }
+
+  const maxMonths = Number(group.duration_months) || 60;
+  if (Number(month) < 1 || Number(month) > maxMonths) {
+    return res.status(400).json({ error: `Month cycle must be between 1 and ${maxMonths} for group "${group.name}".` });
   }
 
   const payments = getLocalPayments();
@@ -1520,9 +2345,9 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
 
   groupMembers.forEach((member: any) => {
     // Prevent duplicate records for the same user and month+year
-    const alreadyExists = payments.some((p: any) => 
-      p.user_id === member.user_id && 
-      String(p.payment_month) === String(month) && 
+    const alreadyExists = payments.some((p: any) =>
+      p.user_id === member.user_id &&
+      String(p.payment_month) === String(month) &&
       String(p.payment_year) === String(year)
     );
 
@@ -1540,7 +2365,7 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
         month_name: monthLabelText,
         payment_year: Number(year),
         payment_amount: numAmount,
-        payment_status: 'UNPAID', // Default status for newly created monthly payment record is UNPAID
+        payment_status: 'UNPAID',
         payment_date: null,
         updated_by: 'Admin (Batch Amount Set)',
         receipt_number: undefined,
@@ -1563,7 +2388,7 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
     month_label: monthLabelText,
     year: Number(year),
     payment_amount: numAmount,
-    due_date: due_date || `${year}-${String(month).padStart(2, '0')}-10`,
+    due_date: due_date || `${year}-${String(Math.min(12, Number(month))).padStart(2, '0')}-10`,
     created_by: 'Admin',
     created_at: new Date().toISOString()
   });
@@ -1575,6 +2400,18 @@ app.post('/api/admin/payments/configure', (req: Request, res: Response) => {
     'Admin',
     group.id
   );
+
+  if (createdCount > 0) {
+    createAutoAnnouncement({
+      title: `Monthly Instalment Published: ${monthLabelText} (${group.name})`,
+      description: `The monthly instalment for ${group.name} (${monthLabelText}) has been set to ${formatInr(numAmount)}. Please pay on or before the 10th at our Villukuri office counter to maintain eligibility for the prompt payment bonus.`,
+      category: 'Payment Notice',
+      target_type: 'group',
+      target_group_id: group.id,
+      target_group_name: group.name,
+      source_event_key: `payment:cfg:${group.id}:m${month}:${year}:${numAmount}`
+    });
+  }
 
   return res.status(201).json({
     success: true,
@@ -1695,7 +2532,8 @@ app.get('/api/admin/announcements', (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
-  const announcements = getLocalAnnouncements();
+  const includeArchived = req.query.include_archived === 'true';
+  const announcements = getLocalAnnouncements().filter((a: any) => includeArchived || !a.is_archived);
   announcements.sort((a: any, b: any) => new Date(b.created_at || b.publish_date).getTime() - new Date(a.created_at || a.publish_date).getTime());
   return res.json({ announcements });
 });
@@ -1705,11 +2543,32 @@ app.post('/api/admin/announcements', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
-  const { title, description, category = 'General', target_group_id = 'all', publish_date, is_published = true } = req.body;
+  const {
+    title,
+    description,
+    category = 'General',
+    target_type = 'all',
+    target_group_id = 'all',
+    target_scheme_id,
+    publish_date,
+    is_published = true
+  } = req.body;
 
   if (!title || !description) {
     return res.status(400).json({ error: 'Please provide both title and description.' });
   }
+
+  const groups = getLocalGroups();
+  const schemes = getLocalSchemes();
+  const resolvedGroup = target_group_id && target_group_id !== 'all' ? groups.find((g: any) => g.id === target_group_id) : null;
+  const resolvedScheme = target_scheme_id ? schemes.find((s: any) => s.id === target_scheme_id) : null;
+
+  const normalizedTargetType =
+    target_type === 'scheme' && resolvedScheme
+      ? 'scheme'
+      : target_type === 'group' || (target_group_id && target_group_id !== 'all')
+      ? 'group'
+      : 'all';
 
   const announcements = getLocalAnnouncements();
   const newAnnouncement = {
@@ -1717,9 +2576,15 @@ app.post('/api/admin/announcements', (req: Request, res: Response) => {
     title: title.trim(),
     description: description.trim(),
     category,
-    target_group_id: target_group_id || 'all',
+    target_type: normalizedTargetType,
+    target_group_id: normalizedTargetType === 'group' ? target_group_id : normalizedTargetType === 'all' ? 'all' : undefined,
+    target_group_name: resolvedGroup?.name,
+    target_scheme_id: normalizedTargetType === 'scheme' ? resolvedScheme?.id : undefined,
+    target_scheme_name: resolvedScheme?.nameEn,
+    is_auto_generated: false,
     publish_date: publish_date || new Date().toISOString().split('T')[0],
     is_published: Boolean(is_published),
+    is_archived: false,
     created_by: 'Admin',
     created_at: new Date().toISOString()
   };
@@ -1728,7 +2593,7 @@ app.post('/api/admin/announcements', (req: Request, res: Response) => {
   saveLocalAnnouncements(announcements);
 
   recordAuditLog('ANNOUNCEMENT_CREATE', `Published announcement: "${newAnnouncement.title}"`, 'Admin', newAnnouncement.id);
-  return res.status(201).json({ success: true, announcement: newAnnouncement, message: 'Announcement created successfully.' });
+  return res.status(201).json({ success: true, announcement: newAnnouncement, message: 'Announcement published successfully.' });
 });
 
 app.put('/api/admin/announcements/:id', (req: Request, res: Response) => {
@@ -1758,22 +2623,58 @@ app.put('/api/admin/announcements/:id', (req: Request, res: Response) => {
   return res.json({ success: true, announcement: target, message: 'Announcement updated.' });
 });
 
-app.delete('/api/admin/announcements/:id', (req: Request, res: Response) => {
+app.delete('/api/admin/announcements/:id', async (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
   const { id } = req.params;
+  const mode = req.query.mode as string | undefined;
   const announcements = getLocalAnnouncements();
   const index = announcements.findIndex((a: any) => a.id === id);
 
-  if (index === -1) return res.status(404).json({ error: 'Announcement not found.' });
+  if (index === -1) return res.status(404).json({ error: 'Announcement not found or already deleted.' });
+
+  const target = announcements[index];
+  const ageDays = (Date.now() - new Date(target.created_at || target.publish_date).getTime()) / 86400000;
+  const shouldSoftArchive = mode === 'archive' || target.is_auto_generated || ageDays > 7;
+
+  if (shouldSoftArchive) {
+    const now = new Date().toISOString();
+    target.is_archived = true;
+    target.is_published = false;
+    target.archived_at = now;
+    target.updated_at = now;
+    saveLocalAnnouncements(announcements);
+
+    if (supabase) {
+      try {
+        await (supabase as any)
+          .from('announcements')
+          .update({ is_archived: true, is_published: false, archived_at: now, updated_at: now })
+          .eq('id', id);
+      } catch (sbErr) {
+        console.warn('[Supabase] Announcement archive sync warning:', sbErr);
+      }
+    }
+
+    recordAuditLog('ANNOUNCEMENT_ARCHIVE', `Archived historical/auto announcement: "${target.title}"`, 'Admin', target.id);
+    return res.json({ success: true, archived: true, message: `Announcement "${target.title}" archived and hidden from member dashboards.` });
+  }
 
   const deleted = announcements.splice(index, 1)[0];
   saveLocalAnnouncements(announcements);
 
+  if (supabase) {
+    try {
+      await (supabase as any).from('announcements').delete().eq('id', id);
+    } catch (sbErr) {
+      console.warn('[Supabase] Announcement delete sync warning:', sbErr);
+    }
+  }
+
   recordAuditLog('ANNOUNCEMENT_DELETE', `Deleted announcement: "${deleted.title}"`, 'Admin', deleted.id);
-  return res.json({ success: true, message: 'Announcement deleted.' });
+  return res.json({ success: true, archived: false, message: `Announcement "${deleted.title}" deleted successfully.` });
 });
 
 // ======================== SERVING FRONTEND ========================
@@ -1783,7 +2684,10 @@ async function startServer() {
     // Development mode with Vite middleware
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        allowedHosts: true,
+      },
       appType: 'spa'
     });
     app.use(vite.middlewares);

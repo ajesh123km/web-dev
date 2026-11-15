@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CustomerEnquiry, Language } from '../types';
+import { ChitScheme, CustomerEnquiry, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { CHIT_SCHEMES } from '../data/schemes';
 import { Send, CheckCircle2, AlertCircle, ShieldCheck, UserCheck, Loader2 } from 'lucide-react';
 
 interface EnquiryFormProps {
@@ -15,6 +16,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
   onSuccess
 }) => {
   const t = TRANSLATIONS[lang];
+  const [schemes, setSchemes] = useState<ChitScheme[]>(CHIT_SCHEMES);
 
   const [formData, setFormData] = useState<CustomerEnquiry>({
     full_name: '',
@@ -32,6 +34,23 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let active = true;
+    fetch('/api/schemes')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
+          setSchemes(data.schemes);
+        }
+      })
+      .catch(() => {
+        // Fallback to static CHIT_SCHEMES
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Sync preSelectedScheme if changed externally
   useEffect(() => {
     if (preSelectedScheme) {
@@ -48,8 +67,8 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     const errs: { [key: string]: string } = {};
 
     if (!formData.full_name || formData.full_name.trim().length < 2) {
-      errs.full_name = lang === 'ta' 
-        ? 'உங்கள் முழு பெயரை உள்ளிடவும் (குறைந்தது 2 எழுத்துக்கள்).' 
+      errs.full_name = lang === 'ta'
+        ? 'உங்கள் முழு பெயரை உள்ளிடவும் (குறைந்தது 2 எழுத்துக்கள்).'
         : 'Please enter your full name (minimum 2 characters).';
     }
 
@@ -141,13 +160,33 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     setErrors({});
   };
 
+  const getSchemeOptionLabel = (scheme: ChitScheme) => {
+    if (scheme.id === 'scheme-1-lakh') return t.form.schemeOption1;
+    if (scheme.id === 'scheme-2-lakh') return t.form.schemeOption2;
+    if (scheme.id === 'scheme-5-lakh') return t.form.schemeOption3;
+    if (scheme.id === 'scheme-10-lakh') return t.form.schemeOption4;
+    return lang === 'ta'
+      ? `${scheme.chitValueFormattedTa} (${scheme.durationMonths} மாதங்கள்)`
+      : `${scheme.chitValueFormatted} Scheme (${scheme.durationMonths} Months)`;
+  };
+
+  const schemeOptions = schemes.map((s) => ({
+    value: `${s.chitValueFormatted} Scheme`,
+    label: getSchemeOptionLabel(s)
+  }));
+
+  const hasCustomPreSelected =
+    formData.preferred_scheme &&
+    formData.preferred_scheme !== 'Undecided' &&
+    !schemeOptions.some((o) => o.value === formData.preferred_scheme);
+
   return (
     <section id="enquiry-form" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Form Container Card */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md p-6 sm:p-10 relative overflow-hidden">
-          
+
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-2">
               <UserCheck className="w-3.5 h-3.5 text-[#12834B]" />
@@ -196,7 +235,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
           ) : (
             /* Interactive Enquiry Form */
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {serverError && (
                 <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -310,9 +349,14 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                     }}
                     className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 focus:border-[#075C32]"
                   >
-                    <option value="₹1,00,000 Scheme">{t.form.schemeOption1}</option>
-                    <option value="₹2,00,000 Scheme">{t.form.schemeOption2}</option>
-                    <option value="₹5,00,000 Scheme">{t.form.schemeOption3}</option>
+                    {schemeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                    {hasCustomPreSelected && (
+                      <option value={formData.preferred_scheme}>{formData.preferred_scheme}</option>
+                    )}
                     <option value="Undecided">{t.form.schemeOptionUndecided}</option>
                   </select>
                 </div>

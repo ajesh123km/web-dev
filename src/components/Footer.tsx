@@ -1,6 +1,7 @@
-import React from 'react';
-import { Language } from '../types';
+import React, { useState, useEffect } from 'react';
+import { ChitScheme, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { CHIT_SCHEMES } from '../data/schemes';
 import { MapPin, Phone, Mail, ShieldCheck } from 'lucide-react';
 
 interface FooterProps {
@@ -17,6 +18,24 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenAdmin
 }) => {
   const t = TRANSLATIONS[lang];
+  const [schemes, setSchemes] = useState<ChitScheme[]>(CHIT_SCHEMES);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/schemes')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
+          setSchemes(data.schemes);
+        }
+      })
+      .catch(() => {
+        // Fallback to static schemes
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <footer className="bg-slate-900 text-white text-xs border-t border-slate-800">
@@ -105,30 +124,18 @@ export const Footer: React.FC<FooterProps> = ({
               {t.footer.schemesLinks}
             </h4>
             <ul className="space-y-2 text-slate-400">
-              <li>
-                <button 
-                  onClick={() => onNavigate('schemes')} 
-                  className="hover:text-white transition-colors text-left"
-                >
-                  ₹1,00,000 Scheme (20 Months)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => onNavigate('schemes')} 
-                  className="hover:text-white transition-colors text-left"
-                >
-                  ₹2,00,000 Scheme (20 Months)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => onNavigate('schemes')} 
-                  className="hover:text-white transition-colors text-left"
-                >
-                  ₹5,00,000 Scheme (20 Months)
-                </button>
-              </li>
+              {schemes.map((scheme) => (
+                <li key={scheme.id}>
+                  <button
+                    onClick={() => onNavigate('schemes')}
+                    className="hover:text-white transition-colors text-left"
+                  >
+                    {lang === 'ta'
+                      ? `${scheme.chitValueFormattedTa} திட்டம் (${scheme.durationMonths} மாதங்கள்)`
+                      : `${scheme.chitValueFormatted} Scheme (${scheme.durationMonths} Months)`}
+                  </button>
+                </li>
+              ))}
               <li className="pt-2 text-[11px] text-[#C9A64A]">
                 11th Draw / Auction · 25th Payout
               </li>
