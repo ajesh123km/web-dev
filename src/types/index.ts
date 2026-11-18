@@ -88,9 +88,14 @@ export interface ChitGroup {
   chit_value: number;
   duration_months: number;
   start_date: string;
-  status: 'active' | 'inactive';
+  status: 'active' | 'inactive' | 'archived';
   max_members: number; // Max 99 enforced
   member_count?: number;
+  total_user_count?: number;
+  payment_count?: number;
+  config_count?: number;
+  has_financial_records?: boolean;
+  archived_at?: string;
   created_at: string;
   updated_at?: string;
 }

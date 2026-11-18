@@ -13,29 +13,29 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
   const t = TRANSLATIONS[lang];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#E5F2E8]/40 via-white to-white pt-8 pb-16 lg:pt-14 lg:pb-20 border-b border-slate-200/60">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#E5F2E8]/40 via-white to-white pt-6 pb-12 sm:pt-8 sm:pb-16 lg:pt-14 lg:pb-20 border-b border-slate-200/60">
       {/* Background ambient pattern */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#075C32_1px,transparent_1px)] [background-size:16px_16px]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
           
           {/* Left Column: Value Proposition & CTAs */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
+          <div className="lg:col-span-7 flex flex-col items-start text-left min-w-0">
             
             {/* Trust Kicker */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#075C32]/8 border border-[#075C32]/15 text-[#075C32] text-xs font-bold tracking-wide mb-4">
-              <ShieldCheck className="w-4 h-4 text-[#12834B]" />
-              <span className="truncate">{t.hero.kicker}</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#075C32]/8 border border-[#075C32]/15 text-[#075C32] text-[11px] sm:text-xs font-bold tracking-wide mb-4 max-w-full">
+              <ShieldCheck className="w-4 h-4 text-[#12834B] shrink-0" />
+              <span className="leading-snug">{t.hero.kicker}</span>
             </div>
 
             {/* Headline with text-wrap: balance */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-5 [text-wrap:balance]">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-4 sm:mb-5 [text-wrap:balance]">
               {t.hero.title}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl font-normal">
+            <p className="text-sm sm:text-lg text-slate-600 leading-relaxed mb-6 sm:mb-8 max-w-2xl font-normal">
               {t.hero.subtitle}
             </p>
 
@@ -87,13 +87,13 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
           </div>
 
           {/* Right Column: High-Impact Official Identity Card */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/90 shadow-xl p-6 sm:p-8 relative overflow-hidden">
+          <div className="lg:col-span-5 flex justify-center min-w-0">
+            <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/90 shadow-xl p-5 sm:p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#075C32] via-[#12834B] to-[#C9A64A]" />
 
               <div className="flex flex-col items-center text-center">
                 {/* Official Round Logo */}
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 border-4 border-[#075C32]/20 shadow-md mb-4 bg-white">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full p-1 border-4 border-[#075C32]/20 shadow-md mb-4 bg-white">
                   <img
                     src="/images/team-stars-logo.jpeg"
                     alt="Team Stars Chits Official Emblem"
@@ -102,7 +102,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                   />
                 </div>
 
-                <h2 className="text-xl font-extrabold text-[#075C32] tracking-tight mb-1">
+                <h2 className="text-lg sm:text-xl font-extrabold text-[#075C32] tracking-tight mb-1">
                   TEAM STARS CHITS
                 </h2>
                 <p className="text-xs font-bold uppercase tracking-widest text-[#C9A64A] mb-3">
@@ -113,19 +113,19 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
 
                 {/* Verified Metadata List */}
                 <div className="w-full space-y-2.5 text-left text-xs text-slate-600 my-3">
-                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                  <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 flex-wrap">
                     <span className="font-semibold text-slate-500 shrink-0">CIN:</span>
-                    <span className="font-mono font-bold text-slate-800">U64990TN2025PTC181717</span>
+                    <span className="font-mono font-bold text-slate-800 text-[11px] sm:text-xs">U64990TN2025PTC181717</span>
                   </div>
-                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                  <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100">
                     <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'மாத தவணை' : 'Auction / Draw'}:</span>
                     <span className="font-semibold text-[#075C32] text-right">{lang === 'ta' ? 'மாதம் 11-ஆம் தேதி' : '11th of every month'}</span>
                   </div>
-                  <div className="flex items-center justify-between gap-3 py-1 border-b border-slate-100">
+                  <div className="flex items-center justify-between gap-2 py-1 border-b border-slate-100">
                     <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'தொகை வழங்கல்' : 'Disbursement'}:</span>
                     <span className="font-semibold text-[#075C32] text-right">{lang === 'ta' ? 'மாதம் 25-ஆம் தேதிக்குள்' : 'By 25th of month'}</span>
                   </div>
-                  <div className="flex items-start justify-between gap-3 py-1">
+                  <div className="flex items-start justify-between gap-2 py-1">
                     <span className="font-semibold text-slate-500 shrink-0">{lang === 'ta' ? 'அலுவலகம்' : 'Location'}:</span>
                     <span className="text-right text-slate-700 font-medium">{lang === 'ta' ? 'விள்ளுக்குறி, கன்னியாகுமரி' : 'Villukuri, Kanyakumari'}</span>
                   </div>
@@ -145,38 +145,38 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
         </div>
 
         {/* Bottom 4-Column Stat Strip */}
-        <div className="mt-14 pt-8 border-t border-slate-200/80 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-          <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#075C32] font-mono tabular-nums">
+        <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-slate-200/80 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 text-center">
+          <div className="p-3 sm:p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <div className="text-xl sm:text-3xl font-extrabold text-[#075C32] font-mono tabular-nums">
               {t.hero.trustStat1Value}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
               {t.hero.trustStat1Label}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
+          <div className="p-3 sm:p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
             <div className={`font-extrabold text-[#075C32] tabular-nums ${
-              lang === 'ta' ? 'text-xl sm:text-2xl leading-snug' : 'text-2xl sm:text-3xl font-mono'
+              lang === 'ta' ? 'text-base sm:text-2xl leading-snug' : 'text-xl sm:text-3xl font-mono'
             }`}>
               {t.hero.trustStat2Value}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
               {t.hero.trustStat2Label}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#075C32] font-mono tabular-nums">
+          <div className="p-3 sm:p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <div className="text-xl sm:text-3xl font-extrabold text-[#075C32] font-mono tabular-nums">
               {t.hero.trustStat3Value}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
               {t.hero.trustStat3Label}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#C9A64A] font-mono tabular-nums">
+          <div className="p-3 sm:p-4 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <div className="text-xl sm:text-3xl font-extrabold text-[#C9A64A] font-mono tabular-nums">
               {t.hero.trustStat4Value}
             </div>
-            <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
               {t.hero.trustStat4Label}
             </div>
           </div>

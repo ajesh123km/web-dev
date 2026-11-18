@@ -1,11 +1,123 @@
 [
   {
+    "id": "log-1794993315093-agv1",
+    "action": "SCHEME_DELETE",
+    "details": "Deleted unused scheme: __VERIFY__ 3L 15M Scheme",
+    "performed_by": "Admin",
+    "target_id": "scheme-1794993190913-300k",
+    "timestamp": "2026-11-18T09:15:15.093Z"
+  },
+  {
+    "id": "log-1794993192036-gd1x",
+    "action": "ANNOUNCEMENT_ARCHIVE",
+    "details": "Archived historical/auto announcement: \"New Chit Group Opened: __VERIFY__ Temp Group 1\"",
+    "performed_by": "Admin",
+    "target_id": "ann-auto-1794993191399-0mt5",
+    "timestamp": "2026-11-18T09:13:12.036+00:00"
+  },
+  {
+    "id": "log-1794993191954-qrag",
+    "action": "SCHEME_DELETE",
+    "details": "Deleted unused scheme: __VERIFY__ 3L 15M Scheme",
+    "performed_by": "Admin",
+    "target_id": "scheme-1794993190913-300k",
+    "timestamp": "2026-11-18T09:13:11.954+00:00"
+  },
+  {
+    "id": "log-1794993191875-blg1",
+    "action": "GROUP_DELETE",
+    "details": "Permanently deleted unused Chit Group TSTTMP01 (__VERIFY__ Temp Group 1)",
+    "performed_by": "Admin",
+    "target_id": "TSTTMP01",
+    "timestamp": "2026-11-18T09:13:11.875+00:00"
+  },
+  {
+    "id": "log-1794993191656-us4i",
+    "action": "GROUP_UPDATE",
+    "details": "Updated Group: TSTTMP01 (__VERIFY__ Temp Group 1)",
+    "performed_by": "Admin",
+    "target_id": "TSTTMP01",
+    "timestamp": "2026-11-18T09:13:11.656+00:00"
+  },
+  {
+    "id": "log-1794993191522-ra6j",
+    "action": "SCHEME_UPDATE",
+    "details": "Updated Scheme scheme-1794993190913-300k to v2 (__VERIFY__ 3L 15M Scheme, 24M)",
+    "performed_by": "Admin",
+    "target_id": "scheme-1794993190913-300k",
+    "timestamp": "2026-11-18T09:13:11.522+00:00"
+  },
+  {
+    "id": "log-1794993191398-owmr",
+    "action": "GROUP_CREATE",
+    "details": "Created Group: TSTTMP01 (__VERIFY__ Temp Group 1, 15M)",
+    "performed_by": "Admin",
+    "target_id": "TSTTMP01",
+    "timestamp": "2026-11-18T09:13:11.398+00:00"
+  },
+  {
+    "id": "log-1794993191154-3bh6",
+    "action": "SCHEME_CREATE",
+    "details": "Created Scheme: __VERIFY__ 3L 15M Scheme (15 Months, ₹3,00,000)",
+    "performed_by": "Admin",
+    "target_id": "scheme-1794993190913-300k",
+    "timestamp": "2026-11-18T09:13:11.154+00:00"
+  },
+  {
+    "id": "log-1794822400234-513q",
+    "action": "USER_SOFT_DELETE",
+    "details": "Soft-deleted & deactivated User TS-2026-TEST (Test User); financial payment history preserved",
+    "performed_by": "Admin",
+    "target_id": "TS-2026-TEST",
+    "timestamp": "2026-11-16T09:46:40.234+00:00"
+  },
+  {
+    "id": "log-1794822348658-go92",
+    "action": "PAYMENT_STATUS_UNPAID",
+    "details": "Payment status reversed to UNPAID for K. Anitha (TS-2026-002) - Month 11 - Nov 2026",
+    "performed_by": "Admin",
+    "target_id": "pay-anitha-m11",
+    "timestamp": "2026-11-16T09:45:48.658+00:00"
+  },
+  {
+    "id": "log-1794822148739-9n3b",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-16T09:42:28.739+00:00"
+  },
+  {
+    "id": "log-1794821285799-k6uh",
+    "action": "USER_UPDATE",
+    "details": "Updated User details for TS-2026-001 (S. Murugan)",
+    "performed_by": "Admin",
+    "target_id": "TS-2026-001",
+    "timestamp": "2026-11-16T09:28:05.799+00:00"
+  },
+  {
+    "id": "log-1794821240934-ege3",
+    "action": "ANNOUNCEMENT_DELETE",
+    "details": "Deleted announcement: \"Special Auction Day Notice\"",
+    "performed_by": "Admin",
+    "target_id": "ann-1794390971342-h6iz",
+    "timestamp": "2026-11-16T09:27:20.934+00:00"
+  },
+  {
+    "id": "log-1794821177236-s9rx",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-16T09:26:17.236+00:00"
+  },
+  {
     "id": "log-1794390971342-e38q",
     "action": "ANNOUNCEMENT_CREATE",
     "details": "Published announcement: \"Special Auction Day Notice\"",
     "performed_by": "Admin",
     "target_id": "ann-1794390971342-h6iz",
-    "timestamp": "2026-11-11T09:56:11.342Z"
+    "timestamp": "2026-11-11T09:56:11.342+00:00"
   },
   {
     "id": "log-1794390971296-bpmo",
@@ -13,7 +125,7 @@
     "details": "Member logged in: TS-2026-TEST (Test User)",
     "performed_by": "TS-2026-TEST",
     "target_id": "usr-1794390952999-kd6l",
-    "timestamp": "2026-11-11T09:56:11.296Z"
+    "timestamp": "2026-11-11T09:56:11.296+00:00"
   },
   {
     "id": "log-1794390971278-ke1q",
@@ -21,7 +133,7 @@
     "details": "Cash payment of ₹9200 received for Test User (TS-2026-TEST) - Month 1 - Nov 2026. Receipt: REC-TEST-001",
     "performed_by": "Admin",
     "target_id": "pay-TS-2026-TEST-m1-2026",
-    "timestamp": "2026-11-11T09:56:11.278Z"
+    "timestamp": "2026-11-11T09:56:11.278+00:00"
   },
   {
     "id": "log-1794390953064-7eh1",
@@ -29,7 +141,7 @@
     "details": "Set Month 1 - Nov 2026 payment to ₹9,200 for Group ₹2 Lakh Test Batch. Created 1 new UNPAID records (0 existed).",
     "performed_by": "Admin",
     "target_id": "GRP-TEST-99",
-    "timestamp": "2026-11-11T09:55:53.064Z"
+    "timestamp": "2026-11-11T09:55:53.064+00:00"
   },
   {
     "id": "log-1794390952999-cj2k",
@@ -37,7 +149,7 @@
     "details": "Created User: TS-2026-TEST (Test User) in Group ₹2 Lakh Test Batch",
     "performed_by": "Admin",
     "target_id": "TS-2026-TEST",
-    "timestamp": "2026-11-11T09:55:52.999Z"
+    "timestamp": "2026-11-11T09:55:52.999+00:00"
   },
   {
     "id": "log-1794390952981-o258",
@@ -45,7 +157,7 @@
     "details": "Created Group: GRP-TEST-99 (₹2 Lakh Test Batch)",
     "performed_by": "Admin",
     "target_id": "GRP-TEST-99",
-    "timestamp": "2026-11-11T09:55:52.981Z"
+    "timestamp": "2026-11-11T09:55:52.981+00:00"
   },
   {
     "id": "log-1794390945498-yvbt",
@@ -53,7 +165,7 @@
     "details": "Member logged in: TS-2026-001 (S. Murugan)",
     "performed_by": "TS-2026-001",
     "target_id": "usr-001",
-    "timestamp": "2026-11-11T09:55:45.498Z"
+    "timestamp": "2026-11-11T09:55:45.498+00:00"
   },
   {
     "id": "log-1794390519261-hrcn",
@@ -61,13 +173,14 @@
     "details": "Member logged in: TS-2026-001 (S. Murugan)",
     "performed_by": "TS-2026-001",
     "target_id": "usr-001",
-    "timestamp": "2026-11-11T09:48:39.261Z"
+    "timestamp": "2026-11-11T09:48:39.261+00:00"
   },
   {
     "id": "log-1794390517546-3bc7",
     "action": "SYSTEM_BOOT",
     "details": "Chit Fund Management System Initialized with 3 Active Batches",
     "performed_by": "System",
-    "timestamp": "2026-11-11T09:48:37.546Z"
+    "target_id": null,
+    "timestamp": "2026-11-11T09:48:37.546+00:00"
   }
 ]

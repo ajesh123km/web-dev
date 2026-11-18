@@ -21,16 +21,21 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
   useEffect(() => {
     let active = true;
-    fetch('/api/schemes')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (active && data?.schemes?.length > 0) {
-          setSchemes(data.schemes);
-        }
-      })
-      .catch(() => {});
+    const loadSchemes = () => {
+      fetch('/api/schemes')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (active && data?.schemes?.length > 0) {
+            setSchemes(data.schemes);
+          }
+        })
+        .catch(() => {});
+    };
+    loadSchemes();
+    window.addEventListener('teamstars:schemes-updated', loadSchemes);
     return () => {
       active = false;
+      window.removeEventListener('teamstars:schemes-updated', loadSchemes);
     };
   }, []);
 
@@ -40,19 +45,19 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
   };
 
   return (
-    <section id="schemes" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
+    <section id="schemes" className="py-12 sm:py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
             <Calendar className="w-3.5 h-3.5 text-[#12834B]" />
             <span>{lang === 'ta' ? 'அதிகாரப்பூர்வ திட்டங்கள்' : 'Rate Card Plans'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
             {t.schemes.title}
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed">
             {t.schemes.subtitle}
           </p>
         </div>
@@ -70,7 +75,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
             return (
               <div
                 key={scheme.id}
-                className={`flex flex-col justify-between rounded-2xl bg-white transition-all duration-200 p-6 relative border ${
+                className={`flex flex-col justify-between rounded-2xl bg-white transition-all duration-200 p-4 sm:p-6 relative border ${
                   isPopular
                     ? 'border-[#075C32] shadow-lg ring-1 ring-[#075C32]/20'
                     : isTenLakh
@@ -95,7 +100,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                 <div>
                   {/* Scheme Header */}
                   <div className="mb-3">
-                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                       {scheme.chitValueFormatted}
                     </h3>
                     <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -103,43 +108,43 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                     </p>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed min-h-[40px] mb-5">
+                  <p className="text-xs text-slate-600 leading-relaxed min-h-[40px] mb-4 sm:mb-5">
                     {tagline}
                   </p>
 
                   {/* Highlights Summary Box */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 mb-5 space-y-2.5 text-xs">
-                    <div className="flex items-center justify-between gap-2">
+                  <div className="p-3 sm:p-4 rounded-xl bg-slate-50 border border-slate-100 mb-4 sm:mb-5 space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="text-slate-500">{t.schemes.tenure}:</span>
                       <span className="font-bold text-slate-800 whitespace-nowrap">
                         {scheme.durationMonths} {lang === 'ta' ? 'மாதங்கள்' : 'Months'}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="text-slate-500">{t.schemes.firstMonth}:</span>
                       <span className="font-bold font-mono text-slate-900 tabular-nums whitespace-nowrap">
                         ₹{scheme.firstMonthInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-x-2 gap-y-0.5 flex-wrap">
                       <span className="text-slate-500">{t.schemes.instalmentRange}:</span>
-                      <span className="font-bold font-mono text-slate-900 tabular-nums whitespace-nowrap">
+                      <span className="font-bold font-mono text-slate-900 tabular-nums sm:whitespace-nowrap text-right">
                         ₹{scheme.minInstalment.toLocaleString('en-IN')} – ₹{scheme.maxInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
                     <div className="h-px bg-slate-200" />
 
-                    <div className="flex items-center justify-between gap-2 text-[#075C32] font-semibold">
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-[#075C32] font-semibold">
                       <span>{t.schemes.totalPaid}:</span>
                       <span className="font-mono font-bold tabular-nums whitespace-nowrap">
                         ₹{scheme.totalInstalmentsPaid.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 text-[#12834B] font-semibold">
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-[#12834B] font-semibold">
                       <span>{t.schemes.dividendGain}:</span>
                       <span className="font-mono font-bold tabular-nums whitespace-nowrap">
                         +₹{scheme.dividendBenefit.toLocaleString('en-IN')}

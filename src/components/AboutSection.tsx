@@ -11,25 +11,25 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
   const t = TRANSLATIONS[lang];
 
   return (
-    <section id="about" className="py-16 lg:py-24 bg-white border-b border-slate-200/80">
+    <section id="about" className="py-12 sm:py-16 lg:py-24 bg-white border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
             <Building2 className="w-3.5 h-3.5 text-[#12834B]" />
             <span>{lang === 'ta' ? 'நிறுவன பின்னணி' : 'Corporate Profile'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
             {t.about.title}
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed">
             {t.about.subtitle}
           </p>
         </div>
 
         {/* Narrative & Registered Letterhead Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch mb-12 sm:mb-16">
           
           <div className="lg:col-span-7 flex flex-col justify-between">
             <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed space-y-4 text-base">
@@ -71,9 +71,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
           </div>
 
           {/* Official Letterhead Representation Card */}
-          <div className="lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden">
+          <div className="lg:col-span-5 flex flex-col justify-between p-5 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="border-b border-slate-200 pb-4 mb-5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">
                   CIN: U64990TN2025PTC181717
                 </span>
@@ -81,7 +81,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
                   Active Entity
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-[#075C32] mt-2 tracking-tight">
+              <h3 className="text-base sm:text-lg font-bold text-[#075C32] mt-2 tracking-tight">
                 TEAM STARS CHITS PRIVATE LIMITED
               </h3>
             </div>

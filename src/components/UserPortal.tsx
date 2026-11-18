@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChitUser, Language, PaymentRecord, Announcement } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { HorizontalScrollArea } from './HorizontalScrollArea';
 import { 
   User, Lock, LogOut, CheckCircle2, Clock, 
   AlertCircle, ShieldCheck, Calendar, Bell, 
@@ -45,6 +46,16 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
       setIsAuthenticated(true);
     }
   }, []);
+
+  // Lock page body scrolling while Member Portal modal is active
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
 
   // Fetch member data when authenticated and modal is open
   useEffect(() => {
@@ -153,32 +164,32 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-1.5 sm:p-6 animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col"
+        className="bg-white w-full max-w-5xl rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[95vh] sm:max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
-        <div className="bg-[#075C32] text-white px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
-              <User className="w-5 h-5 text-[#C9A64A]" />
+        <div className="bg-[#075C32] text-white px-3.5 py-3 sm:px-6 sm:py-4 flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A64A]" />
             </div>
-            <div>
-              <h3 className="text-lg font-bold tracking-tight">
+            <div className="min-w-0">
+              <h3 className="text-sm sm:text-lg font-bold tracking-tight truncate">
                 {isTa ? 'உறுப்பினர் சீட்டு தளம்' : 'Member Chit Portal'}
               </h3>
-              <span className="text-[11px] text-white/70 block">
+              <span className="hidden sm:block text-[11px] text-white/70 truncate">
                 TEAM STARS CHITS PRIVATE LIMITED · CIN: U64990TN2025PTC181717
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1.5 sm:px-3 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] sm:text-xs font-semibold text-white flex items-center gap-1 sm:gap-1.5 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>{isTa ? 'வெளியேறு' : 'Log Out'}</span>
@@ -187,6 +198,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Close portal"
             >
               <X className="w-5 h-5" />
             </button>
@@ -194,10 +206,10 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-50">
+        <div className="p-3 sm:p-6 overflow-y-auto overscroll-contain flex-1 bg-slate-50">
           {!isAuthenticated ? (
             /* Member Sign In Form */
-            <div className="max-w-md mx-auto my-8 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="max-w-md mx-auto my-3 sm:my-8 bg-white rounded-2xl border border-slate-200 p-5 sm:p-8 shadow-sm">
               <div className="text-center mb-6">
                 <div className="w-12 h-12 rounded-full bg-[#E5F2E8] text-[#075C32] flex items-center justify-center mx-auto mb-3">
                   <Lock className="w-6 h-6 text-[#12834B]" />
@@ -292,43 +304,43 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
             <div className="space-y-6">
 
               {/* Member Welcome Card */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#E5F2E8] border border-[#12834B]/20 flex items-center justify-center shrink-0">
-                    <User className="w-7 h-7 text-[#075C32]" />
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
+                  <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#E5F2E8] border border-[#12834B]/20 flex items-center justify-center shrink-0">
+                    <User className="w-6 h-6 sm:w-7 sm:h-7 text-[#075C32]" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-xl font-black text-slate-900">{profile?.full_name}</h4>
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/30 font-mono">
+                      <h4 className="text-base sm:text-xl font-black text-slate-900">{profile?.full_name}</h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#E5F2E8] text-[#075C32] border border-[#12834B]/30 font-mono">
                         {profile?.user_id}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
                         {profile?.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-slate-500 mt-1 flex-wrap">
+                    <div className="flex items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1 flex-wrap">
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                        {profile?.address}, {profile?.city}
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span>{profile?.address}, {profile?.city}</span>
                       </span>
                       <span className="flex items-center gap-1 font-mono">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         +91 {profile?.mobile_number}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
+                <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end">
                   <button
                     onClick={fetchMemberData}
-                    className="p-2 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="p-2 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shrink-0"
                     title="Refresh status"
                   >
                     <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
                   </button>
-                  <div className="px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-right">
+                  <div className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-left sm:text-right flex-1 sm:flex-initial">
                     <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-bold">
                       {isTa ? 'குழு & திட்டம்' : 'Assigned Group & Scheme'}
                     </span>
@@ -345,10 +357,14 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+              <HorizontalScrollArea
+                className="border-b border-slate-200"
+                innerClassName="flex items-center gap-1.5 sm:gap-2 pb-2"
+                ariaLabel="Member Portal Navigation Tabs"
+              >
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 ${
                     activeTab === 'overview'
                       ? 'bg-[#075C32] text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -359,7 +375,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                 </button>
                 <button
                   onClick={() => setActiveTab('payments')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 ${
                     activeTab === 'payments'
                       ? 'bg-[#075C32] text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -370,7 +386,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                 </button>
                 <button
                   onClick={() => setActiveTab('announcements')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 ${
                     activeTab === 'announcements'
                       ? 'bg-[#075C32] text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -379,19 +395,19 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                   <Bell className="w-3.5 h-3.5" />
                   <span>{isTa ? 'அறிவிப்புகள்' : 'Announcements'} ({announcements.length})</span>
                 </button>
-              </div>
+              </HorizontalScrollArea>
 
               {activeTab === 'overview' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* CURRENT MONTH PROMINENT PAYMENT STATUS CARD */}
-                  <div className={`p-6 rounded-2xl border transition-all shadow-sm ${
+                  <div className={`p-4 sm:p-6 rounded-2xl border transition-all shadow-sm ${
                     currentMonthPayment?.payment_status === 'PAID'
                       ? 'bg-emerald-50/70 border-emerald-300'
                       : 'bg-rose-50/70 border-rose-300'
                   }`}>
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <span className="text-[11px] font-bold tracking-wider uppercase text-slate-600">
                             {isTa ? 'நடப்பு மாத தவணை' : 'CURRENT MONTH INSTALMENT'}
                           </span>
@@ -399,8 +415,8 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                             {currentMonthPayment?.month_name || 'Active Month'}
                           </span>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono">
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          <span className="text-2xl sm:text-4xl font-black text-slate-900 font-mono">
                             ₹{(currentMonthPayment?.payment_amount || 0).toLocaleString('en-IN')}
                           </span>
                           <span className="text-xs text-slate-500">
@@ -502,7 +518,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
 
                   {/* Recent 5 Payments Preview Table */}
                   <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                    <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                    <div className="p-3.5 sm:p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
                       <h5 className="font-bold text-xs text-slate-900 uppercase tracking-wider">
                         {isTa ? 'சமீபத்திய தவணை வரலாறு' : 'Recent Payment Records'}
                       </h5>
@@ -514,8 +530,8 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                       </button>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
+                    <HorizontalScrollArea ariaLabel="Recent Payment Records">
+                      <table className="w-full min-w-[600px] text-left text-xs border-collapse">
                         <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                           <tr>
                             <th className="py-2.5 px-4">{isTa ? 'மாதம்' : 'Month / Cycle'}</th>
@@ -559,7 +575,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                           ))}
                         </tbody>
                       </table>
-                    </div>
+                    </HorizontalScrollArea>
                   </div>
                 </div>
               )}
@@ -567,7 +583,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
               {activeTab === 'payments' && (
                 /* Full Payment History Tab */
                 <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                  <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="p-3.5 sm:p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <h5 className="font-bold text-sm text-slate-900">
                         {isTa ? `முழுமையான ${durationMonths}-மாத தவணை வரலாறு` : `Complete ${durationMonths}-Month Payment History`}
@@ -576,13 +592,13 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                         {isTa ? 'உங்கள் கணக்கின் அனைத்து மாத தவணைகள் மற்றும் ரொக்க ரசீது விவரங்கள்.' : 'Detailed record of all monthly instalments and cash receipts for your account.'}
                       </p>
                     </div>
-                    <span className="px-3 py-1 rounded-lg bg-[#E5F2E8] text-[#075C32] text-xs font-bold">
+                    <span className="px-3 py-1 rounded-lg bg-[#E5F2E8] text-[#075C32] text-xs font-bold shrink-0">
                       {payments.length} {isTa ? 'பதிவுகள்' : 'Records'}
                     </span>
                   </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
+                  <HorizontalScrollArea ariaLabel="Complete Payment History">
+                    <table className="w-full min-w-[760px] text-left text-xs border-collapse">
                       <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                         <tr>
                           <th className="py-3 px-4">{isTa ? 'மாதம்' : 'Month / Cycle'}</th>
@@ -642,7 +658,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ lang, isOpen, onClose })
                         )}
                       </tbody>
                     </table>
-                  </div>
+                  </HorizontalScrollArea>
                 </div>
               )}
 

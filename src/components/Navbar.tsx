@@ -44,24 +44,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all">
       {/* Top micro trust header */}
-      <div className="bg-[#075C32] text-white text-[11px] md:text-xs py-1.5 px-4 font-medium">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 truncate">
-            <span className="font-semibold tracking-wider text-[#C9A64A]">CIN: U64990TN2025PTC181717</span>
+      <div className="bg-[#075C32] text-white text-[11px] md:text-xs py-1.5 px-3 sm:px-4 font-medium">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 min-w-0 truncate">
+            <span className="font-semibold tracking-wider text-[#C9A64A] truncate">CIN: U64990TN2025PTC181717</span>
             <span className="hidden sm:inline text-white/50">·</span>
             <span className="hidden sm:inline text-white/90">Madathattuvillai, Villukuri, Kanyakumari – 629180</span>
           </div>
-          <div className="flex items-center gap-4 shrink-0 text-white/90">
+          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-white/90">
             <a 
               href="tel:9789825684" 
-              className="flex items-center gap-1.5 hover:text-[#C9A64A] transition-colors"
+              className="flex items-center gap-1 hover:text-[#C9A64A] transition-colors"
             >
-              <Phone className="w-3.5 h-3.5 text-[#C9A64A]" />
+              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#C9A64A]" />
               <span className="font-semibold">9789825684</span>
             </a>
             <button
               onClick={onOpenUser}
-              className="flex items-center gap-1 text-[11px] text-[#C9A64A] hover:text-white transition-colors cursor-pointer"
+              className="hidden sm:flex items-center gap-1 text-[11px] text-[#C9A64A] hover:text-white transition-colors cursor-pointer"
               title="Chit Member Login / பயனர் உள்நுழைவு"
             >
               <User className="w-3 h-3 text-[#C9A64A]" />
@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline text-white/30">|</span>
             <button
               onClick={onOpenAdmin}
-              className="flex items-center gap-1 text-[11px] text-emerald-100 hover:text-white transition-colors cursor-pointer"
+              className="hidden sm:flex items-center gap-1 text-[11px] text-emerald-100 hover:text-white transition-colors cursor-pointer"
               title="Official Admin Management"
             >
               <ShieldCheck className="w-3 h-3 text-[#C9A64A]" />
@@ -81,14 +81,14 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
           {/* Zone 1: Brand Zone */}
           <div 
             onClick={() => handleLinkClick('home')}
-            className="flex items-center gap-3 cursor-pointer select-none shrink-0 group"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none min-w-0 group"
           >
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#075C32] shadow-xs group-hover:scale-105 transition-transform bg-white shrink-0">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-[#075C32] shadow-xs group-hover:scale-105 transition-transform bg-white shrink-0">
               <img
                 src="/images/team-stars-logo.jpeg"
                 alt="TEAM STARS CHITS PRIVATE LIMITED Logo"
@@ -96,11 +96,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="flex flex-col">
-              <span className="text-base sm:text-lg font-bold tracking-tight text-[#075C32] leading-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm sm:text-lg font-bold tracking-tight text-[#075C32] leading-tight truncate">
                 {lang === 'ta' ? 'டீம் ஸ்டார்ஸ் சிட்ஸ்' : 'TEAM STARS CHITS'}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-wider uppercase">
+              <span className="text-[9px] sm:text-[11px] font-semibold text-slate-500 tracking-wider uppercase truncate">
                 Private Limited · Villukuri
               </span>
             </div>
@@ -129,14 +129,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Zone 3: Actions (Language Switcher + Enquire CTA) */}
-          <div className={`flex items-center shrink-0 ${lang === 'ta' ? 'gap-1.5 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
+          <div className={`flex items-center shrink-0 ${lang === 'ta' ? 'gap-1.5 sm:gap-2' : 'gap-1.5 sm:gap-3'}`}>
             {/* Language Switcher */}
             <button
               onClick={() => onLanguageChange(lang === 'en' ? 'ta' : 'en')}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:border-[#12834B] hover:text-[#075C32] transition-colors bg-slate-50/80 whitespace-nowrap"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] sm:text-xs font-semibold text-slate-700 hover:border-[#12834B] hover:text-[#075C32] transition-colors bg-slate-50/80 whitespace-nowrap"
               title="Switch Language / மொழியை மாற்றுக"
             >
-              <Globe className="w-3.5 h-3.5 text-[#12834B]" />
+              <Globe className="w-3.5 h-3.5 text-[#12834B] shrink-0" />
               <span>{lang === 'en' ? 'தமிழ்' : 'English'}</span>
             </button>
 
@@ -155,8 +155,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Primary Action CTA */}
             <button
               onClick={onOpenEnquiry}
-              className={`text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
-                lang === 'ta' ? 'px-3 py-2' : 'px-4 py-2 sm:text-sm'
+              className={`hidden min-[420px]:inline-flex items-center justify-center text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
+                lang === 'ta' ? 'px-2.5 sm:px-3 py-2' : 'px-3 sm:px-4 py-2 sm:text-sm'
               }`}
             >
               {t.nav.enquireNow}
@@ -165,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="xl:hidden p-1.5 sm:p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -193,6 +193,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
             
             <div className="pt-3 mt-2 border-t border-slate-100 flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  onOpenEnquiry();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 px-3 rounded-lg bg-[#075C32] text-white text-xs font-bold text-center"
+              >
+                {t.nav.enquireNow}
+              </button>
+
               <button
                 onClick={() => {
                   onOpenUser();

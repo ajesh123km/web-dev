@@ -134,27 +134,41 @@ if (isSupabaseConfigured) {
   console.log('[Supabase] Credentials not set in env. Using persistent local storage.');
 }
 
-async function syncTableUpsert(table: string, rows: any[], onConflict: string = 'id'): Promise<void> {
-  if (!supabase || !rows || rows.length === 0) return;
+async function syncTableUpsert(
+  table: string,
+  rows: any[],
+  onConflict: string = 'id'
+): Promise<{ ok: boolean; error?: string; code?: string }> {
+  if (!supabase || !rows || rows.length === 0) return { ok: true };
   try {
     const { error } = await (supabase as any).from(table).upsert(rows, { onConflict });
     if (error) {
       console.warn(`[Supabase] Upsert warning (${table}):`, error.message);
+      return { ok: false, error: error.message, code: error.code };
     }
-  } catch (err) {
+    return { ok: true };
+  } catch (err: any) {
     console.warn(`[Supabase] Upsert exception (${table}):`, err);
+    return { ok: false, error: err?.message || 'Supabase upsert failed' };
   }
 }
 
-async function syncTableDelete(table: string, column: string, value: string): Promise<void> {
-  if (!supabase) return;
+async function syncTableDelete(
+  table: string,
+  column: string,
+  value: string
+): Promise<{ ok: boolean; error?: string; code?: string }> {
+  if (!supabase) return { ok: true };
   try {
     const { error } = await (supabase as any).from(table).delete().eq(column, value);
     if (error) {
       console.warn(`[Supabase] Delete warning (${table}):`, error.message);
+      return { ok: false, error: error.message, code: error.code };
     }
-  } catch (err) {
+    return { ok: true };
+  } catch (err: any) {
     console.warn(`[Supabase] Delete exception (${table}):`, err);
+    return { ok: false, error: err?.message || 'Supabase delete failed' };
   }
 }
 
@@ -248,7 +262,7 @@ function schemeVersionToDbRow(v: any) {
 }
 
 function groupToDbRow(g: any) {
-  return {
+  const row: any = {
     id: g.id,
     name: g.name,
     scheme_id: g.scheme_id || null,
@@ -262,6 +276,10 @@ function groupToDbRow(g: any) {
     created_at: g.created_at || new Date().toISOString(),
     updated_at: g.updated_at || g.created_at || new Date().toISOString()
   };
+  if (g.archived_at) {
+    row.archived_at = g.archived_at;
+  }
+  return row;
 }
 
 function dbRowToGroup(row: any) {
@@ -276,6 +294,7 @@ function dbRowToGroup(row: any) {
     start_date: row.start_date,
     status: row.status || 'active',
     max_members: Number(row.max_members || 99),
+    archived_at: row.archived_at || undefined,
     created_at: row.created_at,
     updated_at: row.updated_at
   };
@@ -1806,7 +1825,7 @@ app.get('/api/admin/overview', (req: Request, res: Response) => {
   const auditLogs = getLocalAuditLogs();
 
   const totalUsers = users.length;
-  const totalGroups = groups.length;
+  const totalGroups = groups.filter((g: any) => g.status !== 'archived').length;
   const totalSchemes = schemes.filter((s: any) => (s.status || 'active') === 'active').length;
 
   const paidPayments = payments.filter((p: any) => p.payment_status === 'PAID');
@@ -1978,7 +1997,21 @@ app.post('/api/admin/schemes', async (req: Request, res: Response) => {
   }
 
   const schemes = getLocalSchemes();
+  const normalizedName = nameEn.trim().toLowerCase();
   const cleanCode = (schemeCode || `TSC-${Math.round(numValue / 1000)}K-${numDuration}M`).trim().toUpperCase();
+
+  const duplicateScheme = schemes.find(
+    (s: any) =>
+      (s.status || 'active') !== 'archived' &&
+      (String(s.nameEn || '').trim().toLowerCase() === normalizedName ||
+        String(s.schemeCode || '').trim().toUpperCase() === cleanCode)
+  );
+  if (duplicateScheme) {
+    return res.status(409).json({
+      error: `A scheme named "${duplicateScheme.nameEn}" (${duplicateScheme.schemeCode}) already exists. Please use a different scheme name/code or switch to Edit Existing Scheme.`
+    });
+  }
+
   const slugId = `scheme-${Date.now()}-${Math.round(numValue / 1000)}k`;
 
   const calc = buildProportionalSchedule(numValue, numDuration);
@@ -2190,43 +2223,73 @@ app.delete('/api/admin/schemes/:id', async (req: Request, res: Response) => {
 
   const target = schemes[idx];
   const groups = getLocalGroups();
-  const referenced = groups.some((g: any) => g.scheme_id === target.id || Number(g.chit_value) === Number(target.chitValue));
+  let referenced = groups.some((g: any) => g.scheme_id === target.id || Number(g.chit_value) === Number(target.chitValue));
 
-  if (referenced) {
-    target.status = 'archived';
-    target.updatedAt = new Date().toISOString();
-    saveLocalSchemes(schemes);
-    await syncTableUpsert('chit_schemes', [schemeToDbRow(target)], 'id');
-    recordAuditLog('SCHEME_ARCHIVE', `Archived Scheme ${target.nameEn} (referenced by existing chit groups)`, 'Admin', target.id);
-    return res.json({
-      success: true,
-      archived: true,
-      message: `Scheme "${target.nameEn}" is linked to existing chit groups, so it has been safely archived instead of permanently deleted.`
-    });
+  if (!referenced && supabase) {
+    try {
+      const { count } = await (supabase as any)
+        .from('chit_groups')
+        .select('id', { count: 'exact', head: true })
+        .eq('scheme_id', id);
+      if (Number(count || 0) > 0) referenced = true;
+    } catch (e) {
+      console.warn('[Supabase] Scheme group reference check warning:', e);
+    }
   }
 
-  schemes.splice(idx, 1);
+  if (!referenced) {
+    await syncTableDelete('scheme_versions', 'scheme_id', id);
+    const delRes = await syncTableDelete('chit_schemes', 'id', id);
+    if (delRes.ok) {
+      const remainingVersions = getLocalSchemeVersions().filter((v: any) => v.scheme_id !== id);
+      saveLocalSchemeVersions(remainingVersions);
+      schemes.splice(idx, 1);
+      saveLocalSchemes(schemes);
+      recordAuditLog('SCHEME_DELETE', `Deleted unused scheme: ${target.nameEn}`, 'Admin', target.id);
+      return res.json({ success: true, archived: false, message: `Scheme "${target.nameEn}" deleted.` });
+    }
+  }
+
+  target.status = 'archived';
+  target.updatedAt = new Date().toISOString();
   saveLocalSchemes(schemes);
-  await syncTableDelete('chit_schemes', 'id', id);
-  recordAuditLog('SCHEME_DELETE', `Deleted unused scheme: ${target.nameEn}`, 'Admin', target.id);
-  return res.json({ success: true, archived: false, message: `Scheme "${target.nameEn}" deleted.` });
+  await syncTableUpsert('chit_schemes', [schemeToDbRow(target)], 'id');
+  recordAuditLog('SCHEME_ARCHIVE', `Archived Scheme ${target.nameEn} (referenced by existing chit groups)`, 'Admin', target.id);
+  return res.json({
+    success: true,
+    archived: true,
+    message: `Scheme "${target.nameEn}" is linked to existing chit groups, so it has been safely archived instead of permanently deleted.`
+  });
 });
 
 // ======================== ADMIN GROUP MANAGEMENT ========================
 
-// Get all groups with member counts
+// Get all groups with member counts & financial safeguard metadata
 app.get('/api/admin/groups', (req: Request, res: Response) => {
   if (!isValidAdminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
 
   const groups = getLocalGroups();
-  const users = getLocalUsers().filter((u: any) => !u.is_deleted);
+  const allUsers = getLocalUsers();
+  const activeUsers = allUsers.filter((u: any) => !u.is_deleted);
+  const payments = getLocalPayments();
+  const configs = getLocalPaymentConfigs();
 
-  const groupsWithCount = groups.map((g: any) => ({
-    ...g,
-    member_count: users.filter((u: any) => u.group_id === g.id).length
-  }));
+  const groupsWithCount = groups.map((g: any) => {
+    const member_count = activeUsers.filter((u: any) => u.group_id === g.id).length;
+    const total_user_count = allUsers.filter((u: any) => u.group_id === g.id).length;
+    const payment_count = payments.filter((p: any) => p.group_id === g.id).length;
+    const config_count = configs.filter((c: any) => c.group_id === g.id).length;
+    return {
+      ...g,
+      member_count,
+      total_user_count,
+      payment_count,
+      config_count,
+      has_financial_records: total_user_count > 0 || payment_count > 0 || config_count > 0
+    };
+  });
 
   return res.json({ groups: groupsWithCount });
 });
@@ -2286,7 +2349,14 @@ app.post('/api/admin/groups', async (req: Request, res: Response) => {
 
   return res.status(201).json({
     success: true,
-    group: { ...newGroup, member_count: 0 },
+    group: {
+      ...newGroup,
+      member_count: 0,
+      total_user_count: 0,
+      payment_count: 0,
+      config_count: 0,
+      has_financial_records: false
+    },
     message: 'Chit Group created successfully.'
   });
 });
@@ -2312,22 +2382,34 @@ app.put('/api/admin/groups/:id', async (req: Request, res: Response) => {
   if (chit_value) target.chit_value = Number(chit_value);
   if (duration_months) target.duration_months = Number(duration_months);
   if (start_date) target.start_date = start_date;
-  if (status && ['active', 'inactive'].includes(status)) target.status = status;
+  if (status && ['active', 'inactive', 'archived'].includes(status)) {
+    target.status = status;
+    if (status === 'archived') {
+      target.archived_at = target.archived_at || new Date().toISOString();
+    } else {
+      delete target.archived_at;
+    }
+  }
   target.updated_at = new Date().toISOString();
 
   saveLocalGroups(groups);
-  await syncTableUpsert('chit_groups', [groupToDbRow(target)], 'id');
+  const syncRes = await syncTableUpsert('chit_groups', [groupToDbRow(target)], 'id');
+  if (!syncRes.ok && target.status === 'archived') {
+    await syncTableUpsert('chit_groups', [groupToDbRow({ ...target, status: 'inactive', archived_at: undefined })], 'id');
+  }
   recordAuditLog('GROUP_UPDATE', `Updated Group: ${target.id} (${target.name})`, 'Admin', target.id);
 
-  createAutoAnnouncement({
-    title: `Group Details Updated: ${target.name}`,
-    description: `Administration updated details for ${target.name} (${target.id} · ${target.scheme_name}, ${target.duration_months || 20} Months).`,
-    category: 'Group Update',
-    target_type: 'group',
-    target_group_id: target.id,
-    target_group_name: target.name,
-    source_event_key: `group:update:${target.id}:${target.updated_at.slice(0, 16)}`
-  });
+  if (target.status !== 'archived') {
+    createAutoAnnouncement({
+      title: `Group Details Updated: ${target.name}`,
+      description: `Administration updated details for ${target.name} (${target.id} · ${target.scheme_name}, ${target.duration_months || 20} Months).`,
+      category: 'Group Update',
+      target_type: 'group',
+      target_group_id: target.id,
+      target_group_name: target.name,
+      source_event_key: `group:update:${target.id}:${target.updated_at.slice(0, 16)}`
+    });
+  }
 
   return res.json({ success: true, group: target, message: 'Group updated successfully.' });
 });
@@ -2347,6 +2429,9 @@ app.patch('/api/admin/groups/:id/status', async (req: Request, res: Response) =>
   const groups = getLocalGroups();
   const target = groups.find((g: any) => g.id === id);
   if (!target) return res.status(404).json({ error: 'Group not found.' });
+  if (target.status === 'archived') {
+    return res.status(400).json({ error: `Group "${target.name}" is archived. Use Edit Group to restore it if needed.` });
+  }
 
   const prevStatus = target.status;
   target.status = status;
@@ -2369,6 +2454,118 @@ app.patch('/api/admin/groups/:id/status', async (req: Request, res: Response) =>
   }
 
   return res.json({ success: true, group: target });
+});
+
+// Delete or Safely Archive Group (Preserves all members & financial history)
+app.delete('/api/admin/groups/:id', async (req: Request, res: Response) => {
+  if (!isValidAdminAuth(req)) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+
+  const { id } = req.params;
+  const groups = getLocalGroups();
+  const groupIdx = groups.findIndex((g: any) => g.id === id);
+
+  if (groupIdx === -1) {
+    return res.status(404).json({ error: 'Group not found or already deleted.' });
+  }
+
+  const target = groups[groupIdx];
+  const allUsers = getLocalUsers();
+  const payments = getLocalPayments();
+  const configs = getLocalPaymentConfigs();
+
+  let linkedUsersCount = allUsers.filter((u: any) => u.group_id === id).length;
+  let linkedPaymentsCount = payments.filter((p: any) => p.group_id === id).length;
+  let linkedConfigsCount = configs.filter((c: any) => c.group_id === id).length;
+  let linkedMembershipsCount = 0;
+
+  // Also verify directly against Supabase tables so remote FK links are never missed
+  if (supabase) {
+    try {
+      const sb = supabase as any;
+      const [uRes, pRes, cRes, mRes] = await Promise.all([
+        sb.from('chit_users').select('id', { count: 'exact', head: true }).eq('group_id', id),
+        sb.from('payment_records').select('id', { count: 'exact', head: true }).eq('group_id', id),
+        sb.from('monthly_payment_configs').select('id', { count: 'exact', head: true }).eq('group_id', id),
+        sb.from('group_memberships').select('id', { count: 'exact', head: true }).eq('group_id', id)
+      ]);
+      linkedUsersCount = Math.max(linkedUsersCount, Number(uRes.count || 0));
+      linkedPaymentsCount = Math.max(linkedPaymentsCount, Number(pRes.count || 0));
+      linkedConfigsCount = Math.max(linkedConfigsCount, Number(cRes.count || 0));
+      linkedMembershipsCount = Number(mRes.count || 0);
+    } catch (sbCheckErr) {
+      console.warn('[Supabase] Pre-delete dependency check warning:', sbCheckErr);
+    }
+  }
+
+  const hasDependencies =
+    linkedUsersCount > 0 || linkedPaymentsCount > 0 || linkedConfigsCount > 0 || linkedMembershipsCount > 0;
+
+  if (!hasDependencies) {
+    const deleteRes = await syncTableDelete('chit_groups', 'id', id);
+    if (deleteRes.ok) {
+      groups.splice(groupIdx, 1);
+      saveLocalGroups(groups);
+      recordAuditLog(
+        'GROUP_DELETE',
+        `Permanently deleted unused Chit Group ${target.id} (${target.name})`,
+        'Admin',
+        target.id
+      );
+      return res.json({
+        success: true,
+        archived: false,
+        deleted: true,
+        message: `Chit Group "${target.name}" (${target.id}) permanently deleted.`
+      });
+    }
+    // If Supabase blocked hard delete due to FK reference, fall through to safe archive
+  }
+
+  if (target.status === 'archived') {
+    return res.json({
+      success: true,
+      archived: true,
+      deleted: false,
+      group: target,
+      message: `Group "${target.name}" (${target.id}) is already archived with all financial records preserved.`
+    });
+  }
+
+  const now = new Date().toISOString();
+  target.status = 'archived';
+  target.archived_at = now;
+  target.updated_at = now;
+  saveLocalGroups(groups);
+
+  let migrationNotice: string | undefined;
+  const archiveSync = await syncTableUpsert('chit_groups', [groupToDbRow(target)], 'id');
+  if (!archiveSync.ok) {
+    // Fallback if Supabase migration_v3.sql has not been executed yet (constraint or missing archived_at)
+    await syncTableUpsert(
+      'chit_groups',
+      [groupToDbRow({ ...target, status: 'inactive', archived_at: undefined })],
+      'id'
+    );
+    migrationNotice = 'Run supabase/migration_v3.sql in Supabase SQL Editor to persist native archived status in PostgreSQL.';
+  }
+
+  recordAuditLog(
+    'GROUP_ARCHIVE',
+    `Archived Chit Group ${target.id} (${target.name}) — preserved ${linkedUsersCount} member(s) and ${linkedPaymentsCount} payment record(s)`,
+    'Admin',
+    target.id
+  );
+
+  return res.json({
+    success: true,
+    archived: true,
+    deleted: false,
+    group: target,
+    migrationNotice,
+    message: `Group "${target.name}" (${target.id}) has existing members/payment history, so it was safely archived instead of deleted. All financial records remain intact.`
+  });
 });
 
 // Get members of specific group
@@ -2444,11 +2641,14 @@ app.post('/api/admin/users', async (req: Request, res: Response) => {
     return res.status(400).json({ error: `User ID "${cleanUserId}" is already in use. Please generate or use a different ID.` });
   }
 
-  // 2. Validate group existence and Max 99 members constraint
+  // 2. Validate group existence, active state, and Max 99 members constraint
   const groups = getLocalGroups();
   const group = groups.find((g: any) => g.id === group_id);
   if (!group) {
     return res.status(400).json({ error: 'Selected group does not exist.' });
+  }
+  if (group.status === 'archived') {
+    return res.status(400).json({ error: `Cannot assign member. Group "${group.name}" has been archived.` });
   }
 
   const currentMembersInGroup = users.filter((u: any) => !u.is_deleted && u.group_id === group_id).length;
@@ -2504,11 +2704,14 @@ app.put('/api/admin/users/:id', async (req: Request, res: Response) => {
     return res.status(404).json({ error: 'User not found.' });
   }
 
-  // If changing group, check max 99 members
+  // If changing group, check not archived and max 99 members
   if (group_id && group_id !== target.group_id) {
     const groups = getLocalGroups();
     const newGroup = groups.find((g: any) => g.id === group_id);
     if (!newGroup) return res.status(400).json({ error: 'Target group does not exist.' });
+    if (newGroup.status === 'archived') {
+      return res.status(400).json({ error: `Cannot move member to archived group "${newGroup.name}".` });
+    }
 
     const memberCount = users.filter((u: any) => !u.is_deleted && u.group_id === group_id).length;
     if (memberCount >= 99) {
@@ -2766,6 +2969,9 @@ app.post('/api/admin/payments/configure', async (req: Request, res: Response) =>
   const groups = getLocalGroups();
   const group = groups.find((g: any) => g.id === group_id);
   if (!group) return res.status(404).json({ error: 'Selected group does not exist.' });
+  if (group.status === 'archived') {
+    return res.status(400).json({ error: `Cannot publish monthly payments for archived group "${group.name}".` });
+  }
 
   const users = getLocalUsers();
   const groupMembers = users.filter((u: any) => !u.is_deleted && u.group_id === group_id && u.status === 'active');

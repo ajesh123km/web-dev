@@ -22,8 +22,108 @@
     "taglineEn": "Ideal for disciplined individual savings, household planning, and festival preparedness.",
     "taglineTa": "தனிநபர் சேமிப்பு, குடும்ப திட்டமிடல் மற்றும் திருவிழா செலவுகளுக்கு ஏற்ற சிறந்த திட்டம்.",
     "documentImage": "/images/1-lakh-scheme.jpeg",
-    "status": "active",
-    "version": 1,
+    "schedule": [
+      {
+        "month": 1,
+        "chitAmount": 95000,
+        "instalment": 5000
+      },
+      {
+        "month": 2,
+        "chitAmount": 78000,
+        "instalment": 4150
+      },
+      {
+        "month": 3,
+        "chitAmount": 78400,
+        "instalment": 4170
+      },
+      {
+        "month": 4,
+        "chitAmount": 79000,
+        "instalment": 4200
+      },
+      {
+        "month": 5,
+        "chitAmount": 79400,
+        "instalment": 4220
+      },
+      {
+        "month": 6,
+        "chitAmount": 80000,
+        "instalment": 4250
+      },
+      {
+        "month": 7,
+        "chitAmount": 80600,
+        "instalment": 4280
+      },
+      {
+        "month": 8,
+        "chitAmount": 81200,
+        "instalment": 4310
+      },
+      {
+        "month": 9,
+        "chitAmount": 82000,
+        "instalment": 4350
+      },
+      {
+        "month": 10,
+        "chitAmount": 83000,
+        "instalment": 4400
+      },
+      {
+        "month": 11,
+        "chitAmount": 83400,
+        "instalment": 4420
+      },
+      {
+        "month": 12,
+        "chitAmount": 84000,
+        "instalment": 4450
+      },
+      {
+        "month": 13,
+        "chitAmount": 85000,
+        "instalment": 4500
+      },
+      {
+        "month": 14,
+        "chitAmount": 86500,
+        "instalment": 4575
+      },
+      {
+        "month": 15,
+        "chitAmount": 88000,
+        "instalment": 4650
+      },
+      {
+        "month": 16,
+        "chitAmount": 90000,
+        "instalment": 4750
+      },
+      {
+        "month": 17,
+        "chitAmount": 92000,
+        "instalment": 4850
+      },
+      {
+        "month": 18,
+        "chitAmount": 93000,
+        "instalment": 4900
+      },
+      {
+        "month": 19,
+        "chitAmount": 94000,
+        "instalment": 4950
+      },
+      {
+        "month": 20,
+        "chitAmount": 95000,
+        "instalment": 5000
+      }
+    ],
     "rulesEn": [
       "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
       "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
@@ -46,110 +146,11 @@
       "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹2,000 வழங்கப்படும்.",
       "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹400 வழங்கப்படும் (மொத்தம்: ₹2,400)."
     ],
-    "schedule": [
-      {
-        "month": 1,
-        "instalment": 5000,
-        "chitAmount": 95000
-      },
-      {
-        "month": 2,
-        "instalment": 4150,
-        "chitAmount": 78000
-      },
-      {
-        "month": 3,
-        "instalment": 4170,
-        "chitAmount": 78400
-      },
-      {
-        "month": 4,
-        "instalment": 4200,
-        "chitAmount": 79000
-      },
-      {
-        "month": 5,
-        "instalment": 4220,
-        "chitAmount": 79400
-      },
-      {
-        "month": 6,
-        "instalment": 4250,
-        "chitAmount": 80000
-      },
-      {
-        "month": 7,
-        "instalment": 4280,
-        "chitAmount": 80600
-      },
-      {
-        "month": 8,
-        "instalment": 4310,
-        "chitAmount": 81200
-      },
-      {
-        "month": 9,
-        "instalment": 4350,
-        "chitAmount": 82000
-      },
-      {
-        "month": 10,
-        "instalment": 4400,
-        "chitAmount": 83000
-      },
-      {
-        "month": 11,
-        "instalment": 4420,
-        "chitAmount": 83400
-      },
-      {
-        "month": 12,
-        "instalment": 4450,
-        "chitAmount": 84000
-      },
-      {
-        "month": 13,
-        "instalment": 4500,
-        "chitAmount": 85000
-      },
-      {
-        "month": 14,
-        "instalment": 4575,
-        "chitAmount": 86500
-      },
-      {
-        "month": 15,
-        "instalment": 4650,
-        "chitAmount": 88000
-      },
-      {
-        "month": 16,
-        "instalment": 4750,
-        "chitAmount": 90000
-      },
-      {
-        "month": 17,
-        "instalment": 4850,
-        "chitAmount": 92000
-      },
-      {
-        "month": 18,
-        "instalment": 4900,
-        "chitAmount": 93000
-      },
-      {
-        "month": 19,
-        "instalment": 4950,
-        "chitAmount": 94000
-      },
-      {
-        "month": 20,
-        "instalment": 5000,
-        "chitAmount": 95000
-      }
-    ],
-    "createdAt": "2026-11-15T10:06:58.389Z",
-    "updatedAt": "2026-11-15T11:30:01.982Z"
+    "status": "active",
+    "startDate": "2026-11-15",
+    "version": 1,
+    "createdAt": "2026-11-15T10:06:58.389+00:00",
+    "updatedAt": "2026-11-15T11:30:01.982+00:00"
   },
   {
     "id": "scheme-2-lakh",
@@ -174,8 +175,108 @@
     "taglineEn": "Our most popular scheme for family milestones, medical contingencies, and education funds.",
     "taglineTa": "குடும்ப நிகழ்வுகள், கல்விச் செலவுகள் மற்றும் அவசர நிதிக்கான வாடிக்கையாளர்களின் விருப்பத் திட்டம்.",
     "documentImage": "/images/2-lakh-scheme.jpeg",
-    "status": "active",
-    "version": 1,
+    "schedule": [
+      {
+        "month": 1,
+        "chitAmount": 190000,
+        "instalment": 10000
+      },
+      {
+        "month": 2,
+        "chitAmount": 156000,
+        "instalment": 8300
+      },
+      {
+        "month": 3,
+        "chitAmount": 156800,
+        "instalment": 8340
+      },
+      {
+        "month": 4,
+        "chitAmount": 158000,
+        "instalment": 8400
+      },
+      {
+        "month": 5,
+        "chitAmount": 158800,
+        "instalment": 8440
+      },
+      {
+        "month": 6,
+        "chitAmount": 160000,
+        "instalment": 8500
+      },
+      {
+        "month": 7,
+        "chitAmount": 161200,
+        "instalment": 8560
+      },
+      {
+        "month": 8,
+        "chitAmount": 162400,
+        "instalment": 8620
+      },
+      {
+        "month": 9,
+        "chitAmount": 164000,
+        "instalment": 8700
+      },
+      {
+        "month": 10,
+        "chitAmount": 166000,
+        "instalment": 8800
+      },
+      {
+        "month": 11,
+        "chitAmount": 166800,
+        "instalment": 8840
+      },
+      {
+        "month": 12,
+        "chitAmount": 168000,
+        "instalment": 8900
+      },
+      {
+        "month": 13,
+        "chitAmount": 170000,
+        "instalment": 9000
+      },
+      {
+        "month": 14,
+        "chitAmount": 173000,
+        "instalment": 9150
+      },
+      {
+        "month": 15,
+        "chitAmount": 176000,
+        "instalment": 9300
+      },
+      {
+        "month": 16,
+        "chitAmount": 180000,
+        "instalment": 9500
+      },
+      {
+        "month": 17,
+        "chitAmount": 184000,
+        "instalment": 9700
+      },
+      {
+        "month": 18,
+        "chitAmount": 186000,
+        "instalment": 9800
+      },
+      {
+        "month": 19,
+        "chitAmount": 188000,
+        "instalment": 9900
+      },
+      {
+        "month": 20,
+        "chitAmount": 190000,
+        "instalment": 10000
+      }
+    ],
     "rulesEn": [
       "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
       "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
@@ -198,110 +299,11 @@
       "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹4,000 வழங்கப்படும்.",
       "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹800 வழங்கப்படும் (மொத்தம்: ₹4,800)."
     ],
-    "schedule": [
-      {
-        "month": 1,
-        "instalment": 10000,
-        "chitAmount": 190000
-      },
-      {
-        "month": 2,
-        "instalment": 8300,
-        "chitAmount": 156000
-      },
-      {
-        "month": 3,
-        "instalment": 8340,
-        "chitAmount": 156800
-      },
-      {
-        "month": 4,
-        "instalment": 8400,
-        "chitAmount": 158000
-      },
-      {
-        "month": 5,
-        "instalment": 8440,
-        "chitAmount": 158800
-      },
-      {
-        "month": 6,
-        "instalment": 8500,
-        "chitAmount": 160000
-      },
-      {
-        "month": 7,
-        "instalment": 8560,
-        "chitAmount": 161200
-      },
-      {
-        "month": 8,
-        "instalment": 8620,
-        "chitAmount": 162400
-      },
-      {
-        "month": 9,
-        "instalment": 8700,
-        "chitAmount": 164000
-      },
-      {
-        "month": 10,
-        "instalment": 8800,
-        "chitAmount": 166000
-      },
-      {
-        "month": 11,
-        "instalment": 8840,
-        "chitAmount": 166800
-      },
-      {
-        "month": 12,
-        "instalment": 8900,
-        "chitAmount": 168000
-      },
-      {
-        "month": 13,
-        "instalment": 9000,
-        "chitAmount": 170000
-      },
-      {
-        "month": 14,
-        "instalment": 9150,
-        "chitAmount": 173000
-      },
-      {
-        "month": 15,
-        "instalment": 9300,
-        "chitAmount": 176000
-      },
-      {
-        "month": 16,
-        "instalment": 9500,
-        "chitAmount": 180000
-      },
-      {
-        "month": 17,
-        "instalment": 9700,
-        "chitAmount": 184000
-      },
-      {
-        "month": 18,
-        "instalment": 9800,
-        "chitAmount": 186000
-      },
-      {
-        "month": 19,
-        "instalment": 9900,
-        "chitAmount": 188000
-      },
-      {
-        "month": 20,
-        "instalment": 10000,
-        "chitAmount": 190000
-      }
-    ],
-    "createdAt": "2026-11-15T10:06:58.389Z",
-    "updatedAt": "2026-11-15T10:06:58.389Z"
+    "status": "active",
+    "startDate": "2026-11-15",
+    "version": 1,
+    "createdAt": "2026-11-15T10:06:58.389+00:00",
+    "updatedAt": "2026-11-15T10:06:58.389+00:00"
   },
   {
     "id": "scheme-5-lakh",
@@ -326,8 +328,108 @@
     "taglineEn": "High-value scheme engineered for small business working capital, asset purchase, and property development.",
     "taglineTa": "சிறு தொழில் மூலதனம், சொத்து உருவாக்கம் மற்றும் வணிக விரிவாக்கத்திற்கான பிரீமியம் திட்டம்.",
     "documentImage": "/images/5-lakh-scheme.jpeg",
-    "status": "active",
-    "version": 1,
+    "schedule": [
+      {
+        "month": 1,
+        "chitAmount": 475000,
+        "instalment": 25000
+      },
+      {
+        "month": 2,
+        "chitAmount": 390000,
+        "instalment": 20750
+      },
+      {
+        "month": 3,
+        "chitAmount": 392000,
+        "instalment": 20850
+      },
+      {
+        "month": 4,
+        "chitAmount": 395000,
+        "instalment": 21000
+      },
+      {
+        "month": 5,
+        "chitAmount": 397000,
+        "instalment": 21100
+      },
+      {
+        "month": 6,
+        "chitAmount": 400000,
+        "instalment": 21250
+      },
+      {
+        "month": 7,
+        "chitAmount": 403000,
+        "instalment": 21400
+      },
+      {
+        "month": 8,
+        "chitAmount": 406000,
+        "instalment": 21550
+      },
+      {
+        "month": 9,
+        "chitAmount": 410000,
+        "instalment": 21750
+      },
+      {
+        "month": 10,
+        "chitAmount": 415000,
+        "instalment": 22000
+      },
+      {
+        "month": 11,
+        "chitAmount": 417000,
+        "instalment": 22100
+      },
+      {
+        "month": 12,
+        "chitAmount": 420000,
+        "instalment": 22250
+      },
+      {
+        "month": 13,
+        "chitAmount": 425000,
+        "instalment": 22500
+      },
+      {
+        "month": 14,
+        "chitAmount": 432500,
+        "instalment": 22875
+      },
+      {
+        "month": 15,
+        "chitAmount": 440000,
+        "instalment": 23250
+      },
+      {
+        "month": 16,
+        "chitAmount": 450000,
+        "instalment": 23750
+      },
+      {
+        "month": 17,
+        "chitAmount": 460000,
+        "instalment": 24250
+      },
+      {
+        "month": 18,
+        "chitAmount": 465000,
+        "instalment": 24500
+      },
+      {
+        "month": 19,
+        "chitAmount": 470000,
+        "instalment": 24750
+      },
+      {
+        "month": 20,
+        "chitAmount": 475000,
+        "instalment": 25000
+      }
+    ],
     "rulesEn": [
       "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
       "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
@@ -350,110 +452,11 @@
       "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹10,000 வழங்கப்படும்.",
       "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹2,000 வழங்கப்படும் (மொத்தம்: ₹12,000)."
     ],
-    "schedule": [
-      {
-        "month": 1,
-        "instalment": 25000,
-        "chitAmount": 475000
-      },
-      {
-        "month": 2,
-        "instalment": 20750,
-        "chitAmount": 390000
-      },
-      {
-        "month": 3,
-        "instalment": 20850,
-        "chitAmount": 392000
-      },
-      {
-        "month": 4,
-        "instalment": 21000,
-        "chitAmount": 395000
-      },
-      {
-        "month": 5,
-        "instalment": 21100,
-        "chitAmount": 397000
-      },
-      {
-        "month": 6,
-        "instalment": 21250,
-        "chitAmount": 400000
-      },
-      {
-        "month": 7,
-        "instalment": 21400,
-        "chitAmount": 403000
-      },
-      {
-        "month": 8,
-        "instalment": 21550,
-        "chitAmount": 406000
-      },
-      {
-        "month": 9,
-        "instalment": 21750,
-        "chitAmount": 410000
-      },
-      {
-        "month": 10,
-        "instalment": 22000,
-        "chitAmount": 415000
-      },
-      {
-        "month": 11,
-        "instalment": 22100,
-        "chitAmount": 417000
-      },
-      {
-        "month": 12,
-        "instalment": 22250,
-        "chitAmount": 420000
-      },
-      {
-        "month": 13,
-        "instalment": 22500,
-        "chitAmount": 425000
-      },
-      {
-        "month": 14,
-        "instalment": 22875,
-        "chitAmount": 432500
-      },
-      {
-        "month": 15,
-        "instalment": 23250,
-        "chitAmount": 440000
-      },
-      {
-        "month": 16,
-        "instalment": 23750,
-        "chitAmount": 450000
-      },
-      {
-        "month": 17,
-        "instalment": 24250,
-        "chitAmount": 460000
-      },
-      {
-        "month": 18,
-        "instalment": 24500,
-        "chitAmount": 465000
-      },
-      {
-        "month": 19,
-        "instalment": 24750,
-        "chitAmount": 470000
-      },
-      {
-        "month": 20,
-        "instalment": 25000,
-        "chitAmount": 475000
-      }
-    ],
-    "createdAt": "2026-11-15T10:06:58.389Z",
-    "updatedAt": "2026-11-15T10:06:58.389Z"
+    "status": "active",
+    "startDate": "2026-11-15",
+    "version": 1,
+    "createdAt": "2026-11-15T10:06:58.389+00:00",
+    "updatedAt": "2026-11-15T10:06:58.389+00:00"
   },
   {
     "id": "scheme-10-lakh",
@@ -478,8 +481,108 @@
     "taglineEn": "Enterprise-scale 20-month chit plan built for commercial expansion, real estate milestones, and major capital needs.",
     "taglineTa": "பெரிய வணிக விரிவாக்கம், சொத்து வாங்குதல் மற்றும் பெருந்தொகை மூலதனத் தேவைகளுக்கான 20 மாத பிரத்யேக திட்டம்.",
     "documentImage": "/images/5-lakh-scheme.jpeg",
-    "status": "active",
-    "version": 1,
+    "schedule": [
+      {
+        "month": 1,
+        "chitAmount": 950000,
+        "instalment": 50000
+      },
+      {
+        "month": 2,
+        "chitAmount": 780000,
+        "instalment": 41500
+      },
+      {
+        "month": 3,
+        "chitAmount": 784000,
+        "instalment": 41700
+      },
+      {
+        "month": 4,
+        "chitAmount": 790000,
+        "instalment": 42000
+      },
+      {
+        "month": 5,
+        "chitAmount": 794000,
+        "instalment": 42200
+      },
+      {
+        "month": 6,
+        "chitAmount": 800000,
+        "instalment": 42500
+      },
+      {
+        "month": 7,
+        "chitAmount": 806000,
+        "instalment": 42800
+      },
+      {
+        "month": 8,
+        "chitAmount": 812000,
+        "instalment": 43100
+      },
+      {
+        "month": 9,
+        "chitAmount": 820000,
+        "instalment": 43500
+      },
+      {
+        "month": 10,
+        "chitAmount": 830000,
+        "instalment": 44000
+      },
+      {
+        "month": 11,
+        "chitAmount": 834000,
+        "instalment": 44200
+      },
+      {
+        "month": 12,
+        "chitAmount": 840000,
+        "instalment": 44500
+      },
+      {
+        "month": 13,
+        "chitAmount": 850000,
+        "instalment": 45000
+      },
+      {
+        "month": 14,
+        "chitAmount": 865000,
+        "instalment": 45750
+      },
+      {
+        "month": 15,
+        "chitAmount": 880000,
+        "instalment": 46500
+      },
+      {
+        "month": 16,
+        "chitAmount": 900000,
+        "instalment": 47500
+      },
+      {
+        "month": 17,
+        "chitAmount": 920000,
+        "instalment": 48500
+      },
+      {
+        "month": 18,
+        "chitAmount": 930000,
+        "instalment": 49000
+      },
+      {
+        "month": 19,
+        "chitAmount": 940000,
+        "instalment": 49500
+      },
+      {
+        "month": 20,
+        "chitAmount": 950000,
+        "instalment": 50000
+      }
+    ],
     "rulesEn": [
       "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
       "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
@@ -502,110 +605,11 @@
       "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹20,000 வழங்கப்படும்.",
       "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹4,000 வழங்கப்படும் (மொத்தம்: ₹24,000)."
     ],
-    "schedule": [
-      {
-        "month": 1,
-        "instalment": 50000,
-        "chitAmount": 950000
-      },
-      {
-        "month": 2,
-        "instalment": 41500,
-        "chitAmount": 780000
-      },
-      {
-        "month": 3,
-        "instalment": 41700,
-        "chitAmount": 784000
-      },
-      {
-        "month": 4,
-        "instalment": 42000,
-        "chitAmount": 790000
-      },
-      {
-        "month": 5,
-        "instalment": 42200,
-        "chitAmount": 794000
-      },
-      {
-        "month": 6,
-        "instalment": 42500,
-        "chitAmount": 800000
-      },
-      {
-        "month": 7,
-        "instalment": 42800,
-        "chitAmount": 806000
-      },
-      {
-        "month": 8,
-        "instalment": 43100,
-        "chitAmount": 812000
-      },
-      {
-        "month": 9,
-        "instalment": 43500,
-        "chitAmount": 820000
-      },
-      {
-        "month": 10,
-        "instalment": 44000,
-        "chitAmount": 830000
-      },
-      {
-        "month": 11,
-        "instalment": 44200,
-        "chitAmount": 834000
-      },
-      {
-        "month": 12,
-        "instalment": 44500,
-        "chitAmount": 840000
-      },
-      {
-        "month": 13,
-        "instalment": 45000,
-        "chitAmount": 850000
-      },
-      {
-        "month": 14,
-        "instalment": 45750,
-        "chitAmount": 865000
-      },
-      {
-        "month": 15,
-        "instalment": 46500,
-        "chitAmount": 880000
-      },
-      {
-        "month": 16,
-        "instalment": 47500,
-        "chitAmount": 900000
-      },
-      {
-        "month": 17,
-        "instalment": 48500,
-        "chitAmount": 920000
-      },
-      {
-        "month": 18,
-        "instalment": 49000,
-        "chitAmount": 930000
-      },
-      {
-        "month": 19,
-        "instalment": 49500,
-        "chitAmount": 940000
-      },
-      {
-        "month": 20,
-        "instalment": 50000,
-        "chitAmount": 950000
-      }
-    ],
-    "createdAt": "2026-11-15T10:06:58.389Z",
-    "updatedAt": "2026-11-15T10:06:58.389Z"
+    "status": "active",
+    "startDate": "2026-11-15",
+    "version": 1,
+    "createdAt": "2026-11-15T10:06:58.389+00:00",
+    "updatedAt": "2026-11-15T10:06:58.389+00:00"
   },
   {
     "id": "scheme-1794741221460-2500k",
@@ -635,9 +639,188 @@
     "taglineEn": "Structured 36-month ₹25,00,000 chit scheme with transparent monthly auctions and timely bonus.",
     "taglineTa": "36 மாத கால ₹25,00,000 சீட்டு திட்டம் — வெளிப்படையான குலுக்கல் மற்றும் சிறப்பு போனஸ்.",
     "documentImage": "/images/5-lakh-scheme.jpeg",
-    "status": "active",
-    "startDate": "2026-11-15",
-    "version": 2,
+    "schedule": [
+      {
+        "month": 1,
+        "chitAmount": 2375000,
+        "instalment": 69440
+      },
+      {
+        "month": 2,
+        "chitAmount": 1962100,
+        "instalment": 57980
+      },
+      {
+        "month": 3,
+        "chitAmount": 1974300,
+        "instalment": 58310
+      },
+      {
+        "month": 4,
+        "chitAmount": 1986400,
+        "instalment": 58650
+      },
+      {
+        "month": 5,
+        "chitAmount": 1998600,
+        "instalment": 58990
+      },
+      {
+        "month": 6,
+        "chitAmount": 2010700,
+        "instalment": 59330
+      },
+      {
+        "month": 7,
+        "chitAmount": 2022900,
+        "instalment": 59660
+      },
+      {
+        "month": 8,
+        "chitAmount": 2035000,
+        "instalment": 60000
+      },
+      {
+        "month": 9,
+        "chitAmount": 2047100,
+        "instalment": 60340
+      },
+      {
+        "month": 10,
+        "chitAmount": 2059300,
+        "instalment": 60670
+      },
+      {
+        "month": 11,
+        "chitAmount": 2071400,
+        "instalment": 61010
+      },
+      {
+        "month": 12,
+        "chitAmount": 2083600,
+        "instalment": 61350
+      },
+      {
+        "month": 13,
+        "chitAmount": 2095700,
+        "instalment": 61690
+      },
+      {
+        "month": 14,
+        "chitAmount": 2107900,
+        "instalment": 62020
+      },
+      {
+        "month": 15,
+        "chitAmount": 2120000,
+        "instalment": 62360
+      },
+      {
+        "month": 16,
+        "chitAmount": 2132100,
+        "instalment": 62700
+      },
+      {
+        "month": 17,
+        "chitAmount": 2144300,
+        "instalment": 63040
+      },
+      {
+        "month": 18,
+        "chitAmount": 2156400,
+        "instalment": 63370
+      },
+      {
+        "month": 19,
+        "chitAmount": 2168600,
+        "instalment": 63710
+      },
+      {
+        "month": 20,
+        "chitAmount": 2180700,
+        "instalment": 64050
+      },
+      {
+        "month": 21,
+        "chitAmount": 2192900,
+        "instalment": 64380
+      },
+      {
+        "month": 22,
+        "chitAmount": 2205000,
+        "instalment": 64720
+      },
+      {
+        "month": 23,
+        "chitAmount": 2217100,
+        "instalment": 65060
+      },
+      {
+        "month": 24,
+        "chitAmount": 2229300,
+        "instalment": 65400
+      },
+      {
+        "month": 25,
+        "chitAmount": 2241400,
+        "instalment": 65730
+      },
+      {
+        "month": 26,
+        "chitAmount": 2253600,
+        "instalment": 66070
+      },
+      {
+        "month": 27,
+        "chitAmount": 2265700,
+        "instalment": 66410
+      },
+      {
+        "month": 28,
+        "chitAmount": 2277900,
+        "instalment": 66750
+      },
+      {
+        "month": 29,
+        "chitAmount": 2290000,
+        "instalment": 67080
+      },
+      {
+        "month": 30,
+        "chitAmount": 2302100,
+        "instalment": 67420
+      },
+      {
+        "month": 31,
+        "chitAmount": 2314300,
+        "instalment": 67760
+      },
+      {
+        "month": 32,
+        "chitAmount": 2326400,
+        "instalment": 68090
+      },
+      {
+        "month": 33,
+        "chitAmount": 2338600,
+        "instalment": 68430
+      },
+      {
+        "month": 34,
+        "chitAmount": 2350700,
+        "instalment": 68770
+      },
+      {
+        "month": 35,
+        "chitAmount": 2362900,
+        "instalment": 69110
+      },
+      {
+        "month": 36,
+        "chitAmount": 2375000,
+        "instalment": 69440
+      }
+    ],
     "rulesEn": [
       "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
       "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
@@ -660,189 +843,10 @@
       "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹50,000 வழங்கப்படும்.",
       "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹10,000 வழங்கப்படும் (மொத்தம்: ₹60,000)."
     ],
-    "schedule": [
-      {
-        "month": 1,
-        "instalment": 69440,
-        "chitAmount": 2375000
-      },
-      {
-        "month": 2,
-        "instalment": 57980,
-        "chitAmount": 1962100
-      },
-      {
-        "month": 3,
-        "instalment": 58310,
-        "chitAmount": 1974300
-      },
-      {
-        "month": 4,
-        "instalment": 58650,
-        "chitAmount": 1986400
-      },
-      {
-        "month": 5,
-        "instalment": 58990,
-        "chitAmount": 1998600
-      },
-      {
-        "month": 6,
-        "instalment": 59330,
-        "chitAmount": 2010700
-      },
-      {
-        "month": 7,
-        "instalment": 59660,
-        "chitAmount": 2022900
-      },
-      {
-        "month": 8,
-        "instalment": 60000,
-        "chitAmount": 2035000
-      },
-      {
-        "month": 9,
-        "instalment": 60340,
-        "chitAmount": 2047100
-      },
-      {
-        "month": 10,
-        "instalment": 60670,
-        "chitAmount": 2059300
-      },
-      {
-        "month": 11,
-        "instalment": 61010,
-        "chitAmount": 2071400
-      },
-      {
-        "month": 12,
-        "instalment": 61350,
-        "chitAmount": 2083600
-      },
-      {
-        "month": 13,
-        "instalment": 61690,
-        "chitAmount": 2095700
-      },
-      {
-        "month": 14,
-        "instalment": 62020,
-        "chitAmount": 2107900
-      },
-      {
-        "month": 15,
-        "instalment": 62360,
-        "chitAmount": 2120000
-      },
-      {
-        "month": 16,
-        "instalment": 62700,
-        "chitAmount": 2132100
-      },
-      {
-        "month": 17,
-        "instalment": 63040,
-        "chitAmount": 2144300
-      },
-      {
-        "month": 18,
-        "instalment": 63370,
-        "chitAmount": 2156400
-      },
-      {
-        "month": 19,
-        "instalment": 63710,
-        "chitAmount": 2168600
-      },
-      {
-        "month": 20,
-        "instalment": 64050,
-        "chitAmount": 2180700
-      },
-      {
-        "month": 21,
-        "instalment": 64380,
-        "chitAmount": 2192900
-      },
-      {
-        "month": 22,
-        "instalment": 64720,
-        "chitAmount": 2205000
-      },
-      {
-        "month": 23,
-        "instalment": 65060,
-        "chitAmount": 2217100
-      },
-      {
-        "month": 24,
-        "instalment": 65400,
-        "chitAmount": 2229300
-      },
-      {
-        "month": 25,
-        "instalment": 65730,
-        "chitAmount": 2241400
-      },
-      {
-        "month": 26,
-        "instalment": 66070,
-        "chitAmount": 2253600
-      },
-      {
-        "month": 27,
-        "instalment": 66410,
-        "chitAmount": 2265700
-      },
-      {
-        "month": 28,
-        "instalment": 66750,
-        "chitAmount": 2277900
-      },
-      {
-        "month": 29,
-        "instalment": 67080,
-        "chitAmount": 2290000
-      },
-      {
-        "month": 30,
-        "instalment": 67420,
-        "chitAmount": 2302100
-      },
-      {
-        "month": 31,
-        "instalment": 67760,
-        "chitAmount": 2314300
-      },
-      {
-        "month": 32,
-        "instalment": 68090,
-        "chitAmount": 2326400
-      },
-      {
-        "month": 33,
-        "instalment": 68430,
-        "chitAmount": 2338600
-      },
-      {
-        "month": 34,
-        "instalment": 68770,
-        "chitAmount": 2350700
-      },
-      {
-        "month": 35,
-        "instalment": 69110,
-        "chitAmount": 2362900
-      },
-      {
-        "month": 36,
-        "instalment": 69440,
-        "chitAmount": 2375000
-      }
-    ],
-    "createdAt": "2026-11-15T11:13:41.460Z",
-    "updatedAt": "2026-11-15T11:13:55.886Z"
+    "status": "active",
+    "startDate": "2026-11-15",
+    "version": 2,
+    "createdAt": "2026-11-15T11:13:41.46+00:00",
+    "updatedAt": "2026-11-15T11:13:55.886+00:00"
   }
 ]

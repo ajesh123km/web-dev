@@ -76,8 +76,9 @@ create table if not exists public.chit_groups (
   chit_value numeric not null,
   duration_months integer not null default 20 check (duration_months between 2 and 60),
   start_date date not null,
-  status text not null default 'active' check (status in ('active', 'inactive')),
+  status text not null default 'active' check (status in ('active', 'inactive', 'archived')),
   max_members integer not null default 99 check (max_members <= 99),
+  archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

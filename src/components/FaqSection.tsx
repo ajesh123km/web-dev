@@ -34,28 +34,28 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
   };
 
   return (
-    <section id="faq" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
+    <section id="faq" className="py-12 sm:py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
             <HelpCircle className="w-3.5 h-3.5 text-[#12834B]" />
             <span>{lang === 'ta' ? 'கேள்வி பதில்' : 'Clear Answers'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
             {t.faq.title}
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed">
             {t.faq.subtitle}
           </p>
         </div>
 
         {/* Category Tabs (Interactive Segmented Control) */}
-        <div className={`flex flex-wrap items-center justify-center mb-8 p-1.5 bg-slate-200/60 rounded-xl ${lang === 'ta' ? 'gap-1.5' : 'gap-2'}`}>
+        <div className={`flex flex-wrap items-center justify-center mb-6 sm:mb-8 p-1.5 bg-slate-200/60 rounded-xl ${lang === 'ta' ? 'gap-1.5' : 'gap-1.5 sm:gap-2'}`}>
           <button
             onClick={() => setActiveCategory('all')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'all'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -65,7 +65,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('general')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'general'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -75,7 +75,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('schemes')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'schemes'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -85,7 +85,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('auction')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'auction'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -95,7 +95,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           </button>
           <button
             onClick={() => setActiveCategory('documents')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'documents'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -106,7 +106,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
         </div>
 
         {/* FAQ Accordions List */}
-        <div className="space-y-3.5">
+        <div className="space-y-3 sm:space-y-3.5">
           {filteredFaqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
@@ -120,7 +120,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
               >
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full py-4 px-5 sm:px-6 text-left flex items-center justify-between gap-4 focus-visible:outline-hidden"
+                  className="w-full py-3.5 px-4 sm:py-4 sm:px-6 text-left flex items-center justify-between gap-3 sm:gap-4 focus-visible:outline-hidden"
                   aria-expanded={isOpen}
                 >
                   <span className={`text-sm sm:text-base font-bold transition-colors ${

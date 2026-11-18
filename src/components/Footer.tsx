@@ -39,9 +39,9 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <footer className="bg-slate-900 text-white text-xs border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10">
           
           {/* Brand & Introduction (Zone 1) */}
           <div className="lg:col-span-4 space-y-4">
@@ -180,7 +180,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
             </div>
 
-            <div className="pt-2 flex items-center gap-4 text-xs">
+            <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
               <button
                 onClick={() => onOpenLegal('privacy')}
                 className="text-slate-400 hover:text-white underline transition-colors"
@@ -199,19 +199,19 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Legal & Regulatory Disclaimers */}
-        <div className="mt-12 pt-6 border-t border-slate-800 space-y-2 text-[11px] text-slate-400 leading-relaxed font-normal">
+        <div className="mt-10 sm:mt-12 pt-6 border-t border-slate-800 space-y-2 text-[11px] text-slate-400 leading-relaxed font-normal">
           <p>{t.footer.cinDisclaimer}</p>
           <p>{t.footer.schemeDisclaimer}</p>
         </div>
 
         {/* Bottom Copyright */}
-        <div className="mt-6 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+        <div className="mt-6 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400 text-center sm:text-left">
           <div>
             © {new Date().getFullYear()} {t.footer.rightsReserved}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-3">
             <span>Villukuri · Kanyakumari · Tamil Nadu</span>
-            <span>·</span>
+            <span className="hidden sm:inline">·</span>
             <button onClick={onOpenAdmin} className="text-slate-400 hover:text-white">
               Admin Console
             </button>

@@ -36,18 +36,23 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
 
   useEffect(() => {
     let active = true;
-    fetch('/api/schemes')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
-          setSchemes(data.schemes);
-        }
-      })
-      .catch(() => {
-        // Fallback to static CHIT_SCHEMES
-      });
+    const loadSchemes = () => {
+      fetch('/api/schemes')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
+            setSchemes(data.schemes);
+          }
+        })
+        .catch(() => {
+          // Fallback to static CHIT_SCHEMES
+        });
+    };
+    loadSchemes();
+    window.addEventListener('teamstars:schemes-updated', loadSchemes);
     return () => {
       active = false;
+      window.removeEventListener('teamstars:schemes-updated', loadSchemes);
     };
   }, []);
 
@@ -181,18 +186,18 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     !schemeOptions.some((o) => o.value === formData.preferred_scheme);
 
   return (
-    <section id="enquiry-form" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
+    <section id="enquiry-form" className="py-12 sm:py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Form Container Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md p-6 sm:p-10 relative overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md p-4 sm:p-10 relative overflow-hidden">
 
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-2">
               <UserCheck className="w-3.5 h-3.5 text-[#12834B]" />
               <span>{lang === 'ta' ? 'விண்ணப்ப மையம்' : 'Initial Enquiry'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {t.form.title}
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
@@ -365,7 +370,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     {t.form.preferredLanguage}
                   </label>
-                  <div className="flex items-center gap-3 pt-1">
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
                       <input
                         type="radio"

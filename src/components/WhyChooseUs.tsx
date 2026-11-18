@@ -44,30 +44,30 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
   ];
 
   return (
-    <section id="why-us" className="py-16 lg:py-24 bg-white border-b border-slate-200/80">
+    <section id="why-us" className="py-12 sm:py-16 lg:py-24 bg-white border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
             <span>{lang === 'ta' ? 'நம்பகத்தன்மை தூண்கள்' : 'Core Advantages'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
             {t.whyUs.title}
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed">
             {t.whyUs.subtitle}
           </p>
         </div>
 
         {/* 6 Pillars Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
           {pillars.map((pillar, idx) => {
             const Icon = pillar.icon;
             return (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-white hover:border-[#12834B]/30 hover:shadow-md transition-all flex flex-col justify-between"
+                className="p-5 sm:p-7 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-white hover:border-[#12834B]/30 hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-[#075C32] mb-5">

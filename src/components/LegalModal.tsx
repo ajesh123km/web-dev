@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ShieldCheck, FileText, X } from 'lucide-react';
@@ -17,37 +17,47 @@ export const LegalModal: React.FC<LegalModalProps> = ({
   initialTab = 'privacy'
 }) => {
   const [activeTab, setActiveTab] = useState<'privacy' | 'terms'>(initialTab);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const t = TRANSLATIONS[lang];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col"
+        className="bg-white w-full max-w-3xl rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[94vh] sm:max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#075C32] text-white px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-5 h-5 text-[#C9A64A]" />
-            <h3 className="text-base sm:text-lg font-bold tracking-tight">
+        <div className="bg-[#075C32] text-white px-4 py-3.5 sm:px-6 sm:py-4 flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <ShieldCheck className="w-5 h-5 text-[#C9A64A] shrink-0" />
+            <h3 className="text-sm sm:text-lg font-bold tracking-tight truncate">
               {activeTab === 'privacy' ? t.legal.privacyTitle : t.legal.termsTitle}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-3 gap-4">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-4 sm:px-6 pt-3 gap-4 overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab('privacy')}
-            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 transition-colors ${
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'privacy'
                 ? 'border-[#075C32] text-[#075C32]'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -57,7 +67,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('terms')}
-            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 transition-colors ${
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'terms'
                 ? 'border-[#075C32] text-[#075C32]'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -68,7 +78,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+        <div className="p-4 sm:p-6 overflow-y-auto overscroll-contain space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
           <div className="text-[11px] font-mono text-slate-400 mb-2">
             {t.legal.lastUpdated} · TEAM STARS CHITS PRIVATE LIMITED
           </div>
