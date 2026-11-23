@@ -76,33 +76,62 @@ function createMedallionTexture(symbol: 'rupee' | 'diamond', maxAnisotropy = 4):
   return tex;
 }
 
-function createCubeFaceTexture(maxAnisotropy = 4): THREE.CanvasTexture {
-  const size = 256;
+const CUBE_LOGO_SRC =
+  '/assets/aistudio/WhatsApp_Image_2026-11-08_at_9.42.49_AM_694e1ea2.jpeg';
+
+function createCubeFaceTexture(
+  maxAnisotropy = 4,
+  isDisposed?: () => boolean,
+  onLoaded?: () => void
+): THREE.CanvasTexture {
+  const size = 512;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
 
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  grad.addColorStop(0, '#0B5D46');
-  grad.addColorStop(0.55, '#064E3B');
-  grad.addColorStop(1, '#052E22');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
+  const drawFrame = () => {
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    grad.addColorStop(0, '#0B5D46');
+    grad.addColorStop(0.55, '#064E3B');
+    grad.addColorStop(1, '#052E22');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
 
-  ctx.strokeStyle = '#65E83A';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(14, 14, size - 28, size - 28);
+    // Crisp outer lime-emerald border
+    ctx.strokeStyle = '#65E83A';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(22, 22, size - 44, size - 44);
 
-  ctx.font = '800 120px "Outfit", system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillText('₹', size / 2, size / 2 + 4);
+    // Clean white backdrop inside border matching the Team Stars seal
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(36, 36, size - 72, size - 72);
+  };
+
+  drawFrame();
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = maxAnisotropy;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    if (isDisposed && isDisposed()) return;
+    drawFrame();
+    const pad = 42;
+    const targetSize = size - pad * 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(36, 36, size - 72, size - 72);
+    ctx.clip();
+    ctx.drawImage(img, pad, pad, targetSize, targetSize);
+    ctx.restore();
+    tex.needsUpdate = true;
+    onLoaded?.();
+  };
+  img.src = CUBE_LOGO_SRC;
+
   return tex;
 }
 
@@ -540,13 +569,22 @@ export const IsometricArchitecture3DScene: React.FC<{ className?: string }> = ({
     mintRim.position.set(3.5, 1.2, 2.5);
     scene.add(mintRim);
 
+    let disposed = false;
     const maxAniso = Math.min(4, renderer.capabilities.getMaxAnisotropy() || 1);
-    const cubeTex = createCubeFaceTexture(maxAniso);
+    const cubeTex = createCubeFaceTexture(
+      maxAniso,
+      () => disposed,
+      () => {
+        if (!disposed && prefersReducedMotion && renderer) {
+          renderer.render(scene, camera);
+        }
+      }
+    );
 
     const tierWhiteMat = new THREE.MeshStandardMaterial({ color: '#FFFFFF', metalness: 0.12, roughness: 0.30 });
     const tierAshMat = new THREE.MeshStandardMaterial({ color: '#DCFCE7', metalness: 0.16, roughness: 0.34 });
     const tierForestMat = new THREE.MeshStandardMaterial({ color: '#064E3B', metalness: 0.48, roughness: 0.28 });
-    const heroCubeMat = new THREE.MeshStandardMaterial({ map: cubeTex, metalness: 0.45, roughness: 0.26 });
+    const heroCubeMat = new THREE.MeshStandardMaterial({ map: cubeTex, metalness: 0.35, roughness: 0.28 });
     const glassCubeMat = new THREE.MeshPhysicalMaterial({
       color: '#65E83A',
       metalness: 0.12,
@@ -581,7 +619,7 @@ export const IsometricArchitecture3DScene: React.FC<{ className?: string }> = ({
     apexEdges.position.y = -0.31;
     isoRig.add(apexEdges);
 
-    // Floating Crown ₹ Cube
+    // Floating Crown Logo Cube
     const heroCube = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.76, 0.76), heroCubeMat);
     heroCube.position.y = 0.56;
     heroCube.castShadow = true;
@@ -695,7 +733,6 @@ export const IsometricArchitecture3DScene: React.FC<{ className?: string }> = ({
 
     let rafId = 0;
     let swTimerId = 0;
-    let disposed = false;
     let lastTime = performance.now();
     const startTime = lastTime;
 
@@ -761,8 +798,13 @@ export const IsometricArchitecture3DScene: React.FC<{ className?: string }> = ({
   if (webglUnavailable) {
     return (
       <div className={`flex items-center justify-center bg-[#F4FBF7] rounded-2xl p-6 ${className}`}>
-        <div className="w-20 h-20 rounded-xl bg-[#064E3B] border-2 border-[#65E83A] shadow-lg flex items-center justify-center text-3xl font-extrabold text-[#65E83A]">
-          ₹
+        <div className="w-20 h-20 rounded-xl bg-white border-2 border-[#064E3B] shadow-lg overflow-hidden flex items-center justify-center p-1">
+          <img
+            src={CUBE_LOGO_SRC}
+            alt="Team Stars Chits Emblem"
+            className="w-full h-full object-contain"
+            referrerPolicy="no-referrer"
+          />
         </div>
       </div>
     );

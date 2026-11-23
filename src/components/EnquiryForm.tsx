@@ -235,7 +235,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
             <h2 className="heading-3d-pop text-xl sm:text-3xl font-extrabold text-[#052E22] tracking-tight leading-tight">
               {t.form.title}
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#264D40] font-normal leading-relaxed max-w-xl mx-auto">
+            <p className="mt-2 text-xs sm:text-sm text-[#0B3B2C] font-medium leading-relaxed max-w-xl mx-auto">
               {t.form.subtitle}
             </p>
           </div>
@@ -243,7 +243,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
           {/* Submission Success Confirmation State */}
           {submittedRef ? (
             <div className="text-center py-8 px-4 space-y-5 animate-in fade-in duration-300">
-              <div className="w-16 h-16 rounded-full bg-[#65E83A] border border-[#064E3B]/25 text-[#052E22] flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-[#65E83A] border border-[#064E3B]/25 text-[#052E22] flex items-center justify-center mx-auto shadow-md">
                 <CheckCircle2 className="w-10 h-10 text-[#052E22]" />
               </div>
 
@@ -251,13 +251,13 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                 <h3 className="side-heading-3d-pop text-xl sm:text-2xl font-bold text-[#052E22]">
                   {t.form.successTitle}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#264D40] max-w-lg mx-auto mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#0B3B2C] font-medium max-w-lg mx-auto mt-2 leading-relaxed">
                   {t.form.successMessage}
                 </p>
               </div>
 
-              <div className="inline-block p-4 rounded-xl bg-[#EAF7F0] border border-[#064E3B]/20 text-xs text-[#052E22] font-mono tabular-nums">
-                <span className="text-[#476D60] block text-[11px] font-sans font-semibold mb-1">
+              <div className="inline-block p-4 rounded-xl bg-emerald-500/15 backdrop-blur-sm border border-white/30 text-xs text-[#052E22] font-mono tabular-nums shadow-sm">
+                <span className="text-[#0B3B2C] block text-[11px] font-sans font-semibold mb-1">
                   {t.form.enquiryRef}
                 </span>
                 <span className="font-bold text-base text-[#052E22]">{submittedRef}</span>
@@ -296,7 +296,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.full_name) setErrors({ ...errors, full_name: '' });
                     }}
                     placeholder={t.form.fullNamePlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white/75 backdrop-blur-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
                       errors.full_name
                         ? 'border-rose-600 bg-rose-50/70'
                         : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
@@ -319,7 +319,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.mobile_number) setErrors({ ...errors, mobile_number: '' });
                     }}
                     placeholder={t.form.mobilePlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] font-mono transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white/75 backdrop-blur-sm text-[#052E22] placeholder:text-[#5C8274] font-mono transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
                       errors.mobile_number
                         ? 'border-rose-600 bg-rose-50/70'
                         : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
@@ -345,7 +345,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.email) setErrors({ ...errors, email: '' });
                     }}
                     placeholder={t.form.emailPlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white/75 backdrop-blur-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
                       errors.email
                         ? 'border-rose-600 bg-rose-50/70'
                         : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
@@ -368,7 +368,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.city) setErrors({ ...errors, city: '' });
                     }}
                     placeholder={t.form.cityPlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-white/75 backdrop-blur-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
                       errors.city
                         ? 'border-rose-600 bg-rose-50/70'
                         : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
@@ -392,7 +392,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       setFormData({ ...formData, preferred_scheme: e.target.value });
                       if (errors.preferred_scheme) setErrors({ ...errors, preferred_scheme: '' });
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 text-sm text-[#052E22] bg-[#F9FDFB] focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 text-sm text-[#052E22] bg-white/75 backdrop-blur-sm focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
                   >
                     {schemeOptions.map((opt) => (
                       <option key={opt.value} value={opt.value} className="bg-white text-[#052E22]">
@@ -449,7 +449,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder={t.form.messagePlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 bg-[#F9FDFB] text-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 bg-white/75 backdrop-blur-sm text-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
                 />
               </div>
 
@@ -465,7 +465,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                     }}
                     className="mt-1 w-4 h-4 rounded-sm border-[#064E3B]/30 accent-[#064E3B]"
                   />
-                  <span className="text-xs text-[#264D40] leading-relaxed font-normal">
+                  <span className="text-xs text-[#0B3B2C] leading-relaxed font-medium">
                     {t.form.consent}
                   </span>
                 </label>
@@ -475,7 +475,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
               </div>
 
               {/* Security Micro Badge */}
-              <div className="flex items-center gap-2 p-3 bg-[#EAF7F0] border border-[#064E3B]/15 rounded-xl text-[11px] text-[#264D40]">
+              <div className="flex items-center gap-2 p-3 bg-emerald-500/15 backdrop-blur-sm border border-white/30 rounded-xl text-[11px] text-[#0B3B2C] font-medium">
                 <ShieldCheck className="w-4 h-4 text-[#064E3B] shrink-0" />
                 <span>{t.form.privacyNotice}</span>
               </div>

@@ -14,6 +14,8 @@ import { Footer } from './components/Footer';
 import { AdminPortal } from './components/AdminPortal';
 import { UserPortal } from './components/UserPortal';
 import { LegalModal } from './components/LegalModal';
+import { VideoBackground } from './components/VideoBackground';
+import { GoldCoinClickBurst } from './components/GoldCoinClickBurst';
 import { useScrollReveal } from './hooks/useScrollReveal';
 
 export default function App() {
@@ -73,16 +75,12 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F4FBF7] bg-ash-dot-grid text-[#052E22] flex flex-col font-sans relative ${lang === 'ta' ? 'font-tamil' : ''}`}>
-      {/* Subtle organic emerald & mint radial lighting behind frosted editorial sections */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-      >
-        <div className="absolute -top-40 left-[12%] w-[640px] h-[640px] rounded-full bg-[#65E83A]/[0.14] blur-[140px]" />
-        <div className="absolute top-[28%] -right-28 w-[560px] h-[560px] rounded-full bg-white/[0.85] blur-[140px]" />
-        <div className="absolute bottom-[12%] -left-24 w-[520px] h-[520px] rounded-full bg-[#A7F3D0]/[0.28] blur-[140px]" />
-      </div>
+    <div className={`min-h-screen text-[#052E22] flex flex-col font-sans relative ${lang === 'ta' ? 'font-tamil' : ''}`}>
+      {/* Fixed Full-Screen Looping 3D Green Rupee Video Background (z-index: -1) */}
+      <VideoBackground />
+
+      {/* Non-Blocking Global Gold Coin & Sparkle Click Burst Overlay */}
+      <GoldCoinClickBurst />
 
       {/* Navigation Bar */}
       <Navbar
@@ -95,10 +93,10 @@ export default function App() {
         onOpenEnquiry={() => scrollToSection('enquiry-form')}
       />
 
-      {/* Main Content Sections with Alternating Soft Light-Green & Crisp White Editorial Surfaces */}
+      {/* Main Content Sections with Translucent Frosted Glassmorphism Surfaces */}
       <main className="flex-1 relative z-10 w-full max-w-[1440px] mx-auto px-2.5 sm:px-5 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8 lg:space-y-10">
         {/* 1. Hero Section */}
-        <div className="fintech-glass-section-ash backdrop-blur-md bg-[#EAF7F0]/92 rounded-3xl border border-[#064E3B]/14 ring-1 ring-inset ring-white/80 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <Hero
             lang={lang}
             onExploreSchemes={() => scrollToSection('schemes')}
@@ -107,12 +105,12 @@ export default function App() {
         </div>
 
         {/* 2. About Us Section */}
-        <div className="fintech-glass-section backdrop-blur-md bg-white/95 rounded-3xl border border-[#064E3B]/12 ring-1 ring-inset ring-white/90 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <AboutSection lang={lang} />
         </div>
 
         {/* 3. Chit Fund Schemes Section with 20-Month Modal */}
-        <div className="fintech-glass-section-ash backdrop-blur-md bg-[#EAF7F0]/92 rounded-3xl border border-[#064E3B]/14 ring-1 ring-inset ring-white/80 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <SchemesSection
             lang={lang}
             onSelectSchemeForEnquiry={handleSelectSchemeForEnquiry}
@@ -120,7 +118,7 @@ export default function App() {
         </div>
 
         {/* 4. Interactive Chit Calculator */}
-        <div className="fintech-glass-section backdrop-blur-md bg-white/95 rounded-3xl border border-[#064E3B]/12 ring-1 ring-inset ring-white/90 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <ChitCalculator
             lang={lang}
             onEnquireScheme={handleSelectSchemeForEnquiry}
@@ -128,27 +126,27 @@ export default function App() {
         </div>
 
         {/* 5. How It Works Step-by-Step */}
-        <div className="fintech-glass-section-ash backdrop-blur-md bg-[#EAF7F0]/92 rounded-3xl border border-[#064E3B]/14 ring-1 ring-inset ring-white/80 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <HowItWorks lang={lang} />
         </div>
 
         {/* 6. Why Choose Us */}
-        <div className="fintech-glass-section backdrop-blur-md bg-white/95 rounded-3xl border border-[#064E3B]/12 ring-1 ring-inset ring-white/90 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <WhyChooseUs lang={lang} />
         </div>
 
         {/* 7. Frequently Asked Questions Preview & Full Accordion */}
-        <div className="fintech-glass-section-ash backdrop-blur-md bg-[#EAF7F0]/92 rounded-3xl border border-[#064E3B]/14 ring-1 ring-inset ring-white/80 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <FaqSection lang={lang} />
         </div>
 
         {/* 8. Office Contact & Interactive Google Maps */}
-        <div className="fintech-glass-section backdrop-blur-md bg-white/95 rounded-3xl border border-[#064E3B]/12 ring-1 ring-inset ring-white/90 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <ContactSection lang={lang} />
         </div>
 
         {/* 9. Join / Enquiry Form */}
-        <div className="fintech-glass-section-ash backdrop-blur-md bg-[#EAF7F0]/92 rounded-3xl border border-[#064E3B]/14 ring-1 ring-inset ring-white/80 overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
           <EnquiryForm
             lang={lang}
             preSelectedScheme={selectedSchemeForEnquiry}
