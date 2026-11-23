@@ -57,7 +57,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.whyUs.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.whyUs.subtitle}
           </p>
         </MotionSection>
@@ -117,7 +117,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
                 <h3 className="side-heading-3d-pop text-base sm:text-lg font-extrabold text-[#052E22] leading-snug">
                   {lang === 'ta' ? 'மாதாந்திர நேரடி குலுக்கல்' : 'Monthly Verified Draws'}
                 </h3>
-                <p className="text-[11px] text-[#14532D] mt-0.5 font-medium">
+                <p className="text-[11px] text-[#0B3B2C] mt-0.5 font-semibold">
                   {lang === 'ta' ? 'உறுப்பினர்கள் முன்னிலையில் ஏலம்' : 'Transparent Live Auctions'}
                 </p>
               </div>
@@ -131,23 +131,23 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
             className="reveal reveal-delay-200 group text-left relative rounded-2xl fintech-card pubzi-chamfer p-6 min-h-[195px] flex flex-col justify-between overflow-hidden transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
           >
             <div className="flex items-start justify-between gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#476D60]">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#0B3B2C]">
                 {lang === 'ta' ? 'தூண் 03' : 'Core Pillar 03'}
               </span>
-              <span className="w-9 h-9 rounded-xl bg-[#EAF7F0] border border-[#064E3B]/20 text-[#064E3B] group-hover:bg-[#064E3B] group-hover:text-[#65E83A] flex items-center justify-center transition-colors shrink-0">
+              <span className="w-9 h-9 rounded-xl bg-white border border-[#064E3B]/20 text-[#064E3B] group-hover:bg-[#064E3B] group-hover:text-[#65E83A] flex items-center justify-center transition-colors shrink-0 shadow-xs">
                 <ArrowUpRight className="w-4 h-4" />
               </span>
             </div>
 
             <div className="flex items-end justify-between gap-4 mt-8">
-              <div className="w-12 h-12 rounded-xl bg-[#064E3B] text-[#65E83A] flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[#064E3B] text-[#65E83A] flex items-center justify-center shrink-0 shadow-sm">
                 <Award className="w-6 h-6" />
               </div>
               <div className="text-right">
                 <h3 className="side-heading-3d-pop text-base sm:text-lg font-extrabold text-[#052E22] leading-snug">
                   {lang === 'ta' ? 'சிறப்பு போனஸ் பலன்' : '10th Payment Bonus'}
                 </h3>
-                <p className="text-[11px] text-[#264D40] mt-0.5">
+                <p className="text-[11px] text-[#0B3B2C] font-medium mt-0.5">
                   {lang === 'ta' ? 'நேர தவணை உறுப்பினர் சலுகை' : 'Zero-Delay Member Rewards'}
                 </p>
               </div>
@@ -188,13 +188,13 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
                     {pillar.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">
                     {pillar.desc}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-3 border-t border-[#064E3B]/12 flex items-center justify-between text-[11px] font-bold">
-                  <span className="text-[#476D60]">Team Stars Guarantee</span>
+                <div className="mt-6 pt-3 border-t border-white/30 flex items-center justify-between text-[11px] font-bold">
+                  <span className="text-[#0B3B2C]">Team Stars Guarantee</span>
                   <span className="text-[#064E3B]">100% Verifiable</span>
                 </div>
                 </FintechCard3D>

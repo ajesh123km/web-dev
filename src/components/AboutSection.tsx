@@ -25,7 +25,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.about.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.about.subtitle}
           </p>
         </MotionSection>
@@ -34,7 +34,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch mb-12 sm:mb-16">
 
           <div className="lg:col-span-7 flex flex-col justify-between">
-            <div className="reveal max-w-none text-[#264D40] leading-relaxed space-y-4 text-base">
+            <div className="reveal max-w-none text-[#0B3B2C] font-medium leading-relaxed space-y-4 text-base">
               <p className="text-lg font-semibold text-[#052E22]">
                 {t.about.introParagraph1}
               </p>
@@ -56,7 +56,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
                     <Target className="w-5 h-5 text-[#064E3B]" />
                     <h3 className="side-heading-3d-pop font-bold text-base text-[#052E22]">{t.about.missionTitle}</h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[#14532D] leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">
                     {t.about.missionText}
                   </p>
                 </FintechCard3D>
@@ -68,7 +68,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
                     <Compass className="w-5 h-5 text-[#064E3B]" />
                     <h3 className="side-heading-3d-pop font-bold text-base text-[#052E22]">{t.about.visionTitle}</h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">
                     {t.about.visionText}
                   </p>
                 </FintechCard3D>
@@ -140,8 +140,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
         {/* "Trust Through Transparency" Showcase Banner */}
         <MotionSection delay={0.06} className="mb-12 sm:mb-16">
-          <div className="rounded-2xl border border-[#064E3B]/14 bg-white overflow-hidden pubzi-chamfer shadow-[0_18px_40px_-18px_rgba(6,78,59,0.16)] grid grid-cols-1 lg:grid-cols-12 items-stretch">
-            <div className="lg:col-span-6 relative border-b lg:border-b-0 lg:border-r border-[#064E3B]/12 bg-[#ECFDF5] overflow-hidden h-[240px] sm:h-[310px] lg:h-auto lg:min-h-[330px]">
+          <div className="rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden pubzi-chamfer shadow-xl grid grid-cols-1 lg:grid-cols-12 items-stretch">
+            <div className="lg:col-span-6 relative border-b lg:border-b-0 lg:border-r border-white/25 bg-emerald-500/10 overflow-hidden h-[240px] sm:h-[310px] lg:h-auto lg:min-h-[330px]">
               <img
                 src="/assets/aistudio/image_f747490f.png"
                 alt="Grow Your Wealth Safely with Team Stars Chit Funds"
@@ -149,7 +149,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
               />
             </div>
 
-            <div className="lg:col-span-6 p-6 sm:p-10 bg-[#F4FBF7] flex flex-col justify-center">
+            <div className="lg:col-span-6 p-6 sm:p-10 bg-white/25 backdrop-blur-md flex flex-col justify-center">
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#064E3B] mb-2">
                 {lang === 'ta' ? 'முழுமையான வெளிப்படைத்தன்மை' : 'Audited Integrity'}
               </span>
@@ -158,7 +158,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
                   ? 'வெளிப்படைத்தன்மையால் வளரும் நம்பிக்கை'
                   : 'Trust Through Transparency'}
               </h3>
-              <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed mb-6 max-w-lg">
+              <p className="text-xs sm:text-sm text-[#0B3B2C] font-medium leading-relaxed mb-6 max-w-lg">
                 {lang === 'ta'
                   ? 'ஒவ்வொரு சீட்டுத் தொகையும் சரிபார்க்கப்பட்ட உறுப்பினர் ஆவணங்கள், 2 உத்தரவாத கையொப்பங்கள் மற்றும் மாதம் 11-ஆம் தேதி நடைபெறும் வெளிப்படையான குலுக்கல் மூலம் முழுமையாக பாதுகாக்கப்படுகிறது.'
                   : 'Every group pool is backed by verified KYC documentation, dual guarantor covenants, scheduled monthly draws on the 11th, and traceable banking disbursements by the 25th.'}
@@ -200,42 +200,42 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="reveal flex">
-              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-[#064E3B]/35 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm">
+              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
                   01
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value1Title}</h4>
-                <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed font-normal">{t.about.value1Text}</p>
+                <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">{t.about.value1Text}</p>
               </FintechCard3D>
             </div>
 
             <div className="reveal reveal-delay-100 flex">
-              <FintechCard3D accent="ash" className="w-full p-6 rounded-xl fintech-card-ash pubzi-chamfer hover:border-[#064E3B]/35 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-white border border-[#064E3B]/20 flex items-center justify-center text-[#064E3B] font-extrabold font-mono mb-4 pubzi-chamfer-sm">
+              <FintechCard3D accent="ash" className="w-full p-6 rounded-xl fintech-card-ash pubzi-chamfer hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-white border border-[#064E3B]/20 flex items-center justify-center text-[#064E3B] font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
                   02
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value2Title}</h4>
-                <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed font-normal">{t.about.value2Text}</p>
+                <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">{t.about.value2Text}</p>
               </FintechCard3D>
             </div>
 
             <div className="reveal reveal-delay-200 flex">
-              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-[#064E3B]/35 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm">
+              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
                   03
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value3Title}</h4>
-                <p className="text-xs sm:text-sm text-[#264D40] leading-relaxed font-normal">{t.about.value3Text}</p>
+                <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">{t.about.value3Text}</p>
               </FintechCard3D>
             </div>
 
             <div className="reveal reveal-delay-300 flex">
-              <FintechCard3D accent="mint" className="w-full p-6 rounded-xl fintech-card-mint pubzi-chamfer hover:border-[#064E3B]/40 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center text-[#65E83A] font-extrabold font-mono mb-4 pubzi-chamfer-sm">
+              <FintechCard3D accent="mint" className="w-full p-6 rounded-xl fintech-card-mint pubzi-chamfer hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center text-[#65E83A] font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
                   04
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value4Title}</h4>
-                <p className="text-xs sm:text-sm text-[#14532D] leading-relaxed font-medium">{t.about.value4Text}</p>
+                <p className="text-xs sm:text-sm text-[#0B3B2C] leading-relaxed font-medium">{t.about.value4Text}</p>
               </FintechCard3D>
             </div>
           </div>

@@ -38,9 +38,12 @@ interface RupeeEmblem3DProps {
   className?: string;
 }
 
+const NEW_EMBLEM_LOGO_SRC =
+  '/assets/aistudio/WhatsApp_Image_2026-11-08_at_9.42.49_AM_694e1ea2.jpeg';
+
 /**
- * Lightweight 3D sculpted Indian Rupee (₹) brushed gold & royal navy medallion badge
- * for portals, calculator vaults, and section headers without spawning extra WebGL contexts.
+ * Circular 3D Team Stars Chits medallion crest displayed across schemes,
+ * calculator, and member/admin portals.
  */
 export const RupeeEmblem3D: React.FC<RupeeEmblem3DProps> = ({
   size = 'md',
@@ -49,41 +52,26 @@ export const RupeeEmblem3D: React.FC<RupeeEmblem3DProps> = ({
 }) => {
   const dims =
     size === 'sm'
-      ? 'w-10 h-10 text-base'
+      ? 'w-11 h-11'
       : size === 'lg'
-      ? 'w-14 h-14 text-2xl'
-      : 'w-12 h-12 text-xl';
+      ? 'w-16 h-16'
+      : 'w-12 h-12';
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center rounded-full shrink-0 select-none ${dims} ${className}`}
-      style={{
-        background:
-          tone === 'light'
-            ? 'linear-gradient(145deg, #DCFCE7 0%, #65E83A 58%, #22C55E 100%)'
-            : 'linear-gradient(145deg, #0B5D46 0%, #064E3B 60%, #052E22 100%)',
-        boxShadow:
-          tone === 'light'
-            ? '0 10px 22px -6px rgba(6, 78, 59, 0.22), inset 0 2px 3px rgba(255, 255, 255, 0.78), inset 0 -3px 5px rgba(6, 78, 59, 0.18)'
-            : '0 10px 24px -6px rgba(5, 46, 34, 0.42), inset 0 2px 4px rgba(101, 232, 58, 0.35), inset 0 -3px 6px rgba(3, 31, 23, 0.6)'
-      }}
+      className={`relative inline-flex items-center justify-center rounded-full shrink-0 select-none overflow-hidden bg-white border ${
+        tone === 'light'
+          ? 'border-[#65E83A]/85 shadow-[0_8px_20px_-4px_rgba(101,232,58,0.28)]'
+          : 'border-[#064E3B]/35 ring-1 ring-[#65E83A]/25 shadow-[0_10px_22px_-6px_rgba(6,78,59,0.22)]'
+      } ${dims} ${className}`}
       aria-hidden="true"
     >
-      <div
-        className={`w-[78%] h-[78%] rounded-full flex items-center justify-center border ${
-          tone === 'light'
-            ? 'bg-gradient-to-b from-[#86EFAC] to-[#65E83A] border-[#064E3B]/30'
-            : 'bg-gradient-to-b from-[#0B533D] to-[#052E22] border-[#65E83A]/50'
-        }`}
-      >
-        <span
-          className={`font-extrabold leading-none drop-shadow-sm ${
-            tone === 'light' ? 'text-[#052E22]' : 'text-[#65E83A]'
-          }`}
-        >
-          ₹
-        </span>
-      </div>
+      <img
+        src={NEW_EMBLEM_LOGO_SRC}
+        alt=""
+        className="w-full h-full object-contain scale-[1.03]"
+        referrerPolicy="no-referrer"
+      />
     </div>
   );
 };

@@ -32,7 +32,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.contact.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.contact.subtitle}
           </p>
         </MotionSection>
@@ -77,32 +77,32 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <a
                 href="tel:9789825684"
-                className="reveal reveal-delay-100 p-5 rounded-2xl fintech-card-ash hover:border-[#064E3B]/45 transition-all group block"
+                className="reveal reveal-delay-100 p-5 rounded-2xl fintech-card-ash hover:border-white/50 transition-all group block"
               >
-                <div className="flex items-center gap-2 text-xs font-bold text-[#476D60] mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0B3B2C] mb-2">
                   <Phone className="w-4 h-4 text-[#064E3B] group-hover:scale-110 transition-transform" />
                   <span>{t.contact.phoneLabel}</span>
                 </div>
                 <span className="text-base font-extrabold text-[#052E22] block font-mono tabular-nums">
                   +91 9789825684
                 </span>
-                <span className="text-[11px] text-[#476D60] block mt-1">
+                <span className="text-[11px] text-[#0B3B2C] font-medium block mt-1">
                   {lang === 'ta' ? 'அழைக்க கிளிக் செய்க' : 'Click to Call directly'}
                 </span>
               </a>
 
               <a
                 href="mailto:teamstarschitsprivatelimited@gmail.com"
-                className="reveal reveal-delay-200 p-5 rounded-2xl fintech-card-ash hover:border-[#064E3B]/45 transition-all group block min-w-0"
+                className="reveal reveal-delay-200 p-5 rounded-2xl fintech-card-ash hover:border-white/50 transition-all group block min-w-0"
               >
-                <div className="flex items-center gap-2 text-xs font-bold text-[#476D60] mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0B3B2C] mb-2">
                   <Mail className="w-4 h-4 text-[#064E3B] group-hover:scale-110 transition-transform" />
                   <span>{t.contact.emailLabel}</span>
                 </div>
                 <span className="text-xs font-bold text-[#052E22] block truncate">
                   teamstarschitsprivatelimited@gmail.com
                 </span>
-                <span className="text-[11px] text-[#476D60] block mt-1">
+                <span className="text-[11px] text-[#0B3B2C] font-medium block mt-1">
                   {lang === 'ta' ? 'மின்னஞ்சல் அனுப்புக' : 'Official correspondence'}
                 </span>
               </a>
@@ -115,7 +115,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 <span className="font-bold text-[#052E22] block mb-0.5">
                   {t.contact.hoursLabel}: {t.contact.hours}
                 </span>
-                <p className="text-[#264D40] leading-relaxed font-medium">
+                <p className="text-[#0B3B2C] leading-relaxed font-medium">
                   {t.contact.hoursNote}
                 </p>
               </div>
@@ -124,8 +124,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           </div>
 
           {/* Right Column: Google Maps Embed and Directions */}
-          <div className="reveal reveal-delay-200 lg:col-span-7 flex flex-col justify-between rounded-2xl border border-[#064E3B]/15 overflow-hidden bg-white pubzi-chamfer shadow-[0_22px_48px_-18px_rgba(6,78,59,0.16)] min-w-0">
-            <div className="p-3.5 sm:p-4 bg-[#EAF7F0] border-b border-[#064E3B]/12 flex flex-wrap items-center justify-between gap-2">
+          <div className="reveal reveal-delay-200 lg:col-span-7 flex flex-col justify-between rounded-2xl border border-white/30 overflow-hidden bg-white/35 backdrop-blur-md pubzi-chamfer shadow-xl min-w-0">
+            <div className="p-3.5 sm:p-4 bg-emerald-500/12 backdrop-blur-md border-b border-white/25 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-xs font-bold text-[#052E22]">
                 <MapPin className="w-4 h-4 text-[#064E3B] shrink-0" />
                 <span>{t.contact.locationHeading}</span>
@@ -142,7 +142,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
             </div>
 
             {/* Embedded Interactive Map */}
-            <div className="w-full h-64 sm:h-80 md:h-96 relative bg-[#DCFCE7]">
+            <div className="w-full h-64 sm:h-80 md:h-96 relative bg-emerald-500/10">
               <iframe
                 title="Villukuri Kanyakumari Office Location"
                 src="https://maps.google.com/maps?q=Villukuri,+Kalkulam,+Kanyakumari+District,+Tamil+Nadu+629180&t=&z=14&ie=UTF8&iwloc=&output=embed"
@@ -156,7 +156,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
               />
             </div>
 
-            <div className="p-3.5 sm:p-4 bg-[#EAF7F0] border-t border-[#064E3B]/12 text-xs text-[#264D40] flex flex-wrap items-center justify-between gap-2">
+            <div className="p-3.5 sm:p-4 bg-emerald-500/12 backdrop-blur-md border-t border-white/25 text-xs text-[#0B3B2C] font-medium flex flex-wrap items-center justify-between gap-2">
               <span>Landmark: Madathattuvillai Road, Villukuri</span>
               <span className="font-bold text-[#052E22]">Kalkulam Taluk</span>
             </div>

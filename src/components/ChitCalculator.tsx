@@ -63,7 +63,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.calculator.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.calculator.subtitle}
           </p>
         </MotionSection>
@@ -93,7 +93,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
               {t.calculator.selectScheme}
             </label>
             <div
-              className={`grid gap-2 p-1.5 bg-white border border-[#064E3B]/15 rounded-xl shadow-2xs ${
+              className={`grid gap-2 p-1.5 bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-md ${
                 schemes.length >= 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'
               }`}
             >
@@ -121,22 +121,22 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
 
           {/* Scheme High-Level Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mb-6 sm:mb-8">
-            <div className="p-3 sm:p-4 rounded-xl bg-white border border-[#064E3B]/14 min-w-0">
-              <span className="text-[11px] font-semibold text-[#476D60] block">{t.calculator.totalToPay}</span>
+            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg min-w-0">
+              <span className="text-[11px] font-semibold text-[#0B3B2C] block">{t.calculator.totalToPay}</span>
               <span className="text-base sm:text-xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1 break-words">
                 ₹{currentScheme.totalInstalmentsPaid.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-[#476D60] block mt-0.5">
+              <span className="text-[10px] text-[#0B3B2C] font-medium block mt-0.5">
                 {lang === 'ta' ? `${maxMonths} மாத மொத்தம்` : `Sum of ${maxMonths} months`}
               </span>
             </div>
 
             <div className="p-3 sm:p-4 rounded-xl fintech-card-mint min-w-0">
-              <span className="text-[11px] font-semibold text-[#14532D] block">{t.calculator.netDividend}</span>
+              <span className="text-[11px] font-semibold text-[#0B3B2C] block">{t.calculator.netDividend}</span>
               <span className="text-base sm:text-xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1 break-words">
                 ₹{currentScheme.dividendBenefit.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-[#14532D] block mt-0.5">Dividend advantage</span>
+              <span className="text-[10px] text-[#0B3B2C] font-medium block mt-0.5">Dividend advantage</span>
             </div>
 
             <div className="p-3 sm:p-4 rounded-xl fintech-card-forest text-[#ECFDF5] min-w-0">
@@ -149,19 +149,19 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
               <span className="text-[10px] text-[#A7F3D0] block mt-0.5">If paid by 10th</span>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-xl bg-white border border-[#064E3B]/14 min-w-0">
-              <span className="text-[11px] font-semibold text-[#476D60] block">
+            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg min-w-0">
+              <span className="text-[11px] font-semibold text-[#0B3B2C] block">
                 {lang === 'ta' ? 'முதல் மாத தவணை' : 'First Month Due'}
               </span>
               <span className="text-base sm:text-xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1 break-words">
                 ₹{currentScheme.firstMonthInstalment.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-[#476D60] block mt-0.5">1st month flat</span>
+              <span className="text-[10px] text-[#0B3B2C] font-medium block mt-0.5">1st month flat</span>
             </div>
           </div>
 
           {/* Interactive Month Slider + Emerald Visual Progress Bar */}
-          <div className="p-4 sm:p-6 rounded-xl bg-white border border-[#064E3B]/14 mb-6 sm:mb-8 shadow-2xs">
+          <div className="p-4 sm:p-6 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 mb-6 sm:mb-8 shadow-lg">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <label htmlFor="month-slider" className="text-xs font-bold text-[#052E22] flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-[#064E3B] shrink-0" />
@@ -207,15 +207,15 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
             </div>
 
             {/* Selected Month Outcome Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-[#064E3B]/12">
-              <div className="p-3.5 sm:p-4 rounded-xl bg-[#EAF7F0] border border-[#064E3B]/14">
-                <span className="text-xs font-semibold text-[#476D60] block">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-white/30">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-emerald-500/15 backdrop-blur-sm border border-white/30 shadow-sm">
+                <span className="text-xs font-semibold text-[#0B3B2C] block">
                   {t.calculator.instalmentDue}
                 </span>
                 <span className="text-xl sm:text-2xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1">
                   ₹{currentMonthData.instalment.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
-                <span className="text-[11px] text-[#476D60] block mt-1">
+                <span className="text-[11px] text-[#0B3B2C] font-medium block mt-1">
                   {clampedMonth === 1
                     ? lang === 'ta'
                       ? 'ஆரம்ப மாத தவணை'
@@ -226,14 +226,14 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
                 </span>
               </div>
 
-              <div className="p-3.5 sm:p-4 rounded-xl bg-[#DCFCE7] border border-[#064E3B]/20">
-                <span className="text-xs font-bold text-[#14532D] block">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-green-500/15 backdrop-blur-sm border border-white/30 shadow-sm">
+                <span className="text-xs font-bold text-[#052E22] block">
                   {t.calculator.prizeDisbursed}
                 </span>
                 <span className="text-xl sm:text-2xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1">
                   ₹{currentMonthData.chitAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
-                <span className="text-[11px] text-[#14532D] block mt-1">
+                <span className="text-[11px] text-[#0B3B2C] font-medium block mt-1">
                   {clampedMonth === maxMonths
                     ? lang === 'ta'
                       ? 'கடைசி மாதத்தில் கூடுதல் போனஸ் சேர்க்கப்படும்'

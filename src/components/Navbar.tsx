@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#064E3B]/12 shadow-[0_12px_32px_-12px_rgba(6,78,59,0.14)] transition-all">
+    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-lg border-b border-white/50 shadow-[0_12px_32px_-12px_rgba(6,78,59,0.16)] transition-all">
       {/* Top Deep Emerald Corporate Strip */}
       <div className="bg-[#064E3B] border-b border-emerald-400/20 text-[#D1FAE5] text-[11px] md:text-xs py-1.5 px-3 sm:px-4 font-medium">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">

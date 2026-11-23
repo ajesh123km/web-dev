@@ -59,7 +59,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.schemes.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.schemes.subtitle}
           </p>
         </MotionSection>
@@ -112,7 +112,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                       </h3>
                       <p
                         className={`text-xs font-semibold mt-1 ${
-                          isTenLakh ? 'text-[#14532D]' : 'text-[#264D40]'
+                          isTenLakh ? 'text-[#0B3B2C]' : 'text-[#0B3B2C]'
                         }`}
                       >
                         {schemeName}
@@ -122,8 +122,8 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                   </div>
 
                   <p
-                    className={`text-xs leading-relaxed min-h-[40px] mb-4 sm:mb-5 ${
-                      isTenLakh ? 'text-[#14532D]' : 'text-[#264D40]'
+                    className={`text-xs font-medium leading-relaxed min-h-[40px] mb-4 sm:mb-5 ${
+                      isTenLakh ? 'text-[#0B3B2C]' : 'text-[#0B3B2C]'
                     }`}
                   >
                     {tagline}
@@ -131,14 +131,14 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
                   {/* Highlights Summary Box */}
                   <div
-                    className={`p-3 sm:p-4 rounded-xl mb-4 sm:mb-5 space-y-2.5 text-xs ${
+                    className={`p-3 sm:p-4 rounded-xl mb-4 sm:mb-5 space-y-2.5 text-xs backdrop-blur-sm border border-white/30 shadow-xs ${
                       isTenLakh
-                        ? 'bg-white/90 border border-[#064E3B]/15'
-                        : 'bg-[#EAF7F0] border border-[#064E3B]/12'
+                        ? 'bg-white/40'
+                        : 'bg-emerald-500/12'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-[#476D60]">
+                      <span className="text-[#0B3B2C] font-medium">
                         {t.schemes.tenure}:
                       </span>
                       <span className="font-bold whitespace-nowrap text-[#052E22]">
@@ -147,7 +147,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-[#476D60]">
+                      <span className="text-[#0B3B2C] font-medium">
                         {t.schemes.firstMonth}:
                       </span>
                       <span className="font-bold font-mono tabular-nums whitespace-nowrap text-[#052E22]">
@@ -156,7 +156,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between gap-x-2 gap-y-0.5 flex-wrap">
-                      <span className="text-[#476D60]">
+                      <span className="text-[#0B3B2C] font-medium">
                         {t.schemes.instalmentRange}:
                       </span>
                       <span className="font-bold font-mono tabular-nums sm:whitespace-nowrap text-right text-[#052E22]">
@@ -164,9 +164,9 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                       </span>
                     </div>
 
-                    <div className="h-px bg-[#064E3B]/12" />
+                    <div className="h-px bg-[#064E3B]/15" />
 
-                    <div className="flex items-center justify-between gap-2 flex-wrap font-semibold text-[#264D40]">
+                    <div className="flex items-center justify-between gap-2 flex-wrap font-semibold text-[#0B3B2C]">
                       <span>{t.schemes.totalPaid}:</span>
                       <span className="font-mono font-bold tabular-nums whitespace-nowrap text-[#052E22]">
                         ₹{scheme.totalInstalmentsPaid.toLocaleString('en-IN')}
@@ -183,10 +183,10 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
                   {/* Bonus Reward Box */}
                   <div
-                    className={`p-3 rounded-xl mb-5 flex items-start gap-2.5 ${
+                    className={`p-3 rounded-xl mb-5 flex items-start gap-2.5 backdrop-blur-sm ${
                       isTenLakh
-                        ? 'bg-[#064E3B] border border-emerald-400/25'
-                        : 'bg-[#DCFCE7] border border-[#064E3B]/18'
+                        ? 'bg-[#064E3B]/85 border border-white/25'
+                        : 'bg-green-500/15 border border-white/30'
                     }`}
                   >
                     <Award
@@ -204,8 +204,8 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                         {scheme.totalBonus.toLocaleString('en-IN')}
                       </span>
                       <span
-                        className={`text-[11px] leading-tight block mt-0.5 ${
-                          isTenLakh ? 'text-[#D1FAE5]' : 'text-[#264D40]'
+                        className={`text-[11px] font-medium leading-tight block mt-0.5 ${
+                          isTenLakh ? 'text-[#D1FAE5]' : 'text-[#0B3B2C]'
                         }`}
                       >
                         {lang === 'ta'
@@ -246,7 +246,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
         {/* Disclaimer Note */}
         <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs text-[#476D60] italic leading-relaxed">
+          <p className="text-xs text-[#0B3B2C] font-medium italic leading-relaxed">
             {t.schemes.disclaimer}
           </p>
         </div>

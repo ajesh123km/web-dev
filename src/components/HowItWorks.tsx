@@ -64,21 +64,21 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ lang }) => {
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.howItWorks.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#0B3B2C] font-medium leading-relaxed">
             {t.howItWorks.subtitle}
           </p>
         </MotionSection>
 
         {/* 3D Isometric Stepped Architecture Showcase */}
         <MotionSection delay={0.04} className="mb-10 sm:mb-12">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-[#064E3B]/14 bg-white overflow-hidden pubzi-chamfer shadow-[0_18px_40px_-18px_rgba(6,78,59,0.16)]">
+          <div className="max-w-4xl mx-auto rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden pubzi-chamfer shadow-xl">
             <IsometricArchitecture3DScene className="w-full h-[240px] sm:h-[295px]" />
-            <div className="bg-[#F4FBF7] border-t border-[#064E3B]/12 px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div className="bg-emerald-500/12 backdrop-blur-md border-t border-white/25 px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
               <div>
                 <h3 className="side-heading-3d-pop text-sm font-extrabold text-[#052E22]">
                   {lang === 'ta' ? 'டீம் ஸ்டார்ஸ் 20-மாத கட்டமைப்பு' : 'The Team Stars 20-Month Ecosystem'}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-[#264D40]">
+                <p className="text-[11px] sm:text-xs text-[#0B3B2C] font-medium">
                   {lang === 'ta'
                     ? 'ஒவ்வொரு மாதமும் 10-ஆம் தேதி போனஸ், 11-ஆம் தேதி குலுக்கல், 25-க்குள் பட்டுவாடா.'
                     : 'Synchronized monthly instalments by the 10th, live auction on the 11th, payout by the 25th.'}
@@ -131,12 +131,12 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ lang }) => {
                     {step.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#264D40] font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#0B3B2C] font-medium leading-relaxed">
                     {step.desc}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#064E3B]/10 flex items-center justify-between text-[11px] font-semibold text-[#476D60]">
+                <div className="mt-6 pt-4 border-t border-white/30 flex items-center justify-between text-[11px] font-semibold text-[#0B3B2C]">
                   <span>{lang === 'ta' ? `படிநிலை ${step.num}` : `Step ${step.num} of 06`}</span>
                   <span className="text-[#064E3B] font-bold">{lang === 'ta' ? 'வெளிப்படையானது' : 'Verified'}</span>
                 </div>

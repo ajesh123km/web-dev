@@ -17,18 +17,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
 
   return (
     <section className="relative overflow-hidden bg-transparent pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20">
-      {/* Geometric Corner Accent Shapes */}
+      {/* Geometric Corner Accent Shape */}
       <div
         aria-hidden="true"
         className="hidden lg:block absolute top-10 right-12 w-36 h-36 border-2 border-[#064E3B]/15 rotate-12 pointer-events-none pubzi-chamfer"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -top-24 right-0 w-[540px] h-[540px] rounded-full bg-gradient-to-br from-[#65E83A]/20 via-white/40 to-transparent blur-[110px] pointer-events-none"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute bottom-0 left-0 w-[440px] h-[440px] rounded-full bg-[#A7F3D0]/30 blur-[100px] pointer-events-none"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -51,31 +43,31 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
             </h1>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-lg text-[#264D40] leading-relaxed mb-6 sm:mb-7 max-w-xl font-normal">
+            <p className="text-sm sm:text-lg text-[#0B3B2C] leading-relaxed mb-6 sm:mb-7 max-w-xl font-medium">
               {t.hero.subtitle}
             </p>
 
-            {/* 2x2 Chamfered Feature Tiles with 3D Extruded Icons */}
+            {/* 2x2 Translucent Glassmorphic Chamfered Feature Tiles with Solid 3D Extruded Icons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-7 sm:mb-8 w-full max-w-xl">
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white border border-[#064E3B]/14 shadow-2xs pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-forest flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <ShieldCheck className="w-4 h-4 text-[#65E83A]" />
                 </span>
                 <span>{t.hero.badgeRegistered}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white border border-[#064E3B]/14 shadow-2xs pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-token flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <Calendar className="w-4 h-4 text-[#064E3B]" />
                 </span>
                 <span>{t.hero.badgeDuration}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white border border-[#064E3B]/14 shadow-2xs pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-mint flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <Wallet className="w-4 h-4 text-[#052E22]" />
                 </span>
                 <span>{t.hero.badgeBonus}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white border border-[#064E3B]/14 shadow-2xs pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-token flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <BarChart3 className="w-4 h-4 text-[#064E3B]" />
                 </span>
@@ -149,13 +141,13 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                 {/* Crisp Light-Green to Emerald Top Accent Hairline */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-[#064E3B] via-[#65E83A] to-[#064E3B]" />
 
-                {/* Interactive Three.js Bright White-Studio 3D Rupee Coin Ring Showcase */}
-                <div className="relative bg-white border-b border-[#064E3B]/12">
+                {/* Interactive Three.js Glassmorphic 3D Rupee Coin Ring Showcase */}
+                <div className="relative bg-white/30 backdrop-blur-md border-b border-white/30">
                   <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-1 text-[11px] font-bold tracking-wider uppercase">
                     <span className="inline-flex items-center gap-1.5 text-[#064E3B]">
                       <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
                       <span>
-                        {lang === 'ta' ? '3D ₹ நாணய சுழல் வளையம்' : '3D ₹ Coin Ring'}
+                        {lang === 'ta' ? '' : ''}
                       </span>
                     </span>
                   </div>
@@ -190,7 +182,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
 
                   {/* Verified Metadata Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs mb-3.5">
-                    <div className="rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                    <div className="rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-2">
                       <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#D1FAE5]">
                         {lang === 'ta' ? 'மாத தவணை' : 'Auction / Draw'}
                       </span>
@@ -198,7 +190,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                         {lang === 'ta' ? 'மாதம் 11-ஆம் தேதி' : '11th Monthly'}
                       </span>
                     </div>
-                    <div className="rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                    <div className="rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-2">
                       <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#D1FAE5]">
                         {lang === 'ta' ? 'தொகை வழங்கல்' : 'Disbursement'}
                       </span>
@@ -206,7 +198,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                         {lang === 'ta' ? 'மாதம் 25-க்குள்' : 'By 25th'}
                       </span>
                     </div>
-                    <div className="rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                    <div className="rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-2">
                       <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#D1FAE5]">
                         {lang === 'ta' ? 'அலுவலகம்' : 'Location'}
                       </span>
@@ -216,7 +208,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                     </div>
                   </div>
 
-                  <div className="w-full rounded-xl p-2.5 bg-[#052E22]/90 border border-[#65E83A]/35 text-center">
+                  <div className="w-full rounded-xl p-2.5 bg-[#052E22]/75 backdrop-blur-sm border border-white/20 text-center">
                     <p className="text-[11px] text-[#65E83A] font-semibold">
                       {lang === 'ta'
                         ? '10-ஆம் தேதிக்குள் தவணை செலுத்தும் உறுப்பினர்களுக்கு சிறப்பு போனஸ் உண்டு!'
