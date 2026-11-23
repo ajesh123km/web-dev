@@ -1,0 +1,666 @@
+[
+  {
+    "id": "schv-1794737218411-pc30",
+    "scheme_id": "scheme-10-lakh",
+    "version": 1,
+    "name_en": "₹10,00,000 Chit Scheme",
+    "chit_value": 1000000,
+    "duration_months": 20,
+    "available_durations": [
+      20
+    ],
+    "snapshot_data": {
+      "id": "scheme-10-lakh",
+      "nameEn": "₹10,00,000 Chit Scheme",
+      "nameTa": "₹10,00,000 சீட்டு திட்டம் (10 லக்)",
+      "status": "active",
+      "rulesEn": [
+        "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
+        "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
+        "Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).",
+        "Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.",
+        "Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.",
+        "Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.",
+        "Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.",
+        "Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ₹20,000 at chit conclusion.",
+        "Last Month Special Benefit: For the member taking the chit in the final (20th) month, if all previous monthly instalments were paid on time, an additional ₹4,000 is given (Total: ₹20,000 + ₹4,000 = ₹24,000)."
+      ],
+      "rulesTa": [
+        "தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம்.",
+        "தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.",
+        "குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.",
+        "தொகை வழங்குதல்: தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் தொகை வழங்கப்படும்.",
+        "உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 உத்தரவாத கையொப்பம், 2 வெற்று காசோலைகள் மற்றும் KYC ஆவணங்களை வழங்க வேண்டும்.",
+        "பணம் வழங்கும் முறை: தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாக வழங்கப்படும்.",
+        "அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவன விதிமுறைகளை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.",
+        "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹20,000 வழங்கப்படும்.",
+        "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹4,000 வழங்கப்படும் (மொத்தம்: ₹24,000)."
+      ],
+      "version": 1,
+      "schedule": [
+        {
+          "month": 1,
+          "chitAmount": 950000,
+          "instalment": 50000
+        },
+        {
+          "month": 2,
+          "chitAmount": 780000,
+          "instalment": 41500
+        },
+        {
+          "month": 3,
+          "chitAmount": 784000,
+          "instalment": 41700
+        },
+        {
+          "month": 4,
+          "chitAmount": 790000,
+          "instalment": 42000
+        },
+        {
+          "month": 5,
+          "chitAmount": 794000,
+          "instalment": 42200
+        },
+        {
+          "month": 6,
+          "chitAmount": 800000,
+          "instalment": 42500
+        },
+        {
+          "month": 7,
+          "chitAmount": 806000,
+          "instalment": 42800
+        },
+        {
+          "month": 8,
+          "chitAmount": 812000,
+          "instalment": 43100
+        },
+        {
+          "month": 9,
+          "chitAmount": 820000,
+          "instalment": 43500
+        },
+        {
+          "month": 10,
+          "chitAmount": 830000,
+          "instalment": 44000
+        },
+        {
+          "month": 11,
+          "chitAmount": 834000,
+          "instalment": 44200
+        },
+        {
+          "month": 12,
+          "chitAmount": 840000,
+          "instalment": 44500
+        },
+        {
+          "month": 13,
+          "chitAmount": 850000,
+          "instalment": 45000
+        },
+        {
+          "month": 14,
+          "chitAmount": 865000,
+          "instalment": 45750
+        },
+        {
+          "month": 15,
+          "chitAmount": 880000,
+          "instalment": 46500
+        },
+        {
+          "month": 16,
+          "chitAmount": 900000,
+          "instalment": 47500
+        },
+        {
+          "month": 17,
+          "chitAmount": 920000,
+          "instalment": 48500
+        },
+        {
+          "month": 18,
+          "chitAmount": 930000,
+          "instalment": 49000
+        },
+        {
+          "month": 19,
+          "chitAmount": 940000,
+          "instalment": 49500
+        },
+        {
+          "month": 20,
+          "chitAmount": 950000,
+          "instalment": 50000
+        }
+      ],
+      "chitValue": 1000000,
+      "createdAt": "2026-11-15T10:06:58.389Z",
+      "taglineEn": "Enterprise-scale 20-month chit plan built for commercial expansion, real estate milestones, and major capital needs.",
+      "taglineTa": "பெரிய வணிக விரிவாக்கம், சொத்து வாங்குதல் மற்றும் பெருந்தொகை மூலதனத் தேவைகளுக்கான 20 மாத பிரத்யேக திட்டம்.",
+      "updatedAt": "2026-11-15T10:06:58.389Z",
+      "schemeCode": "TSC-10L-20M",
+      "totalBonus": 24000,
+      "promptBonus": 20000,
+      "documentImage": "/images/5-lakh-scheme.jpeg",
+      "maxInstalment": 50000,
+      "minInstalment": 41500,
+      "durationMonths": 20,
+      "lastMonthBonus": 4000,
+      "dividendBenefit": 96250,
+      "availableDurations": [
+        20
+      ],
+      "chitValueFormatted": "₹10,00,000",
+      "chitValueFormattedTa": "₹10,00,000",
+      "firstMonthInstalment": 50000,
+      "totalInstalmentsPaid": 903750
+    },
+    "change_reason": "Initial seeded scheme",
+    "created_by": "System",
+    "created_at": "2026-11-15T10:06:58.411+00:00"
+  },
+  {
+    "id": "schv-1794737218410-ywmk",
+    "scheme_id": "scheme-5-lakh",
+    "version": 1,
+    "name_en": "₹5,00,000 Chit Scheme",
+    "chit_value": 500000,
+    "duration_months": 20,
+    "available_durations": [
+      20
+    ],
+    "snapshot_data": {
+      "id": "scheme-5-lakh",
+      "nameEn": "₹5,00,000 Chit Scheme",
+      "nameTa": "₹5,00,000 சீட்டு திட்டம் (5 லக்)",
+      "status": "active",
+      "rulesEn": [
+        "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
+        "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
+        "Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).",
+        "Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.",
+        "Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.",
+        "Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.",
+        "Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.",
+        "Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ₹10,000 at chit conclusion.",
+        "Last Month Special Benefit: For the member taking the chit in the final (20th) month, if all previous monthly instalments were paid on time, an additional ₹2,000 is given (Total: ₹10,000 + ₹2,000 = ₹12,000)."
+      ],
+      "rulesTa": [
+        "தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம்.",
+        "தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.",
+        "குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.",
+        "தொகை வழங்குதல்: தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் தொகை வழங்கப்படும்.",
+        "உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 உத்தரவாத கையொப்பம், 2 வெற்று காசோலைகள் மற்றும் KYC ஆவணங்களை வழங்க வேண்டும்.",
+        "பணம் வழங்கும் முறை: தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாக வழங்கப்படும்.",
+        "அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவன விதிமுறைகளை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.",
+        "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹10,000 வழங்கப்படும்.",
+        "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹2,000 வழங்கப்படும் (மொத்தம்: ₹12,000)."
+      ],
+      "version": 1,
+      "schedule": [
+        {
+          "month": 1,
+          "chitAmount": 475000,
+          "instalment": 25000
+        },
+        {
+          "month": 2,
+          "chitAmount": 390000,
+          "instalment": 20750
+        },
+        {
+          "month": 3,
+          "chitAmount": 392000,
+          "instalment": 20850
+        },
+        {
+          "month": 4,
+          "chitAmount": 395000,
+          "instalment": 21000
+        },
+        {
+          "month": 5,
+          "chitAmount": 397000,
+          "instalment": 21100
+        },
+        {
+          "month": 6,
+          "chitAmount": 400000,
+          "instalment": 21250
+        },
+        {
+          "month": 7,
+          "chitAmount": 403000,
+          "instalment": 21400
+        },
+        {
+          "month": 8,
+          "chitAmount": 406000,
+          "instalment": 21550
+        },
+        {
+          "month": 9,
+          "chitAmount": 410000,
+          "instalment": 21750
+        },
+        {
+          "month": 10,
+          "chitAmount": 415000,
+          "instalment": 22000
+        },
+        {
+          "month": 11,
+          "chitAmount": 417000,
+          "instalment": 22100
+        },
+        {
+          "month": 12,
+          "chitAmount": 420000,
+          "instalment": 22250
+        },
+        {
+          "month": 13,
+          "chitAmount": 425000,
+          "instalment": 22500
+        },
+        {
+          "month": 14,
+          "chitAmount": 432500,
+          "instalment": 22875
+        },
+        {
+          "month": 15,
+          "chitAmount": 440000,
+          "instalment": 23250
+        },
+        {
+          "month": 16,
+          "chitAmount": 450000,
+          "instalment": 23750
+        },
+        {
+          "month": 17,
+          "chitAmount": 460000,
+          "instalment": 24250
+        },
+        {
+          "month": 18,
+          "chitAmount": 465000,
+          "instalment": 24500
+        },
+        {
+          "month": 19,
+          "chitAmount": 470000,
+          "instalment": 24750
+        },
+        {
+          "month": 20,
+          "chitAmount": 475000,
+          "instalment": 25000
+        }
+      ],
+      "chitValue": 500000,
+      "createdAt": "2026-11-15T10:06:58.389Z",
+      "taglineEn": "High-value scheme engineered for small business working capital, asset purchase, and property development.",
+      "taglineTa": "சிறு தொழில் மூலதனம், சொத்து உருவாக்கம் மற்றும் வணிக விரிவாக்கத்திற்கான பிரீமியம் திட்டம்.",
+      "updatedAt": "2026-11-15T10:06:58.389Z",
+      "schemeCode": "TSC-5L-20M",
+      "totalBonus": 12000,
+      "promptBonus": 10000,
+      "documentImage": "/images/5-lakh-scheme.jpeg",
+      "maxInstalment": 25000,
+      "minInstalment": 20750,
+      "durationMonths": 20,
+      "lastMonthBonus": 2000,
+      "dividendBenefit": 48125,
+      "availableDurations": [
+        20
+      ],
+      "chitValueFormatted": "₹5,00,000",
+      "chitValueFormattedTa": "₹5,00,000",
+      "firstMonthInstalment": 25000,
+      "totalInstalmentsPaid": 451875
+    },
+    "change_reason": "Initial seeded scheme",
+    "created_by": "System",
+    "created_at": "2026-11-15T10:06:58.41+00:00"
+  },
+  {
+    "id": "schv-1794737218410-6d4h",
+    "scheme_id": "scheme-2-lakh",
+    "version": 1,
+    "name_en": "₹2,00,000 Chit Scheme",
+    "chit_value": 200000,
+    "duration_months": 20,
+    "available_durations": [
+      20
+    ],
+    "snapshot_data": {
+      "id": "scheme-2-lakh",
+      "nameEn": "₹2,00,000 Chit Scheme",
+      "nameTa": "₹2,00,000 சீட்டு திட்டம் (2 லக்)",
+      "status": "active",
+      "rulesEn": [
+        "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
+        "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
+        "Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).",
+        "Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.",
+        "Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.",
+        "Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.",
+        "Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.",
+        "Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ₹4,000 at chit conclusion.",
+        "Last Month Special Benefit: For the member taking the chit in the final (20th) month, if all previous monthly instalments were paid on time, an additional ₹800 is given (Total: ₹4,000 + ₹800 = ₹4,800)."
+      ],
+      "rulesTa": [
+        "தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம்.",
+        "தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.",
+        "குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.",
+        "தொகை வழங்குதல்: தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் தொகை வழங்கப்படும்.",
+        "உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 உத்தரவாத கையொப்பம், 2 வெற்று காசோலைகள் மற்றும் KYC ஆவணங்களை வழங்க வேண்டும்.",
+        "பணம் வழங்கும் முறை: தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாக வழங்கப்படும்.",
+        "அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவன விதிமுறைகளை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.",
+        "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹4,000 வழங்கப்படும்.",
+        "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹800 வழங்கப்படும் (மொத்தம்: ₹4,800)."
+      ],
+      "version": 1,
+      "schedule": [
+        {
+          "month": 1,
+          "chitAmount": 190000,
+          "instalment": 10000
+        },
+        {
+          "month": 2,
+          "chitAmount": 156000,
+          "instalment": 8300
+        },
+        {
+          "month": 3,
+          "chitAmount": 156800,
+          "instalment": 8340
+        },
+        {
+          "month": 4,
+          "chitAmount": 158000,
+          "instalment": 8400
+        },
+        {
+          "month": 5,
+          "chitAmount": 158800,
+          "instalment": 8440
+        },
+        {
+          "month": 6,
+          "chitAmount": 160000,
+          "instalment": 8500
+        },
+        {
+          "month": 7,
+          "chitAmount": 161200,
+          "instalment": 8560
+        },
+        {
+          "month": 8,
+          "chitAmount": 162400,
+          "instalment": 8620
+        },
+        {
+          "month": 9,
+          "chitAmount": 164000,
+          "instalment": 8700
+        },
+        {
+          "month": 10,
+          "chitAmount": 166000,
+          "instalment": 8800
+        },
+        {
+          "month": 11,
+          "chitAmount": 166800,
+          "instalment": 8840
+        },
+        {
+          "month": 12,
+          "chitAmount": 168000,
+          "instalment": 8900
+        },
+        {
+          "month": 13,
+          "chitAmount": 170000,
+          "instalment": 9000
+        },
+        {
+          "month": 14,
+          "chitAmount": 173000,
+          "instalment": 9150
+        },
+        {
+          "month": 15,
+          "chitAmount": 176000,
+          "instalment": 9300
+        },
+        {
+          "month": 16,
+          "chitAmount": 180000,
+          "instalment": 9500
+        },
+        {
+          "month": 17,
+          "chitAmount": 184000,
+          "instalment": 9700
+        },
+        {
+          "month": 18,
+          "chitAmount": 186000,
+          "instalment": 9800
+        },
+        {
+          "month": 19,
+          "chitAmount": 188000,
+          "instalment": 9900
+        },
+        {
+          "month": 20,
+          "chitAmount": 190000,
+          "instalment": 10000
+        }
+      ],
+      "chitValue": 200000,
+      "createdAt": "2026-11-15T10:06:58.389Z",
+      "taglineEn": "Our most popular scheme for family milestones, medical contingencies, and education funds.",
+      "taglineTa": "குடும்ப நிகழ்வுகள், கல்விச் செலவுகள் மற்றும் அவசர நிதிக்கான வாடிக்கையாளர்களின் விருப்பத் திட்டம்.",
+      "updatedAt": "2026-11-15T10:06:58.389Z",
+      "schemeCode": "TSC-2L-20M",
+      "totalBonus": 4800,
+      "promptBonus": 4000,
+      "documentImage": "/images/2-lakh-scheme.jpeg",
+      "maxInstalment": 10000,
+      "minInstalment": 8300,
+      "durationMonths": 20,
+      "lastMonthBonus": 800,
+      "dividendBenefit": 19250,
+      "availableDurations": [
+        20
+      ],
+      "chitValueFormatted": "₹2,00,000",
+      "chitValueFormattedTa": "₹2,00,000",
+      "firstMonthInstalment": 10000,
+      "totalInstalmentsPaid": 180750
+    },
+    "change_reason": "Initial seeded scheme",
+    "created_by": "System",
+    "created_at": "2026-11-15T10:06:58.41+00:00"
+  },
+  {
+    "id": "schv-1794737218409-sg38",
+    "scheme_id": "scheme-1-lakh",
+    "version": 1,
+    "name_en": "₹1,00,000 Chit Scheme",
+    "chit_value": 100000,
+    "duration_months": 20,
+    "available_durations": [
+      20
+    ],
+    "snapshot_data": {
+      "id": "scheme-1-lakh",
+      "nameEn": "₹1,00,000 Chit Scheme",
+      "nameTa": "₹1,00,000 சீட்டு திட்டம் (1 லக்)",
+      "status": "active",
+      "rulesEn": [
+        "Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.",
+        "Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.",
+        "Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).",
+        "Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.",
+        "Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.",
+        "Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.",
+        "Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.",
+        "Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ₹2,000 at chit conclusion.",
+        "Last Month Special Benefit: For the member taking the chit in the final (20th) month, if all previous monthly instalments were paid on time, an additional ₹400 is given (Total: ₹2,000 + ₹400 = ₹2,400)."
+      ],
+      "rulesTa": [
+        "தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம்.",
+        "தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.",
+        "குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.",
+        "தொகை வழங்குதல்: தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் தொகை வழங்கப்படும்.",
+        "உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 உத்தரவாத கையொப்பம், 2 வெற்று காசோலைகள் மற்றும் KYC ஆவணங்களை வழங்க வேண்டும்.",
+        "பணம் வழங்கும் முறை: தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாக வழங்கப்படும்.",
+        "அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவன விதிமுறைகளை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.",
+        "சிறப்பு ஊக்கத்தொகை (BONUS): 10-ஆம் தேதிக்குள் முறையாக செலுத்திய உறுப்பினர்களுக்கு சீட்டு முடிவடைந்த பின் ₹2,000 வழங்கப்படும்.",
+        "கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு கூடுதலாக ₹400 வழங்கப்படும் (மொத்தம்: ₹2,400)."
+      ],
+      "version": 1,
+      "schedule": [
+        {
+          "month": 1,
+          "chitAmount": 95000,
+          "instalment": 5000
+        },
+        {
+          "month": 2,
+          "chitAmount": 78000,
+          "instalment": 4150
+        },
+        {
+          "month": 3,
+          "chitAmount": 78400,
+          "instalment": 4170
+        },
+        {
+          "month": 4,
+          "chitAmount": 79000,
+          "instalment": 4200
+        },
+        {
+          "month": 5,
+          "chitAmount": 79400,
+          "instalment": 4220
+        },
+        {
+          "month": 6,
+          "chitAmount": 80000,
+          "instalment": 4250
+        },
+        {
+          "month": 7,
+          "chitAmount": 80600,
+          "instalment": 4280
+        },
+        {
+          "month": 8,
+          "chitAmount": 81200,
+          "instalment": 4310
+        },
+        {
+          "month": 9,
+          "chitAmount": 82000,
+          "instalment": 4350
+        },
+        {
+          "month": 10,
+          "chitAmount": 83000,
+          "instalment": 4400
+        },
+        {
+          "month": 11,
+          "chitAmount": 83400,
+          "instalment": 4420
+        },
+        {
+          "month": 12,
+          "chitAmount": 84000,
+          "instalment": 4450
+        },
+        {
+          "month": 13,
+          "chitAmount": 85000,
+          "instalment": 4500
+        },
+        {
+          "month": 14,
+          "chitAmount": 86500,
+          "instalment": 4575
+        },
+        {
+          "month": 15,
+          "chitAmount": 88000,
+          "instalment": 4650
+        },
+        {
+          "month": 16,
+          "chitAmount": 90000,
+          "instalment": 4750
+        },
+        {
+          "month": 17,
+          "chitAmount": 92000,
+          "instalment": 4850
+        },
+        {
+          "month": 18,
+          "chitAmount": 93000,
+          "instalment": 4900
+        },
+        {
+          "month": 19,
+          "chitAmount": 94000,
+          "instalment": 4950
+        },
+        {
+          "month": 20,
+          "chitAmount": 95000,
+          "instalment": 5000
+        }
+      ],
+      "chitValue": 100000,
+      "createdAt": "2026-11-15T10:06:58.389Z",
+      "taglineEn": "Ideal for disciplined individual savings, household planning, and festival preparedness.",
+      "taglineTa": "தனிநபர் சேமிப்பு, குடும்ப திட்டமிடல் மற்றும் திருவிழா செலவுகளுக்கு ஏற்ற சிறந்த திட்டம்.",
+      "updatedAt": "2026-11-15T10:06:58.389Z",
+      "schemeCode": "TSC-1L-20M",
+      "totalBonus": 2400,
+      "promptBonus": 2000,
+      "documentImage": "/images/1-lakh-scheme.jpeg",
+      "maxInstalment": 5000,
+      "minInstalment": 4150,
+      "durationMonths": 20,
+      "lastMonthBonus": 400,
+      "dividendBenefit": 9625,
+      "availableDurations": [
+        20
+      ],
+      "chitValueFormatted": "₹1,00,000",
+      "chitValueFormattedTa": "₹1,00,000",
+      "firstMonthInstalment": 5000,
+      "totalInstalmentsPaid": 90375
+    },
+    "change_reason": "Initial seeded scheme",
+    "created_by": "System",
+    "created_at": "2026-11-15T10:06:58.409+00:00"
+  }
+]

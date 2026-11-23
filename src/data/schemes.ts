@@ -192,8 +192,103 @@ export const CHIT_SCHEMES: ChitScheme[] = [
       { month: 19, instalment: 24750, chitAmount: 470000 },
       { month: 20, instalment: 25000, chitAmount: 475000 }
     ]
+  },
+  {
+    id: 'scheme-10-lakh',
+    schemeCode: 'TSC-10L-20M',
+    nameEn: '₹10,00,000 Chit Scheme',
+    nameTa: '₹10,00,000 சீட்டு திட்டம் (10 லக்)',
+    chitValue: 1000000,
+    chitValueFormatted: '₹10,00,000',
+    chitValueFormattedTa: '₹10,00,000',
+    durationMonths: 20,
+    availableDurations: [20],
+    firstMonthInstalment: 50000,
+    minInstalment: 41500,
+    maxInstalment: 50000,
+    totalInstalmentsPaid: 903750,
+    dividendBenefit: 96250,
+    promptBonus: 20000,
+    lastMonthBonus: 4000,
+    totalBonus: 24000,
+    taglineEn: 'Enterprise-scale 20-month chit plan built for commercial expansion, real estate milestones, and major capital needs.',
+    taglineTa: 'பெரிய வணிக விரிவாக்கம், சொத்து வாங்குதல் மற்றும் பெருந்தொகை மூலதனத் தேவைகளுக்கான 20 மாத பிரத்யேக திட்டம்.',
+    documentImage: '/images/5-lakh-scheme.jpeg',
+    status: 'active',
+    version: 1,
+    rulesEn: [
+      'Instalment Payment: Monthly instalments can be paid directly or via bank transfer on or before the 10th of every month. Bank transfer is preferred; account details shared separately.',
+      'Late Fee: If the instalment is not paid on or before the 10th, a late fee of ₹20 per delayed day will be added.',
+      'Draw / Auction: Conducted on the 11th of every month. If a member voluntarily requests on or before the 10th, the amount will be disbursed to them. If 2 or more members request, selection will be conducted by lucky draw (குலுக்கல்).',
+      'Disbursement: The prize amount is disbursed to the selected member on or before the 25th of the month.',
+      'Guarantors & Documents: The recipient must provide 2 persons as co-signers/guarantors to sign, submit 2 blank cheques, and furnish all required KYC documents and collateral documents as per government rules.',
+      'Mode of Payment: Disbursed via Cheque or direct Bank Transfer to the selected member.',
+      'Statutory Compliance: Any changes or amendments issued by the government or the company must be strictly complied with by members.',
+      'Prompt Payment Bonus: All members who regularly pay their instalments on or before the 10th of every month receive a special BONUS of ₹20,000 at chit conclusion.',
+      'Last Month Special Benefit: For the member taking the chit in the final (20th) month, if all previous monthly instalments were paid on time, an additional ₹4,000 is given (Total: ₹20,000 + ₹4,000 = ₹24,000).'
+    ],
+    rulesTa: [
+      'தவணை தொகை செலுத்துதல்: தவணை தொகையை ஒவ்வொரு மாதமும் 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ நேரடியாகவோ அல்லது வங்கி பரிமாற்றம் மூலமாகவோ செலுத்தலாம். உறுப்பினர்கள் வங்கி பரிமாற்றம் மூலம் பணம் செலுத்த முன்னுரிமை வழங்க வேண்டும். வங்கி கணக்கு விவரங்கள் தனியாக பகிரப்படும்.',
+      'தாமத கட்டணம்: 10-ஆம் தேதிக்கு அல்லது அதற்கு முன் தவணை தொகை செலுத்தப்படாவிட்டால், தாமதமான ஒவ்வொரு நாளுக்கும் ₹20 வீதம் தாமத கட்டணம் சேர்த்து செலுத்த வேண்டும்.',
+      'குலுக்கல் / ஏலம்: ஒவ்வொரு மாதமும் 11-ஆம் தேதி குலுக்கல்/ஏலம் நடைபெறும். ஒருவர் தானாக முன்வந்து 10-ஆம் தேதியோ அல்லது அதற்கு முன்னரோ கேட்டால் அவருக்கு தொகை வழங்கப்படும். இரண்டு அல்லது அதற்கு மேற்பட்டவர்கள் கேட்டால் குலுக்கல் முறையில் ஒருவர் தேர்வு செய்யப்படுவார்.',
+      'தொகை வழங்குதல்: குலுக்கல்/ஏலம் முறையில் தேர்வு செய்யப்பட்ட நபருக்கு ஒவ்வொரு மாதமும் 25-ஆம் தேதிக்குள் (அல்லது அதற்கு முன்) தொகை வழங்கப்படும்.',
+      'உத்தரவாதம், ஆவணங்கள் மற்றும் காசோலைகள்: பணம் பெறுபவர் 2 பேரை உத்தரவாத கையொப்பம் இட கொண்டு வர வேண்டும். 2 வெற்று காசோலைகள் (BLANK CHEQUES) வழங்கப்பட வேண்டும். மேலும், அரசாங்க விதிகளின்படி தேவையான அனைத்து ஆவணங்களும் (KYC ஆவணங்கள் மற்றும் தேவையானால் கொலாட்டரல் ஆவணங்கள்) கட்டாயமாக வழங்கப்பட வேண்டும்.',
+      'பணம் வழங்கும் முறை: குலுக்கலில் தேர்வு செய்யப்பட்ட நபருக்கு தொகை காசோலை அல்லது வங்கி பரிமாற்றம் மூலமாகவோ வழங்கப்படும்.',
+      'அரசாங்க விதிமுறைகள்: அரசாங்கம் அல்லது நிறுவனத்திலிருந்து ஏதேனும் மாற்றங்கள், திருத்தங்கள் அல்லது புதிய விதிமுறைகள் அறிவிக்கப்பட்டால், அவற்றை உறுப்பினர்கள் கட்டாயமாக பின்பற்ற வேண்டும்.',
+      'சிறப்பு ஊக்கத்தொகை (BONUS): ஒவ்வொரு மாதமும் 10-ஆம் தேதிக்குள் தவணை தொகையை முறையாக செலுத்திய அனைத்து உறுப்பினர்களுக்கும், சீட்டு முடிவடைந்த பின் ₹20,000 வழங்கப்படும்.',
+      'கடைசி மாத சிறப்பு நன்மை: கடைசி மாதத்தில் சீட்டு பெறுபவருக்கு மட்டும், அனைத்து மாதங்களிலும் தவணை தொகையை கடைசி தேதிக்குள் செலுத்தியிருந்தால், கூடுதலாக ₹4,000 வழங்கப்படும். (மொத்தம்: ₹20,000 + ₹4,000 = ₹24,000).'
+    ],
+    schedule: [
+      { month: 1, instalment: 50000, chitAmount: 950000 },
+      { month: 2, instalment: 41500, chitAmount: 780000 },
+      { month: 3, instalment: 41700, chitAmount: 784000 },
+      { month: 4, instalment: 42000, chitAmount: 790000 },
+      { month: 5, instalment: 42200, chitAmount: 794000 },
+      { month: 6, instalment: 42500, chitAmount: 800000 },
+      { month: 7, instalment: 42800, chitAmount: 806000 },
+      { month: 8, instalment: 43100, chitAmount: 812000 },
+      { month: 9, instalment: 43500, chitAmount: 820000 },
+      { month: 10, instalment: 44000, chitAmount: 830000 },
+      { month: 11, instalment: 44200, chitAmount: 834000 },
+      { month: 12, instalment: 44500, chitAmount: 840000 },
+      { month: 13, instalment: 45000, chitAmount: 850000 },
+      { month: 14, instalment: 45750, chitAmount: 865000 },
+      { month: 15, instalment: 46500, chitAmount: 880000 },
+      { month: 16, instalment: 47500, chitAmount: 900000 },
+      { month: 17, instalment: 48500, chitAmount: 920000 },
+      { month: 18, instalment: 49000, chitAmount: 930000 },
+      { month: 19, instalment: 49500, chitAmount: 940000 },
+      { month: 20, instalment: 50000, chitAmount: 950000 }
+    ]
   }
 ];
+
+export function generateProportionalSchedule(chitValue: number, durationMonths: number) {
+  const safeMonths = Math.max(2, Math.min(60, Math.round(durationMonths) || 20));
+  const baseInstalment = Math.round(chitValue / safeMonths);
+  const schedule = [];
+  for (let m = 1; m <= safeMonths; m++) {
+    const progress = safeMonths > 1 ? (m - 1) / (safeMonths - 1) : 1;
+    // Month 1 & Final Month pay 100% of baseInstalment, middle months scale from 83% up to 100% matching 20-month rate cards
+    const factor = m === 1 || m === safeMonths ? 1 : 0.83 + 0.17 * ((m - 1) / (safeMonths - 1));
+    const instalment = Math.round((baseInstalment * factor) / 10) * 10;
+    const prizeFactor = m === 1 || m === safeMonths ? 0.95 : 0.78 + 0.17 * progress;
+    const chitAmount = Math.round((chitValue * prizeFactor) / 100) * 100;
+    schedule.push({ month: m, instalment, chitAmount });
+  }
+  const totalInstalmentsPaid = schedule.reduce((acc, r) => acc + r.instalment, 0);
+  const minInstalment = Math.min(...schedule.map((r) => r.instalment));
+  const maxInstalment = Math.max(...schedule.map((r) => r.instalment));
+  const dividendBenefit = Math.max(0, chitValue - totalInstalmentsPaid);
+  return {
+    schedule,
+    firstMonthInstalment: schedule[0]?.instalment || baseInstalment,
+    minInstalment,
+    maxInstalment,
+    totalInstalmentsPaid,
+    dividendBenefit
+  };
+}
 
 export const COMPANY_INFO = {
   name: "TEAM STARS CHITS PRIVATE LIMITED",

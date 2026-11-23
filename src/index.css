@@ -3,33 +3,488 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: clip;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
-  /* Specific font rules when Tamil is active */
-  html[lang="ta"], .font-tamil {
+  body {
+    overflow-x: clip;
+    -webkit-overflow-scrolling: touch;
+    background-color: #F4FBF7;
+    color: #052E22;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* Specific font and metric normalization rules ONLY when Tamil is active */
+  html[lang="ta"],
+  html[lang="ta"] body,
+  .font-tamil {
+    font-family: 'Noto Sans Tamil', 'Latha', 'Vijaya', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    overflow-x: clip;
+  }
+
+  html[lang="ta"] h1,
+  html[lang="ta"] h2,
+  html[lang="ta"] h3,
+  html[lang="ta"] h4,
+  html[lang="ta"] .font-display {
     font-family: 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+  }
+
+  /* Prevent Tamil glyphs inside font-mono blocks from falling back to oversized system monospace metrics */
+  html[lang="ta"] .font-mono {
+    font-family: 'Noto Sans Tamil', 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html[lang="ta"] h1 {
+    font-size: clamp(1.65rem, 3.2vw, 2.65rem);
+  }
+
+  html[lang="ta"] h2 {
+    font-size: clamp(1.45rem, 2.5vw, 2.05rem);
   }
 }
 
 :root {
-  --color-forest-green: #075C32;
-  --color-primary-green: #12834B;
-  --color-light-green: #E5F2E8;
-  --color-premium-gold: #C9A64A;
+  --color-emerald-dark: #052E22;
+  --color-emerald: #064E3B;
+  --color-emerald-mid: #0B5D46;
+  --color-mint-canvas: #F4FBF7;
+  --color-mint-soft: #EAF7F0;
+  --color-mint-chip: #DCFCE7;
+  --color-light-green: #65E83A;
+  --color-emerald-muted: #264D40;
 }
 
-/* Custom scrollbar */
+/* 3D Fintech Green, Light Green & White Editorial Surfaces */
+.fintech-card {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.99) 0%, rgba(244, 251, 247, 0.96) 100%);
+  border: 1px solid rgba(6, 78, 59, 0.13);
+  box-shadow:
+    0 18px 42px -20px rgba(6, 78, 59, 0.14),
+    0 4px 12px -2px rgba(6, 78, 59, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.fintech-card-ash {
+  background: linear-gradient(155deg, rgba(234, 247, 240, 0.98) 0%, rgba(220, 252, 231, 0.72) 100%);
+  border: 1px solid rgba(6, 78, 59, 0.14);
+  box-shadow:
+    0 16px 34px -18px rgba(6, 78, 59, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.fintech-card-forest {
+  background: linear-gradient(145deg, #0B533D 0%, #074230 58%, #052E22 100%);
+  border: 1px solid rgba(101, 232, 58, 0.28);
+  box-shadow:
+    0 24px 52px -18px rgba(5, 46, 34, 0.45),
+    0 10px 24px -14px rgba(5, 46, 34, 0.25),
+    inset 0 1px 0 rgba(101, 232, 58, 0.18);
+}
+
+.fintech-card-mint {
+  background: linear-gradient(155deg, #DCFCE7 0%, #BBF7D0 60%, #9AF0B8 100%);
+  border: 1px solid rgba(6, 78, 59, 0.2);
+  box-shadow:
+    0 18px 40px -18px rgba(6, 78, 59, 0.16),
+    0 8px 20px -12px rgba(6, 78, 59, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+/* Pubzi Template Architectural Chamfer & Floating Studio Utilities */
+.pubzi-chamfer {
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+
+.pubzi-chamfer-sm {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+@keyframes floatBobY {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.animate-float-bob {
+  animation: floatBobY 5.5s ease-in-out infinite;
+}
+
+@keyframes fintechFloatA {
+  0%, 100% {
+    transform: translate3d(0, 0px, 0) rotate(-4deg);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes fintechFloatB {
+  0%, 100% {
+    transform: translate3d(0, 0px, 0) rotate(5deg);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0) rotate(2deg);
+  }
+}
+
+@keyframes fintechFloatC {
+  0%, 100% {
+    transform: translate3d(0, -4px, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0) rotate(2deg);
+  }
+}
+
+.fintech-float-slow {
+  animation: fintechFloatA 5.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.fintech-float-delayed {
+  animation: fintechFloatB 6.1s ease-in-out 0.8s infinite;
+  will-change: transform;
+}
+
+.fintech-float-reverse {
+  animation: fintechFloatC 5.8s ease-in-out 0.4s infinite;
+  will-change: transform;
+}
+
+.fintech-3d-icon-token {
+  background: linear-gradient(145deg, #FFFFFF 0%, #DCFCE7 100%);
+  border: 1px solid rgba(6, 78, 59, 0.16);
+  box-shadow:
+    0 5px 0 -1px #A7F3D0,
+    0 12px 22px -8px rgba(6, 78, 59, 0.16),
+    inset 0 2px 2px rgba(255, 255, 255, 0.95);
+}
+
+.fintech-3d-icon-forest {
+  background: linear-gradient(145deg, #0B5D46 0%, #064E3B 65%, #052E22 100%);
+  border: 1px solid rgba(101, 232, 58, 0.42);
+  box-shadow:
+    0 5px 0 -1px #031F17,
+    0 14px 24px -8px rgba(5, 46, 34, 0.32),
+    inset 0 2px 2px rgba(101, 232, 58, 0.28);
+}
+
+.fintech-3d-icon-mint {
+  background: linear-gradient(145deg, #86EFAC 0%, #65E83A 58%, #4ADE80 100%);
+  border: 1px solid rgba(6, 78, 59, 0.22);
+  box-shadow:
+    0 5px 0 -1px #22C55E,
+    0 14px 24px -8px rgba(34, 197, 94, 0.28),
+    inset 0 2px 3px rgba(255, 255, 255, 0.72);
+}
+
+/* 3D Pop / Lift Effect for Headings & Side Headings
+   7-layer text-shadow list matched identically across rest, :hover, and :active
+   so CSS interpolates every layer smoothly (glides instead of snapping). */
+.heading-3d-pop,
+.heading-3d-pop-dark,
+.side-heading-3d-pop,
+.side-heading-3d-pop-dark {
+  display: inline-block;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    text-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  cursor: default;
+}
+
+.heading-3d-pop {
+  text-shadow:
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(5, 150, 105, 0),
+    0px 0px 0px rgba(4, 120, 87, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(6, 78, 59, 0),
+    0px 0px 0px rgba(5, 46, 34, 0),
+    0px 0px 0px rgba(5, 46, 34, 0);
+}
+
+.heading-3d-pop:hover,
+.heading-3d-pop:focus-visible {
+  transform: translate3d(-6px, -6px, 0);
+  text-shadow:
+    1px 1px 0px rgba(16, 185, 129, 0.95),
+    2px 2px 0px rgba(5, 150, 105, 0.95),
+    3px 3px 0px rgba(4, 120, 87, 0.95),
+    4px 4px 0px rgba(6, 95, 70, 0.95),
+    5px 5px 0px rgba(6, 78, 59, 0.95),
+    6px 6px 0px rgba(5, 46, 34, 0.95),
+    12px 14px 20px rgba(5, 46, 34, 0.26);
+}
+
+.heading-3d-pop:active {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.09s;
+  text-shadow:
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(5, 150, 105, 0),
+    0px 0px 0px rgba(4, 120, 87, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(6, 78, 59, 0),
+    0px 0px 0px rgba(5, 46, 34, 0),
+    0px 0px 0px rgba(5, 46, 34, 0);
+}
+
+.heading-3d-pop-dark {
+  text-shadow:
+    0px 0px 0px rgba(101, 232, 58, 0),
+    0px 0px 0px rgba(34, 197, 94, 0),
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(4, 62, 46, 0),
+    0px 0px 0px rgba(2, 28, 20, 0),
+    0px 0px 0px rgba(0, 0, 0, 0);
+}
+
+.heading-3d-pop-dark:hover,
+.heading-3d-pop-dark:focus-visible {
+  transform: translate3d(-6px, -6px, 0);
+  text-shadow:
+    1px 1px 0px rgba(101, 232, 58, 0.85),
+    2px 2px 0px rgba(34, 197, 94, 0.88),
+    3px 3px 0px rgba(16, 185, 129, 0.92),
+    4px 4px 0px rgba(6, 95, 70, 0.96),
+    5px 5px 0px rgba(4, 62, 46, 0.98),
+    6px 6px 0px rgba(2, 28, 20, 1),
+    12px 14px 22px rgba(0, 0, 0, 0.52);
+}
+
+.heading-3d-pop-dark:active {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.09s;
+  text-shadow:
+    0px 0px 0px rgba(101, 232, 58, 0),
+    0px 0px 0px rgba(34, 197, 94, 0),
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(4, 62, 46, 0),
+    0px 0px 0px rgba(2, 28, 20, 0),
+    0px 0px 0px rgba(0, 0, 0, 0);
+}
+
+/* Side Headings (slightly tighter lift & staircase proportional to h3/h4) */
+.side-heading-3d-pop {
+  text-shadow:
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(5, 150, 105, 0),
+    0px 0px 0px rgba(4, 120, 87, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(6, 78, 59, 0),
+    0px 0px 0px rgba(5, 46, 34, 0),
+    0px 0px 0px rgba(5, 46, 34, 0);
+}
+
+.side-heading-3d-pop:hover,
+.side-heading-3d-pop:focus-visible {
+  transform: translate3d(-4px, -4px, 0);
+  text-shadow:
+    0.7px 0.7px 0px rgba(16, 185, 129, 0.92),
+    1.4px 1.4px 0px rgba(5, 150, 105, 0.92),
+    2.1px 2.1px 0px rgba(4, 120, 87, 0.94),
+    2.8px 2.8px 0px rgba(6, 95, 70, 0.95),
+    3.5px 3.5px 0px rgba(6, 78, 59, 0.95),
+    4.2px 4.2px 0px rgba(5, 46, 34, 0.95),
+    8px 10px 14px rgba(5, 46, 34, 0.22);
+}
+
+.side-heading-3d-pop:active {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.09s;
+  text-shadow:
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(5, 150, 105, 0),
+    0px 0px 0px rgba(4, 120, 87, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(6, 78, 59, 0),
+    0px 0px 0px rgba(5, 46, 34, 0),
+    0px 0px 0px rgba(5, 46, 34, 0);
+}
+
+.side-heading-3d-pop-dark {
+  text-shadow:
+    0px 0px 0px rgba(101, 232, 58, 0),
+    0px 0px 0px rgba(34, 197, 94, 0),
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(4, 62, 46, 0),
+    0px 0px 0px rgba(2, 28, 20, 0),
+    0px 0px 0px rgba(0, 0, 0, 0);
+}
+
+.side-heading-3d-pop-dark:hover,
+.side-heading-3d-pop-dark:focus-visible {
+  transform: translate3d(-4px, -4px, 0);
+  text-shadow:
+    0.7px 0.7px 0px rgba(101, 232, 58, 0.85),
+    1.4px 1.4px 0px rgba(34, 197, 94, 0.88),
+    2.1px 2.1px 0px rgba(16, 185, 129, 0.92),
+    2.8px 2.8px 0px rgba(6, 95, 70, 0.96),
+    3.5px 3.5px 0px rgba(4, 62, 46, 0.98),
+    4.2px 4.2px 0px rgba(2, 28, 20, 1),
+    8px 10px 16px rgba(0, 0, 0, 0.48);
+}
+
+.side-heading-3d-pop-dark:active {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.09s;
+  text-shadow:
+    0px 0px 0px rgba(101, 232, 58, 0),
+    0px 0px 0px rgba(34, 197, 94, 0),
+    0px 0px 0px rgba(16, 185, 129, 0),
+    0px 0px 0px rgba(6, 95, 70, 0),
+    0px 0px 0px rgba(4, 62, 46, 0),
+    0px 0px 0px rgba(2, 28, 20, 0),
+    0px 0px 0px rgba(0, 0, 0, 0);
+}
+
+/* Scroll Reveal Animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-100 {
+  transition-delay: 100ms;
+}
+
+.reveal-delay-200 {
+  transition-delay: 200ms;
+}
+
+.reveal-delay-300 {
+  transition-delay: 300ms;
+}
+
+.reveal-delay-400 {
+  transition-delay: 400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-bob,
+  .fintech-float-slow,
+  .fintech-float-delayed,
+  .fintech-float-reverse {
+    animation: none;
+  }
+
+  .reveal,
+  .reveal.active {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+  }
+
+  .reveal-delay-100,
+  .reveal-delay-200,
+  .reveal-delay-300,
+  .reveal-delay-400 {
+    transition-delay: 0ms;
+  }
+
+  .heading-3d-pop,
+  .heading-3d-pop-dark,
+  .side-heading-3d-pop,
+  .side-heading-3d-pop-dark {
+    transition: none;
+  }
+
+  .heading-3d-pop:hover,
+  .heading-3d-pop-dark:hover,
+  .side-heading-3d-pop:hover,
+  .side-heading-3d-pop-dark:hover {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 3D Crisp White & Soft Light-Green Mint Section Containers */
+.fintech-glass-section {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 253, 250, 0.96) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  box-shadow:
+    0 22px 48px -22px rgba(6, 78, 59, 0.12),
+    0 4px 16px -4px rgba(6, 78, 59, 0.05),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(6, 78, 59, 0.05);
+}
+
+.fintech-glass-section-ash {
+  background: linear-gradient(155deg, rgba(234, 247, 240, 0.95) 0%, rgba(244, 251, 247, 0.94) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(6, 78, 59, 0.13);
+  box-shadow:
+    0 22px 48px -22px rgba(6, 78, 59, 0.13),
+    0 4px 16px -4px rgba(6, 78, 59, 0.06),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -1px 0 rgba(101, 232, 58, 0.25);
+}
+
+/* Crisp Mint-White Dot Grid Canvas */
+.bg-ash-dot-grid {
+  background-color: #F4FBF7;
+  background-image: radial-gradient(rgba(6, 78, 59, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Smooth horizontal & vertical scroll helper for tables and tab strips */
+.scroll-area-horizontal {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #0B5D46 #EAF7F0;
+}
+
+/* Custom vertical + horizontal scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f3;
+  background: #EAF7F0;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #6EE7B7;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #12834B;
+  background: #064E3B;
+}
+::-webkit-scrollbar-corner {
+  background: #EAF7F0;
 }

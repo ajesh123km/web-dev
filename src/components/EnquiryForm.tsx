@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { CustomerEnquiry, Language } from '../types';
+import { ChitScheme, CustomerEnquiry, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
-import { Send, CheckCircle2, AlertCircle, ShieldCheck, UserCheck, Loader2 } from 'lucide-react';
+import { CHIT_SCHEMES } from '../data/schemes';
+import { Send, CheckCircle2, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react';
 
 interface EnquiryFormProps {
   lang: Language;
@@ -15,6 +16,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
   onSuccess
 }) => {
   const t = TRANSLATIONS[lang];
+  const [schemes, setSchemes] = useState<ChitScheme[]>(CHIT_SCHEMES);
 
   const [formData, setFormData] = useState<CustomerEnquiry>({
     full_name: '',
@@ -32,14 +34,34 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  // Sync preSelectedScheme if changed externally
+  useEffect(() => {
+    let active = true;
+    const loadSchemes = () => {
+      fetch('/api/schemes')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
+            setSchemes(data.schemes);
+          }
+        })
+        .catch(() => {
+          // Fallback to static CHIT_SCHEMES
+        });
+    };
+    loadSchemes();
+    window.addEventListener('teamstars:schemes-updated', loadSchemes);
+    return () => {
+      active = false;
+      window.removeEventListener('teamstars:schemes-updated', loadSchemes);
+    };
+  }, []);
+
   useEffect(() => {
     if (preSelectedScheme) {
       setFormData((prev) => ({ ...prev, preferred_scheme: preSelectedScheme }));
     }
   }, [preSelectedScheme]);
 
-  // Keep preferred language in sync with current language by default
   useEffect(() => {
     setFormData((prev) => ({ ...prev, preferred_language: lang }));
   }, [lang]);
@@ -48,43 +70,50 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     const errs: { [key: string]: string } = {};
 
     if (!formData.full_name || formData.full_name.trim().length < 2) {
-      errs.full_name = lang === 'ta' 
-        ? 'உங்கள் முழு பெயரை உள்ளிடவும் (குறைந்தது 2 எழுத்துக்கள்).' 
-        : 'Please enter your full name (minimum 2 characters).';
+      errs.full_name =
+        lang === 'ta'
+          ? 'உங்கள் முழு பெயரை உள்ளிடவும் (குறைந்தது 2 எழுத்துக்கள்).'
+          : 'Please enter your full name (minimum 2 characters).';
     }
 
     const cleanMobile = formData.mobile_number.replace(/[\s\-+]/g, '');
     const mobileRegex = /^[6-9]\d{9}$/;
-    const stripped = cleanMobile.length === 12 && cleanMobile.startsWith('91') ? cleanMobile.slice(2) : cleanMobile;
+    const stripped =
+      cleanMobile.length === 12 && cleanMobile.startsWith('91') ? cleanMobile.slice(2) : cleanMobile;
     if (!mobileRegex.test(stripped)) {
-      errs.mobile_number = lang === 'ta'
-        ? 'சரியான 10 இலக்க இந்திய கைபேசி எண்ணை உள்ளிடவும் (6, 7, 8, அல்லது 9-ல் தொடங்க வேண்டும்).'
-        : 'Please enter a valid 10-digit Indian mobile number.';
+      errs.mobile_number =
+        lang === 'ta'
+          ? 'சரியான 10 இலக்க இந்திய கைபேசி எண்ணை உள்ளிடவும் (6, 7, 8, அல்லது 9-ல் தொடங்க வேண்டும்).'
+          : 'Please enter a valid 10-digit Indian mobile number.';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email.trim())) {
-      errs.email = lang === 'ta'
-        ? 'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.'
-        : 'Please enter a valid email address.';
+      errs.email =
+        lang === 'ta'
+          ? 'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.'
+          : 'Please enter a valid email address.';
     }
 
     if (!formData.city || formData.city.trim().length < 2) {
-      errs.city = lang === 'ta'
-        ? 'உங்கள் ஊர் அல்லது மாவட்டத்தை குறிப்பிடவும்.'
-        : 'Please enter your city or district.';
+      errs.city =
+        lang === 'ta'
+          ? 'உங்கள் ஊர் அல்லது மாவட்டத்தை குறிப்பிடவும்.'
+          : 'Please enter your city or district.';
     }
 
     if (!formData.preferred_scheme) {
-      errs.preferred_scheme = lang === 'ta'
-        ? 'விருப்பமான சீட்டு திட்டத்தை தேர்வு செய்யவும்.'
-        : 'Please select a preferred scheme.';
+      errs.preferred_scheme =
+        lang === 'ta'
+          ? 'விருப்பமான சீட்டு திட்டத்தை தேர்வு செய்யவும்.'
+          : 'Please select a preferred scheme.';
     }
 
     if (!formData.consent) {
-      errs.consent = lang === 'ta'
-        ? 'தனியுரிமை கொள்கை ஒப்புதல் அளிக்க வேண்டும்.'
-        : 'You must consent to be contacted regarding this enquiry.';
+      errs.consent =
+        lang === 'ta'
+          ? 'தனியுரிமை கொள்கை ஒப்புதல் அளிக்க வேண்டும்.'
+          : 'You must consent to be contacted regarding this enquiry.';
     }
 
     setErrors(errs);
@@ -120,7 +149,10 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error('Enquiry submission error:', err);
-      setServerError(err.message || 'Network error occurred. Please check your connection or call +91 9789825684.');
+      setServerError(
+        err.message ||
+          'Network error occurred. Please check your connection or call +91 9789825684.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -141,22 +173,69 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     setErrors({});
   };
 
+  const getSchemeOptionLabel = (scheme: ChitScheme) => {
+    if (scheme.id === 'scheme-1-lakh') return t.form.schemeOption1;
+    if (scheme.id === 'scheme-2-lakh') return t.form.schemeOption2;
+    if (scheme.id === 'scheme-5-lakh') return t.form.schemeOption3;
+    if (scheme.id === 'scheme-10-lakh') return t.form.schemeOption4;
+    return lang === 'ta'
+      ? `${scheme.chitValueFormattedTa} (${scheme.durationMonths} மாதங்கள்)`
+      : `${scheme.chitValueFormatted} Scheme (${scheme.durationMonths} Months)`;
+  };
+
+  const schemeOptions = schemes.map((s) => ({
+    value: `${s.chitValueFormatted} Scheme`,
+    label: getSchemeOptionLabel(s)
+  }));
+
+  const hasCustomPreSelected =
+    formData.preferred_scheme &&
+    formData.preferred_scheme !== 'Undecided' &&
+    !schemeOptions.some((o) => o.value === formData.preferred_scheme);
+
   return (
-    <section id="enquiry-form" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Form Container Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md p-6 sm:p-10 relative overflow-hidden">
-          
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-2">
-              <UserCheck className="w-3.5 h-3.5 text-[#12834B]" />
-              <span>{lang === 'ta' ? 'விண்ணப்ப மையம்' : 'Initial Enquiry'}</span>
+    <section id="enquiry-form" className="py-12 sm:py-16 lg:py-24 bg-transparent">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Deep Emerald Forest CTA Contact Banner */}
+        <div className="reveal mb-8 sm:mb-10 rounded-2xl fintech-card-forest text-white p-6 sm:p-8 pubzi-chamfer flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <div className="mb-2.5">
+              <span className="inline-block bg-[#65E83A] text-[#052E22] px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-widest pubzi-chamfer-sm">
+                {lang === 'ta' ? 'தொடங்குவோம்' : 'Start Your Plan'}
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="heading-3d-pop-dark text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              {lang === 'ta' ? 'உங்கள் சீட்டு சேமிப்பை இன்று தொடங்குங்கள்' : 'Let’s Secure Your Savings Plan Today'}
+            </h2>
+            <p className="text-xs sm:text-sm text-[#D1FAE5] mt-1.5 max-w-md">
+              {lang === 'ta'
+                ? 'டீம் ஸ்டார்ஸ் சீட்டுத் திட்டங்களில் சேர விரும்புகிறீர்களா? கீழே உள்ள படிவத்தை நிரப்பவும்.'
+                : 'Ready to join an upcoming 20-month group? Submit your details below or call us directly.'}
+            </p>
+          </div>
+
+          <a
+            href="tel:9789825684"
+            className="w-full md:w-auto px-6 py-4 bg-[#052E22] hover:bg-[#65E83A] text-white hover:text-[#052E22] border border-[#65E83A]/50 pubzi-chamfer-sm transition-all flex flex-col items-center md:items-end shrink-0 group cursor-pointer"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#65E83A] group-hover:text-[#052E22]">
+              {lang === 'ta' ? 'நேரடி அழைப்பு' : 'Call Us Directly'}
+            </span>
+            <span className="text-lg font-black font-mono tabular-nums mt-0.5">
+              +91 9789825684
+            </span>
+          </a>
+        </div>
+
+        {/* Elevated Crisp White Form Card */}
+        <div className="reveal reveal-delay-100 fintech-card rounded-2xl p-4 sm:p-10 relative overflow-hidden pubzi-chamfer max-w-3xl mx-auto">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#064E3B] via-[#65E83A] to-[#064E3B]" />
+
+          <div className="text-center mb-6 sm:mb-8 flex flex-col items-center">
+            <h2 className="heading-3d-pop text-xl sm:text-3xl font-extrabold text-[#052E22] tracking-tight leading-tight">
               {t.form.title}
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm text-[#264D40] font-normal leading-relaxed max-w-xl mx-auto">
               {t.form.subtitle}
             </p>
           </div>
@@ -164,42 +243,41 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
           {/* Submission Success Confirmation State */}
           {submittedRef ? (
             <div className="text-center py-8 px-4 space-y-5 animate-in fade-in duration-300">
-              <div className="w-16 h-16 rounded-full bg-[#E5F2E8] text-[#075C32] flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-10 h-10 text-[#12834B]" />
+              <div className="w-16 h-16 rounded-full bg-[#65E83A] border border-[#064E3B]/25 text-[#052E22] flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-10 h-10 text-[#052E22]" />
               </div>
 
               <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
+                <h3 className="side-heading-3d-pop text-xl sm:text-2xl font-bold text-[#052E22]">
                   {t.form.successTitle}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#264D40] max-w-lg mx-auto mt-2 leading-relaxed">
                   {t.form.successMessage}
                 </p>
               </div>
 
-              <div className="inline-block p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono">
-                <span className="text-slate-400 block text-[11px] font-sans font-semibold mb-1">
+              <div className="inline-block p-4 rounded-xl bg-[#EAF7F0] border border-[#064E3B]/20 text-xs text-[#052E22] font-mono tabular-nums">
+                <span className="text-[#476D60] block text-[11px] font-sans font-semibold mb-1">
                   {t.form.enquiryRef}
                 </span>
-                <span className="font-bold text-base text-[#075C32]">{submittedRef}</span>
+                <span className="font-bold text-base text-[#052E22]">{submittedRef}</span>
               </div>
 
               <div className="pt-4">
                 <button
                   onClick={resetForm}
-                  className="px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg transition-all"
+                  className="px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#064E3B] hover:bg-[#052E22] rounded-xl transition-all cursor-pointer"
                 >
                   {lang === 'ta' ? 'மற்றொரு விண்ணப்பம் சமர்ப்பிக்க' : 'Submit Another Enquiry'}
                 </button>
               </div>
             </div>
           ) : (
-            /* Interactive Enquiry Form */
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {serverError && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-800 flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-700" />
                   <span>{serverError}</span>
                 </div>
               )}
@@ -207,7 +285,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
               {/* Full Name & Mobile Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.fullName}
                   </label>
                   <input
@@ -218,35 +296,37 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.full_name) setErrors({ ...errors, full_name: '' });
                     }}
                     placeholder={t.form.fullNamePlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 ${
-                      errors.full_name ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-slate-400 focus:border-[#075C32]'
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                      errors.full_name
+                        ? 'border-rose-600 bg-rose-50/70'
+                        : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
                     }`}
                   />
                   {errors.full_name && (
-                    <p className="text-[11px] text-red-600 mt-1 font-medium">{errors.full_name}</p>
+                    <p className="text-[11px] text-rose-700 mt-1 font-medium">{errors.full_name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.mobile}
                   </label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      value={formData.mobile_number}
-                      onChange={(e) => {
-                        setFormData({ ...formData, mobile_number: e.target.value });
-                        if (errors.mobile_number) setErrors({ ...errors, mobile_number: '' });
-                      }}
-                      placeholder={t.form.mobilePlaceholder}
-                      className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-slate-900 font-mono transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 ${
-                        errors.mobile_number ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-slate-400 focus:border-[#075C32]'
-                      }`}
-                    />
-                  </div>
+                  <input
+                    type="tel"
+                    value={formData.mobile_number}
+                    onChange={(e) => {
+                      setFormData({ ...formData, mobile_number: e.target.value });
+                      if (errors.mobile_number) setErrors({ ...errors, mobile_number: '' });
+                    }}
+                    placeholder={t.form.mobilePlaceholder}
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] font-mono transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                      errors.mobile_number
+                        ? 'border-rose-600 bg-rose-50/70'
+                        : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
+                    }`}
+                  />
                   {errors.mobile_number && (
-                    <p className="text-[11px] text-red-600 mt-1 font-medium">{errors.mobile_number}</p>
+                    <p className="text-[11px] text-rose-700 mt-1 font-medium">{errors.mobile_number}</p>
                   )}
                 </div>
               </div>
@@ -254,7 +334,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
               {/* Email & City Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.email}
                   </label>
                   <input
@@ -265,17 +345,19 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.email) setErrors({ ...errors, email: '' });
                     }}
                     placeholder={t.form.emailPlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 ${
-                      errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-slate-400 focus:border-[#075C32]'
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                      errors.email
+                        ? 'border-rose-600 bg-rose-50/70'
+                        : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
                     }`}
                   />
                   {errors.email && (
-                    <p className="text-[11px] text-red-600 mt-1 font-medium">{errors.email}</p>
+                    <p className="text-[11px] text-rose-700 mt-1 font-medium">{errors.email}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.city}
                   </label>
                   <input
@@ -286,12 +368,14 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       if (errors.city) setErrors({ ...errors, city: '' });
                     }}
                     placeholder={t.form.cityPlaceholder}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 ${
-                      errors.city ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-slate-400 focus:border-[#075C32]'
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-[#F9FDFB] text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 ${
+                      errors.city
+                        ? 'border-rose-600 bg-rose-50/70'
+                        : 'border-[#064E3B]/20 hover:border-[#064E3B]/40 focus:border-[#064E3B]'
                     }`}
                   />
                   {errors.city && (
-                    <p className="text-[11px] text-red-600 mt-1 font-medium">{errors.city}</p>
+                    <p className="text-[11px] text-rose-700 mt-1 font-medium">{errors.city}</p>
                   )}
                 </div>
               </div>
@@ -299,7 +383,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
               {/* Preferred Scheme & Preferred Language Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.scheme}
                   </label>
                   <select
@@ -308,37 +392,46 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       setFormData({ ...formData, preferred_scheme: e.target.value });
                       if (errors.preferred_scheme) setErrors({ ...errors, preferred_scheme: '' });
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 focus:border-[#075C32]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 text-sm text-[#052E22] bg-[#F9FDFB] focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
                   >
-                    <option value="₹1,00,000 Scheme">{t.form.schemeOption1}</option>
-                    <option value="₹2,00,000 Scheme">{t.form.schemeOption2}</option>
-                    <option value="₹5,00,000 Scheme">{t.form.schemeOption3}</option>
-                    <option value="Undecided">{t.form.schemeOptionUndecided}</option>
+                    {schemeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value} className="bg-white text-[#052E22]">
+                        {opt.label}
+                      </option>
+                    ))}
+                    {hasCustomPreSelected && (
+                      <option value={formData.preferred_scheme} className="bg-white text-[#052E22]">
+                        {formData.preferred_scheme}
+                      </option>
+                    )}
+                    <option value="Undecided" className="bg-white text-[#052E22]">
+                      {t.form.schemeOptionUndecided}
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                     {t.form.preferredLanguage}
                   </label>
-                  <div className="flex items-center gap-3 pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#052E22]">
                       <input
                         type="radio"
                         name="preferred_language"
                         checked={formData.preferred_language === 'ta'}
                         onChange={() => setFormData({ ...formData, preferred_language: 'ta' })}
-                        className="accent-[#075C32]"
+                        className="accent-[#064E3B]"
                       />
                       <span>{t.form.langTamil}</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#052E22]">
                       <input
                         type="radio"
                         name="preferred_language"
                         checked={formData.preferred_language === 'en'}
                         onChange={() => setFormData({ ...formData, preferred_language: 'en' })}
-                        className="accent-[#075C32]"
+                        className="accent-[#064E3B]"
                       />
                       <span>{t.form.langEnglish}</span>
                     </label>
@@ -348,7 +441,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
 
               {/* Additional Message */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-[#052E22] mb-1.5">
                   {t.form.message}
                 </label>
                 <textarea
@@ -356,7 +449,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder={t.form.messagePlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#075C32]/20 focus:border-[#075C32]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#064E3B]/20 bg-[#F9FDFB] text-sm text-[#052E22] placeholder:text-[#5C8274] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#65E83A]/50 focus:border-[#064E3B]"
                 />
               </div>
 
@@ -370,20 +463,20 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
                       setFormData({ ...formData, consent: e.target.checked });
                       if (errors.consent) setErrors({ ...errors, consent: '' });
                     }}
-                    className="mt-1 w-4 h-4 rounded-sm border-slate-300 accent-[#075C32]"
+                    className="mt-1 w-4 h-4 rounded-sm border-[#064E3B]/30 accent-[#064E3B]"
                   />
-                  <span className="text-xs text-slate-600 leading-relaxed font-normal">
+                  <span className="text-xs text-[#264D40] leading-relaxed font-normal">
                     {t.form.consent}
                   </span>
                 </label>
                 {errors.consent && (
-                  <p className="text-[11px] text-red-600 mt-1 font-medium">{errors.consent}</p>
+                  <p className="text-[11px] text-rose-700 mt-1 font-medium">{errors.consent}</p>
                 )}
               </div>
 
               {/* Security Micro Badge */}
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500">
-                <ShieldCheck className="w-4 h-4 text-[#12834B] shrink-0" />
+              <div className="flex items-center gap-2 p-3 bg-[#EAF7F0] border border-[#064E3B]/15 rounded-xl text-[11px] text-[#264D40]">
+                <ShieldCheck className="w-4 h-4 text-[#064E3B] shrink-0" />
                 <span>{t.form.privacyNotice}</span>
               </div>
 
@@ -391,16 +484,16 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 px-6 rounded-lg font-bold text-sm text-white bg-[#075C32] hover:bg-[#12834B] transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 active:scale-98"
+                className="w-full py-3.5 px-6 rounded-xl font-extrabold text-sm text-white bg-[#064E3B] hover:bg-[#052E22] transition-all shadow-[0_12px_28px_-8px_rgba(6,78,59,0.35)] flex items-center justify-center gap-2 disabled:opacity-70 active:scale-98 cursor-pointer"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[#65E83A]" />
                     <span>{t.form.submitting}</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <Send className="w-4 h-4 text-[#65E83A]" />
                     <span>{t.form.submitButton}</span>
                   </>
                 )}

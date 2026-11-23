@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ChevronDown, HelpCircle, PhoneCall } from 'lucide-react';
+import { MotionSection } from './3d/MotionSection';
 
 interface FaqSectionProps {
   lang: Language;
@@ -25,118 +26,88 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
     { id: 10, category: 'general', q: t.faq.q10, a: t.faq.a10 }
   ];
 
-  const filteredFaqs = activeCategory === 'all'
-    ? faqs
-    : faqs.filter((faq) => faq.category === activeCategory);
+  const filteredFaqs =
+    activeCategory === 'all' ? faqs : faqs.filter((faq) => faq.category === activeCategory);
 
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section id="faq" className="py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
+    <section id="faq" className="py-12 sm:py-16 lg:py-24 bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Heading */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
-            <HelpCircle className="w-3.5 h-3.5 text-[#12834B]" />
+        <MotionSection className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 flex flex-col items-center">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] text-[#65E83A] border border-[#0B5D46] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+            <HelpCircle className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'கேள்வி பதில்' : 'Clear Answers'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.faq.title}
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
             {t.faq.subtitle}
           </p>
-        </div>
+        </MotionSection>
 
-        {/* Category Tabs (Interactive Segmented Control) */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8 p-1.5 bg-slate-200/60 rounded-xl">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'all'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t.faq.categories.all}
-          </button>
-          <button
-            onClick={() => setActiveCategory('general')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'general'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t.faq.categories.general}
-          </button>
-          <button
-            onClick={() => setActiveCategory('schemes')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'schemes'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t.faq.categories.schemes}
-          </button>
-          <button
-            onClick={() => setActiveCategory('auction')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'auction'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t.faq.categories.auction}
-          </button>
-          <button
-            onClick={() => setActiveCategory('documents')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'documents'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t.faq.categories.documents}
-          </button>
+        {/* Category Tabs */}
+        <div
+          className={`reveal reveal-delay-100 flex flex-wrap items-center justify-center mb-6 sm:mb-8 p-1.5 bg-white border border-[#064E3B]/15 rounded-xl shadow-2xs ${
+            lang === 'ta' ? 'gap-1.5' : 'gap-1.5 sm:gap-2'
+          }`}
+        >
+          {(['all', 'general', 'schemes', 'auction', 'documents'] as const).map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === cat
+                  ? 'bg-[#064E3B] text-white shadow-xs'
+                  : 'text-[#264D40] hover:text-[#052E22] hover:bg-[#EAF7F0]'
+              }`}
+            >
+              {t.faq.categories[cat]}
+            </button>
+          ))}
         </div>
 
         {/* FAQ Accordions List */}
-        <div className="space-y-3.5">
+        <div className="space-y-3 sm:space-y-3.5">
           {filteredFaqs.map((faq, index) => {
             const isOpen = openIndex === index;
+            const delayClasses = ['', 'reveal-delay-100', 'reveal-delay-200'];
+            const staggerClass = delayClasses[Math.min(index, 2)];
             return (
               <div
                 key={faq.id}
-                className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                className={`reveal ${staggerClass} rounded-xl border transition-all duration-200 overflow-hidden ${
                   isOpen
-                    ? 'bg-white border-[#075C32]/40 shadow-sm'
-                    : 'bg-white border-slate-200/80 hover:border-slate-300'
+                    ? 'bg-white border-[#064E3B]/40 shadow-[0_14px_30px_-14px_rgba(6,78,59,0.16)]'
+                    : 'bg-white border-[#064E3B]/12 hover:border-[#064E3B]/30'
                 }`}
               >
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full py-4 px-5 sm:px-6 text-left flex items-center justify-between gap-4 focus-visible:outline-hidden"
+                  className="w-full py-3.5 px-4 sm:py-4 sm:px-6 text-left flex items-center justify-between gap-3 sm:gap-4 focus-visible:outline-hidden cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span className={`text-sm sm:text-base font-bold transition-colors ${
-                    isOpen ? 'text-[#075C32]' : 'text-slate-800'
-                  }`}>
+                  <span
+                    className={`text-sm sm:text-base font-bold transition-colors ${
+                      isOpen ? 'text-[#052E22] font-extrabold' : 'text-[#052E22]'
+                    }`}
+                  >
                     {faq.q}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-[#075C32]' : ''
+                    className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-[#064E3B]' : 'text-[#476D60]'
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 font-normal animate-in fade-in duration-150">
+                  <div className="px-5 sm:px-6 pb-5 pt-3 text-xs sm:text-sm text-[#264D40] leading-relaxed border-t border-[#064E3B]/10 bg-[#EAF7F0]/75 font-normal animate-in fade-in duration-150">
                     <p>{faq.a}</p>
                   </div>
                 )}
@@ -145,14 +116,14 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           })}
         </div>
 
-        {/* Still have questions banner */}
-        <div className="mt-12 p-6 rounded-2xl bg-white border border-slate-200 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Still have questions banner in Deep Emerald Forest */}
+        <div className="reveal mt-12 p-6 rounded-2xl fintech-card-forest pubzi-chamfer text-white text-center flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <h4 className="text-sm sm:text-base font-bold text-slate-900">
+            <h4 className="side-heading-3d-pop-dark text-sm sm:text-base font-bold text-white">
               {lang === 'ta' ? 'வேறு கேள்விகள் உள்ளதா?' : 'Have specific questions about joining?'}
             </h4>
-            <p className="text-xs text-slate-600 mt-0.5">
-              {lang === 'ta' 
+            <p className="text-xs text-[#D1FAE5] mt-0.5">
+              {lang === 'ta'
                 ? 'எங்கள் நேரடி அலுவலகத்தை 9789825684 என்ற எண்ணில் அழைத்து பேசலாம்.'
                 : 'Call our direct office line to speak with a relationship executive.'}
             </p>
@@ -160,7 +131,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
 
           <a
             href="tel:9789825684"
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg transition-all flex items-center gap-1.5 shrink-0"
+            className="px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-[#052E22] bg-[#65E83A] hover:bg-[#7CF056] pubzi-chamfer-sm shadow-md transition-all flex items-center gap-1.5 shrink-0 tabular-nums"
           >
             <PhoneCall className="w-3.5 h-3.5" />
             <span>+91 9789825684</span>
