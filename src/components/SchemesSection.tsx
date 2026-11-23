@@ -4,6 +4,8 @@ import { CHIT_SCHEMES } from '../data/schemes';
 import { TRANSLATIONS } from '../data/translations';
 import { SchemeModal } from './SchemeModal';
 import { Calendar, ArrowRight, Table, Award } from 'lucide-react';
+import { FintechCard3D } from './3d/FintechCard3D';
+import { MotionSection, RupeeEmblem3D } from './3d/MotionSection';
 
 interface SchemesSectionProps {
   lang: Language;
@@ -45,106 +47,133 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
   };
 
   return (
-    <section id="schemes" className="py-12 sm:py-16 lg:py-24 bg-[#F8FAF9] border-b border-slate-200/80">
+    <section id="schemes" className="py-12 sm:py-16 lg:py-24 bg-transparent relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#E5F2E8] text-[#075C32] text-xs font-bold uppercase tracking-wider mb-3">
-            <Calendar className="w-3.5 h-3.5 text-[#12834B]" />
+        <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 flex flex-col items-center">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+            <Calendar className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'அதிகாரப்பூர்வ திட்டங்கள்' : 'Rate Card Plans'}</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight [text-wrap:balance]">
+          <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
             {t.schemes.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-3 text-sm sm:text-lg text-[#264D40] font-normal leading-relaxed">
             {t.schemes.subtitle}
           </p>
-        </div>
+        </MotionSection>
 
         {/* Scheme Cards Grid */}
-        <div className={`grid grid-cols-1 gap-6 items-stretch mb-12 ${
-          schemes.length >= 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-3 gap-8'
-        }`}>
-          {schemes.map((scheme) => {
+        <div
+          className={`grid grid-cols-1 gap-6 items-stretch mb-12 ${
+            schemes.length >= 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-3 gap-8'
+          }`}
+        >
+          {schemes.map((scheme, idx) => {
             const isPopular = scheme.id === 'scheme-2-lakh';
             const isTenLakh = scheme.id === 'scheme-10-lakh' || scheme.chitValue === 1000000;
             const schemeName = lang === 'ta' ? scheme.nameTa : scheme.nameEn;
             const tagline = lang === 'ta' ? scheme.taglineTa : scheme.taglineEn;
+            const delayClasses = ['', 'reveal-delay-100', 'reveal-delay-200', 'reveal-delay-300'];
+            const staggerClass = delayClasses[idx % 4];
 
             return (
-              <div
-                key={scheme.id}
-                className={`flex flex-col justify-between rounded-2xl bg-white transition-all duration-200 p-4 sm:p-6 relative border ${
-                  isPopular
-                    ? 'border-[#075C32] shadow-lg ring-1 ring-[#075C32]/20'
-                    : isTenLakh
-                    ? 'border-[#C9A64A] shadow-md ring-1 ring-[#C9A64A]/20'
-                    : 'border-slate-200/90 shadow-sm hover:border-[#12834B]/40 hover:shadow-md'
-                }`}
-              >
-                {/* Top highlight caption */}
-                {isPopular && (
-                  <div className="text-[11px] font-bold text-[#075C32] tracking-wider uppercase mb-2 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-[#12834B]" />
-                    <span>{lang === 'ta' ? 'பெரும்பான்மையினர் தேர்வு' : 'Most Popular Choice'}</span>
-                  </div>
-                )}
-                {isTenLakh && (
-                  <div className="text-[11px] font-bold text-amber-800 tracking-wider uppercase mb-2 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-[#C9A64A]" />
-                    <span>{lang === 'ta' ? 'பெருந்தொகை சிறப்பு திட்டம்' : 'High-Value Enterprise Plan'}</span>
-                  </div>
-                )}
-
+              <div key={scheme.id} className={`reveal ${staggerClass} flex`}>
+                <FintechCard3D
+                  accent={isTenLakh ? 'mint' : 'emerald'}
+                  intensity="medium"
+                  className={`w-full flex flex-col justify-between rounded-2xl pubzi-chamfer transition-all duration-200 p-4 sm:p-6 relative ${
+                    isTenLakh
+                      ? 'fintech-card-mint hover:border-[#064E3B]/45'
+                      : 'fintech-card hover:border-[#064E3B]/35'
+                  }`}
+                >
                 <div>
-                  {/* Scheme Header */}
-                  <div className="mb-3">
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                      {scheme.chitValueFormatted}
-                    </h3>
-                    <p className="text-xs font-semibold text-slate-500 mt-1">
-                      {schemeName}
-                    </p>
+                  {/* Top highlight caption */}
+                  {isPopular && (
+                    <div className="text-[11px] font-bold text-[#064E3B] tracking-wider uppercase mb-2.5 flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-[#064E3B] shrink-0" />
+                      <span>{lang === 'ta' ? 'பெரும்பான்மையினர் தேர்வு' : 'Most Popular Choice'}</span>
+                    </div>
+                  )}
+                  {isTenLakh && (
+                    <div className="text-[11px] font-bold text-[#052E22] tracking-wider uppercase mb-2.5 flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-[#064E3B] shrink-0" />
+                      <span>{lang === 'ta' ? 'பெருந்தொகை சிறப்பு திட்டம்' : 'High-Value Enterprise Plan'}</span>
+                    </div>
+                  )}
+
+                  {/* Scheme Header with 3D Rupee Coin Crest */}
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="min-w-0">
+                      <h3 className="side-heading-3d-pop text-xl sm:text-2xl font-extrabold tracking-tight font-mono tabular-nums text-[#052E22]">
+                        {scheme.chitValueFormatted}
+                      </h3>
+                      <p
+                        className={`text-xs font-semibold mt-1 ${
+                          isTenLakh ? 'text-[#14532D]' : 'text-[#264D40]'
+                        }`}
+                      >
+                        {schemeName}
+                      </p>
+                    </div>
+                    <RupeeEmblem3D size="sm" tone="forest" />
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed min-h-[40px] mb-4 sm:mb-5">
+                  <p
+                    className={`text-xs leading-relaxed min-h-[40px] mb-4 sm:mb-5 ${
+                      isTenLakh ? 'text-[#14532D]' : 'text-[#264D40]'
+                    }`}
+                  >
                     {tagline}
                   </p>
 
                   {/* Highlights Summary Box */}
-                  <div className="p-3 sm:p-4 rounded-xl bg-slate-50 border border-slate-100 mb-4 sm:mb-5 space-y-2.5 text-xs">
+                  <div
+                    className={`p-3 sm:p-4 rounded-xl mb-4 sm:mb-5 space-y-2.5 text-xs ${
+                      isTenLakh
+                        ? 'bg-white/90 border border-[#064E3B]/15'
+                        : 'bg-[#EAF7F0] border border-[#064E3B]/12'
+                    }`}
+                  >
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-slate-500">{t.schemes.tenure}:</span>
-                      <span className="font-bold text-slate-800 whitespace-nowrap">
+                      <span className="text-[#476D60]">
+                        {t.schemes.tenure}:
+                      </span>
+                      <span className="font-bold whitespace-nowrap text-[#052E22]">
                         {scheme.durationMonths} {lang === 'ta' ? 'மாதங்கள்' : 'Months'}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-slate-500">{t.schemes.firstMonth}:</span>
-                      <span className="font-bold font-mono text-slate-900 tabular-nums whitespace-nowrap">
+                      <span className="text-[#476D60]">
+                        {t.schemes.firstMonth}:
+                      </span>
+                      <span className="font-bold font-mono tabular-nums whitespace-nowrap text-[#052E22]">
                         ₹{scheme.firstMonthInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-x-2 gap-y-0.5 flex-wrap">
-                      <span className="text-slate-500">{t.schemes.instalmentRange}:</span>
-                      <span className="font-bold font-mono text-slate-900 tabular-nums sm:whitespace-nowrap text-right">
+                      <span className="text-[#476D60]">
+                        {t.schemes.instalmentRange}:
+                      </span>
+                      <span className="font-bold font-mono tabular-nums sm:whitespace-nowrap text-right text-[#052E22]">
                         ₹{scheme.minInstalment.toLocaleString('en-IN')} – ₹{scheme.maxInstalment.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="h-px bg-slate-200" />
+                    <div className="h-px bg-[#064E3B]/12" />
 
-                    <div className="flex items-center justify-between gap-2 flex-wrap text-[#075C32] font-semibold">
+                    <div className="flex items-center justify-between gap-2 flex-wrap font-semibold text-[#264D40]">
                       <span>{t.schemes.totalPaid}:</span>
-                      <span className="font-mono font-bold tabular-nums whitespace-nowrap">
+                      <span className="font-mono font-bold tabular-nums whitespace-nowrap text-[#052E22]">
                         ₹{scheme.totalInstalmentsPaid.toLocaleString('en-IN')}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 flex-wrap text-[#12834B] font-semibold">
+                    <div className="flex items-center justify-between gap-2 flex-wrap font-semibold text-[#064E3B]">
                       <span>{t.schemes.dividendGain}:</span>
                       <span className="font-mono font-bold tabular-nums whitespace-nowrap">
                         +₹{scheme.dividendBenefit.toLocaleString('en-IN')}
@@ -152,38 +181,64 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                     </div>
                   </div>
 
-                  {/* Bonus Reward Badge */}
-                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200/80 mb-5 flex items-start gap-2.5">
-                    <Award className="w-4 h-4 text-[#C9A64A] shrink-0 mt-0.5" />
+                  {/* Bonus Reward Box */}
+                  <div
+                    className={`p-3 rounded-xl mb-5 flex items-start gap-2.5 ${
+                      isTenLakh
+                        ? 'bg-[#064E3B] border border-emerald-400/25'
+                        : 'bg-[#DCFCE7] border border-[#064E3B]/18'
+                    }`}
+                  >
+                    <Award
+                      className={`w-4 h-4 shrink-0 mt-0.5 ${
+                        isTenLakh ? 'text-[#65E83A]' : 'text-[#064E3B]'
+                      }`}
+                    />
                     <div>
-                      <span className="text-xs font-bold text-amber-900 block">
-                        {lang === 'ta' ? 'உரிய தேதி போனஸ்:' : 'Timely Payment Bonus:'} ₹{scheme.totalBonus.toLocaleString('en-IN')}
+                      <span
+                        className={`text-xs font-bold block font-mono tabular-nums ${
+                          isTenLakh ? 'text-[#65E83A]' : 'text-[#052E22]'
+                        }`}
+                      >
+                        {lang === 'ta' ? 'உரிய தேதி போனஸ்:' : 'Timely Payment Bonus:'} ₹
+                        {scheme.totalBonus.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-[11px] text-amber-800 leading-tight block mt-0.5">
-                        {lang === 'ta' ? '10-ஆம் தேதிக்குள் செலுத்தினால் கிடைக்கும் கூடுதல் நன்மை' : 'Available for members paying on or before the 10th'}
+                      <span
+                        className={`text-[11px] leading-tight block mt-0.5 ${
+                          isTenLakh ? 'text-[#D1FAE5]' : 'text-[#264D40]'
+                        }`}
+                      >
+                        {lang === 'ta'
+                          ? '10-ஆம் தேதிக்குள் செலுத்தினால் கிடைக்கும் கூடுதல் நன்மை'
+                          : 'Available for members paying on or before the 10th'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="space-y-2.5 pt-2">
+                <div className="space-y-2.5 pt-2 relative z-10">
                   <button
                     onClick={() => handleOpenDetails(scheme)}
-                    className="w-full py-2.5 px-3 text-xs font-bold text-[#075C32] bg-[#E5F2E8] hover:bg-[#d4ead9] border border-[#12834B]/20 rounded-lg transition-all flex items-center justify-center gap-1.5"
+                    className={`w-full py-2.5 px-3 text-xs font-bold pubzi-chamfer-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      isTenLakh
+                        ? 'text-[#052E22] bg-white hover:bg-[#EAF7F0] border border-[#064E3B]/20'
+                        : 'text-[#052E22] bg-[#EAF7F0] hover:bg-[#DCFCE7] border border-[#064E3B]/18'
+                    }`}
                   >
-                    <Table className="w-3.5 h-3.5 shrink-0" />
+                    <Table className="w-3.5 h-3.5 shrink-0 text-[#064E3B]" />
                     <span className="truncate">{t.schemes.viewFullSchedule}</span>
                   </button>
 
                   <button
                     onClick={() => onSelectSchemeForEnquiry(`${scheme.chitValueFormatted} Scheme`)}
-                    className="w-full py-2.5 px-3 text-xs font-bold text-white bg-[#075C32] hover:bg-[#12834B] rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-98"
+                    className="w-full py-2.5 px-3 text-xs font-extrabold uppercase tracking-wider pubzi-chamfer-sm transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer text-white bg-[#064E3B] hover:bg-[#0B5D46] shadow-[0_6px_16px_-6px_rgba(6,78,59,0.3)]"
                   >
                     <span className="truncate">{t.schemes.enquireThisScheme}</span>
                     <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
+                </FintechCard3D>
               </div>
             );
           })}
@@ -191,7 +246,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
         {/* Disclaimer Note */}
         <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs text-slate-500 italic leading-relaxed">
+          <p className="text-xs text-[#476D60] italic leading-relaxed">
             {t.schemes.disclaimer}
           </p>
         </div>

@@ -82,7 +82,7 @@ export const HorizontalScrollArea: React.FC<HorizontalScrollAreaProps> = ({
           onClick={() => scrollBy(-scrollStep)}
           aria-label={`Scroll left (${ariaLabel})`}
           title="Scroll Left"
-          className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-slate-300 shadow-md text-[#075C32] hover:bg-[#E5F2E8] flex items-center justify-center transition-colors cursor-pointer"
+          className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-[#064E3B]/25 shadow-md text-[#052E22] hover:bg-[#65E83A] hover:border-[#064E3B] flex items-center justify-center transition-colors cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -104,7 +104,7 @@ export const HorizontalScrollArea: React.FC<HorizontalScrollAreaProps> = ({
           onClick={() => scrollBy(scrollStep)}
           aria-label={`Scroll right (${ariaLabel})`}
           title="Scroll Right"
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-slate-300 shadow-md text-[#075C32] hover:bg-[#E5F2E8] flex items-center justify-center transition-colors cursor-pointer"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-[#064E3B]/25 shadow-md text-[#052E22] hover:bg-[#65E83A] hover:border-[#064E3B] flex items-center justify-center transition-colors cursor-pointer"
         >
           <ChevronRight className="w-4 h-4" />
         </button>

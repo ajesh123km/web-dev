@@ -1,11 +1,43 @@
 [
   {
+    "id": "log-1795092115553-h7sz",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-19T12:41:55.553+00:00"
+  },
+  {
+    "id": "log-1795008888452-xkfm",
+    "action": "USER_LOGIN",
+    "details": "Member logged in: TS-2026-001 (S. Murugan)",
+    "performed_by": "TS-2026-001",
+    "target_id": "usr-001",
+    "timestamp": "2026-11-18T13:34:48.452+00:00"
+  },
+  {
+    "id": "log-1794997157109-kk4v",
+    "action": "SCHEME_DELETE",
+    "details": "Deleted unused scheme: 2500000",
+    "performed_by": "Admin",
+    "target_id": "scheme-1794741221460-2500k",
+    "timestamp": "2026-11-18T10:19:17.109+00:00"
+  },
+  {
+    "id": "log-1794995043465-7k00",
+    "action": "GROUP_ARCHIVE",
+    "details": "Archived Chit Group GRP-TEST-99 (₹2 Lakh Test Batch) — preserved 1 member(s) and 1 payment record(s)",
+    "performed_by": "Admin",
+    "target_id": "GRP-TEST-99",
+    "timestamp": "2026-11-18T09:44:03.465+00:00"
+  },
+  {
     "id": "log-1794993315093-agv1",
     "action": "SCHEME_DELETE",
     "details": "Deleted unused scheme: __VERIFY__ 3L 15M Scheme",
     "performed_by": "Admin",
     "target_id": "scheme-1794993190913-300k",
-    "timestamp": "2026-11-18T09:15:15.093Z"
+    "timestamp": "2026-11-18T09:15:15.093+00:00"
   },
   {
     "id": "log-1794993192036-gd1x",
