@@ -2,6 +2,7 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import { createServer as createHttpServer } from 'http';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
@@ -3343,12 +3344,14 @@ app.delete('/api/admin/announcements/:id', async (req: Request, res: Response) =
 // ======================== SERVING FRONTEND ========================
 
 async function startServer() {
+  const httpServer = createHttpServer(app);
+
   if (!isProd) {
     // Development mode with Vite middleware
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: {
-        middlewareMode: true,
+        middlewareMode: { server: httpServer },
         allowedHosts: true,
       },
       appType: 'spa'
@@ -3363,13 +3366,17 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] TEAM STARS CHITS portal running at http://0.0.0.0:${PORT}`);
     console.log(`[Mode] ${isProd ? 'Production' : 'Development'}`);
     void bootstrapSupabaseData();
   });
 }
 
-startServer().catch(err => {
-  console.error('[Fatal Server Startup Error]:', err);
-});
+export default app;
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  startServer().catch(err => {
+    console.error('[Fatal Server Startup Error]:', err);
+  });
+}
