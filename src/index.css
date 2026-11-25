@@ -68,6 +68,27 @@
 }
 
 /* 3D Translucent Glassmorphism Editorial Surfaces */
+.fintech-card,
+.fintech-card-ash,
+.fintech-card-forest,
+.fintech-card-mint {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-clip: padding-box;
+}
+
+.fintech-card::before,
+.fintech-card::after,
+.fintech-card-ash::before,
+.fintech-card-ash::after,
+.fintech-card-forest::before,
+.fintech-card-forest::after,
+.fintech-card-mint::before,
+.fintech-card-mint::after {
+  border-radius: inherit;
+}
+
 .fintech-card {
   background: linear-gradient(155deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.28) 100%);
   backdrop-filter: blur(12px);
@@ -110,15 +131,6 @@
     0 20px 44px -14px rgba(5, 46, 34, 0.18),
     0 8px 20px -8px rgba(5, 46, 34, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.50);
-}
-
-/* Pubzi Template Architectural Chamfer & Floating Studio Utilities */
-.pubzi-chamfer {
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-}
-
-.pubzi-chamfer-sm {
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
 @keyframes floatBobY {
@@ -375,12 +387,11 @@
   transition:
     opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
 }
 
 .reveal.active {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 .reveal-delay-100 {
@@ -439,6 +450,10 @@
 
 /* 3D Translucent Frosted Glassmorphism Section Containers */
 .fintech-glass-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-clip: padding-box;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.24) 52%, rgba(255, 255, 255, 0.18) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -450,6 +465,10 @@
 }
 
 .fintech-glass-section-ash {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-clip: padding-box;
   background: linear-gradient(135deg, rgba(244, 251, 247, 0.34) 0%, rgba(255, 255, 255, 0.24) 52%, rgba(234, 247, 240, 0.18) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -546,3 +565,156 @@
     height: 0;
   }
 }
+
+/* ==========================================================================
+   3D Brand Logo Loading / Intro Animation (.is-loading -> .is-flying -> .loaded)
+   ========================================================================== */
+.intro-page-content,
+.intro-navbar-root > div {
+  transition:
+    filter 0.68s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.68s ease;
+}
+
+body.is-loading {
+  overflow: hidden;
+}
+
+body.is-loading .intro-page-content {
+  filter: blur(8px);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+body.is-loading .intro-navbar-root > div {
+  filter: blur(6px);
+  opacity: 0.38;
+  pointer-events: none !important;
+}
+
+body.is-loading #navbar-brand-logo,
+body.is-flying #navbar-brand-logo {
+  opacity: 0;
+}
+
+body.is-flying .intro-page-content,
+body.is-flying .intro-navbar-root > div {
+  filter: blur(0px);
+  opacity: 1;
+  pointer-events: none;
+}
+
+body.loaded .intro-page-content {
+  filter: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.loaded .intro-navbar-root > div {
+  filter: none;
+  opacity: 1;
+}
+
+body.loaded #navbar-brand-logo {
+  opacity: 1;
+}
+
+body.intro-just-landed #navbar-brand-logo {
+  animation: introNavbarLogoSettle 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.intro-backdrop {
+  background: radial-gradient(
+    circle at 50% 48%,
+    rgba(11, 83, 61, 0.28) 0%,
+    rgba(5, 46, 34, 0.52) 68%,
+    rgba(5, 46, 34, 0.72) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.intro-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.intro-logo-carrier {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transform: translate3d(0px, 0px, 0px) scale(1) rotateY(0deg);
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-logo-3d {
+  will-change: transform, opacity;
+  backface-visibility: visible;
+}
+
+.intro-spin-active {
+  animation: introLogoSpin3D 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.intro-spin-settled {
+  transform: scale(1) rotateY(0deg);
+}
+
+.intro-logo-glow {
+  background: radial-gradient(
+    circle,
+    rgba(101, 232, 58, 0.48) 0%,
+    rgba(16, 185, 129, 0.22) 50%,
+    transparent 72%
+  );
+  animation: introGlowPulse 1.65s ease-in-out infinite;
+}
+
+@keyframes introLogoSpin3D {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) rotateY(-220deg) rotateX(12deg);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.08) rotateY(0deg) rotateX(4deg);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1.02) rotateY(360deg) rotateX(-4deg);
+  }
+  84% {
+    opacity: 1;
+    transform: scale(1.05) rotateY(540deg) rotateX(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(720deg) rotateX(0deg);
+  }
+}
+
+@keyframes introGlowPulse {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes introNavbarLogoSettle {
+  0% {
+    transform: scale(0.86);
+  }
+  45% {
+    transform: scale(1.14);
+  }
+  75% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+

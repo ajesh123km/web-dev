@@ -129,10 +129,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isAboutGroupActive = ['about', 'how-it-works', 'why-us', 'faq'].includes(activeSection);
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-40 w-full">
+    <header ref={headerRef} className="sticky top-0 z-40 w-full pointer-events-none intro-navbar-root">
       {/* 1. Top Utility Bar (Dark Emerald Green #06281c, smoothly collapses on scroll down) */}
       <div
-        className={`bg-[#06281c] text-[#ECFDF5] border-b border-emerald-400/15 transition-all duration-300 ease-out overflow-hidden ${
+        className={`pointer-events-auto bg-[#06281c] text-[#ECFDF5] border-b border-emerald-400/15 transition-all duration-300 ease-out overflow-hidden ${
           topBarHidden ? 'max-h-0 opacity-0 border-b-0' : 'max-h-14 opacity-100'
         }`}
       >
@@ -206,17 +206,20 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* 2. Main Navigation Bar (Clean White surface with subtle bottom border & shadow) */}
-      <div className="bg-white/95 backdrop-blur-md border-b border-slate-200/85 shadow-[0_4px_20px_-6px_rgba(6,40,28,0.10)]">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-[72px] gap-3 lg:gap-4">
+      {/* 2. Main Navigation Bar (Floating pill card with smooth curved start & end caps) */}
+      <div className="px-3 sm:px-6 lg:px-8 pt-2.5 sm:pt-3 pb-1.5 pointer-events-none">
+        <div className="pointer-events-auto max-w-7xl mx-auto rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_30px_-8px_rgba(6,40,28,0.14)] px-3 sm:px-4 lg:px-5">
+          <div className="flex items-center justify-between h-14 sm:h-[64px] gap-2 lg:gap-3">
             {/* Left: Brand (Existing circular logo + TEAM STARS CHITS + REGISTERED CHIT FUND) */}
             <button
               type="button"
               onClick={() => handleLinkClick('home')}
               className="flex items-center gap-2.5 sm:gap-3 text-left cursor-pointer select-none min-w-0 shrink-0 group focus-visible:outline-none"
             >
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-[#064E3B]/25 shadow-xs group-hover:scale-105 transition-transform bg-white shrink-0">
+              <div
+                id="navbar-brand-logo"
+                className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-[#064E3B]/25 shadow-xs group-hover:scale-105 transition-transform bg-white shrink-0"
+              >
                 <img
                   src="/images/team-stars-logo.jpeg"
                   alt="TEAM STARS CHITS PRIVATE LIMITED Logo"
@@ -482,7 +485,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* 3. Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-200 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 shadow-2xl transition-all max-h-[82vh] overflow-y-auto">
+        <div className="lg:hidden px-3 sm:px-6 pt-1 pointer-events-auto">
+          <div className="max-w-7xl mx-auto rounded-3xl border border-slate-200/90 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 shadow-2xl transition-all max-h-[82vh] overflow-y-auto">
           <div className="flex flex-col gap-1">
             <button
               type="button"
@@ -601,6 +605,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
           </div>
+        </div>
         </div>
       )}
     </header>

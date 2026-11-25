@@ -21,9 +21,7 @@ export const FintechCard3D: React.FC<FintechCard3DProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [canHoverTilt, setCanHoverTilt] = useState(false);
-  const [transformStyle, setTransformStyle] = useState<string>(
-    'perspective(1100px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-  );
+  const [transformStyle, setTransformStyle] = useState<string>('');
   const [glowPos, setGlowPos] = useState<{ x: number; y: number; active: boolean }>({
     x: 50,
     y: 50,
@@ -67,7 +65,7 @@ export const FintechCard3D: React.FC<FintechCard3DProps> = ({
 
   const handleMouseLeave = () => {
     if (!canHoverTilt) return;
-    setTransformStyle('perspective(1100px) rotateX(0deg) rotateY(0deg) translateZ(0px)');
+    setTransformStyle('');
     setGlowPos((prev) => ({ ...prev, active: false }));
   };
 
@@ -92,12 +90,12 @@ export const FintechCard3D: React.FC<FintechCard3DProps> = ({
       style={
         canHoverTilt
           ? {
-              transform: transformStyle,
+              transform: glowPos.active ? transformStyle : undefined,
               transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)'
             }
           : undefined
       }
-      className={`relative will-change-transform ${className}`}
+      className={`relative overflow-hidden isolate bg-clip-padding ${className}`}
     >
       {canHoverTilt && (
         <div

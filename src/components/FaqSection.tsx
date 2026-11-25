@@ -39,7 +39,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
 
         {/* Section Heading */}
         <MotionSection className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] text-[#65E83A] border border-[#0B5D46] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] text-[#65E83A] border border-[#0B5D46] px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <HelpCircle className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'கேள்வி பதில்' : 'Clear Answers'}</span>
           </div>
@@ -54,7 +54,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
         {/* Category Tabs */}
         <div className="reveal reveal-delay-100">
           <div
-            className={`flex flex-wrap items-center justify-center mb-6 sm:mb-8 p-1.5 bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-md ${
+            className={`flex flex-wrap items-center justify-center mb-6 sm:mb-8 p-1.5 bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-md overflow-hidden isolate bg-clip-padding ${
               lang === 'ta' ? 'gap-1.5' : 'gap-1.5 sm:gap-2'
             }`}
           >
@@ -84,7 +84,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
             return (
               <div key={faq.id} className={`reveal ${staggerClass}`.trim()}>
                 <div
-                  className={`rounded-xl border backdrop-blur-md transition-all duration-200 overflow-hidden ${
+                  className={`rounded-xl border backdrop-blur-md transition-all duration-200 overflow-hidden isolate bg-clip-padding ${
                     isOpen
                       ? 'bg-white/45 border-white/40 shadow-xl'
                       : 'bg-white/30 border-white/25 shadow-md hover:bg-white/40 hover:border-white/40'
@@ -122,25 +122,27 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
         </div>
 
         {/* Still have questions banner in Deep Emerald Forest */}
-        <div className="reveal mt-12 p-6 rounded-2xl fintech-card-forest pubzi-chamfer text-white text-center flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-center sm:text-left">
-            <h4 className="side-heading-3d-pop-dark text-sm sm:text-base font-bold text-white">
-              {lang === 'ta' ? 'வேறு கேள்விகள் உள்ளதா?' : 'Have specific questions about joining?'}
-            </h4>
-            <p className="text-xs text-[#D1FAE5] mt-0.5">
-              {lang === 'ta'
-                ? 'எங்கள் நேரடி அலுவலகத்தை 9789825684 என்ற எண்ணில் அழைத்து பேசலாம்.'
-                : 'Call our direct office line to speak with a relationship executive.'}
-            </p>
-          </div>
+        <div className="reveal mt-12">
+          <div className="p-6 rounded-2xl fintech-card-forest text-white text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <h4 className="side-heading-3d-pop-dark text-sm sm:text-base font-bold text-white">
+                {lang === 'ta' ? 'வேறு கேள்விகள் உள்ளதா?' : 'Have specific questions about joining?'}
+              </h4>
+              <p className="text-xs text-[#D1FAE5] mt-0.5">
+                {lang === 'ta'
+                  ? 'எங்கள் நேரடி அலுவலகத்தை 9789825684 என்ற எண்ணில் அழைத்து பேசலாம்.'
+                  : 'Call our direct office line to speak with a relationship executive.'}
+              </p>
+            </div>
 
-          <a
-            href="tel:9789825684"
-            className="px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-[#052E22] bg-[#65E83A] hover:bg-[#7CF056] pubzi-chamfer-sm shadow-md transition-all flex items-center gap-1.5 shrink-0 tabular-nums"
-          >
-            <PhoneCall className="w-3.5 h-3.5" />
-            <span>+91 9789825684</span>
-          </a>
+            <a
+              href="tel:9789825684"
+              className="px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider text-[#052E22] bg-[#65E83A] hover:bg-[#7CF056] shadow-md transition-all flex items-center gap-1.5 shrink-0 tabular-nums"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>+91 9789825684</span>
+            </a>
+          </div>
         </div>
 
       </div>

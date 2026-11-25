@@ -56,7 +56,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
 
         {/* Section Heading */}
         <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <Calculator className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'திட்டமிட்ட சேமிப்பு கணக்கீடு' : 'Financial Planning'}</span>
           </div>
@@ -69,7 +69,8 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
         </MotionSection>
 
         {/* Soft Light-Green & White Calculator Frame */}
-        <MotionSection delay={0.1} className="max-w-4xl mx-auto fintech-card-ash pubzi-chamfer rounded-2xl p-4 sm:p-10 relative overflow-hidden">
+        <MotionSection delay={0.1}>
+          <div className="max-w-4xl mx-auto fintech-card-ash rounded-2xl p-4 sm:p-10 relative overflow-hidden isolate">
           <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-[#064E3B]/12">
             <div className="flex items-center gap-3">
               <RupeeEmblem3D size="sm" tone="forest" />
@@ -121,7 +122,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
 
           {/* Scheme High-Level Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mb-6 sm:mb-8">
-            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg min-w-0">
+            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden isolate min-w-0">
               <span className="text-[11px] font-semibold text-[#0B3B2C] block">{t.calculator.totalToPay}</span>
               <span className="text-base sm:text-xl font-extrabold text-[#052E22] font-mono tabular-nums block mt-1 break-words">
                 ₹{currentScheme.totalInstalmentsPaid.toLocaleString('en-IN')}
@@ -149,7 +150,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
               <span className="text-[10px] text-[#A7F3D0] block mt-0.5">If paid by 10th</span>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg min-w-0">
+            <div className="p-3 sm:p-4 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden isolate min-w-0">
               <span className="text-[11px] font-semibold text-[#0B3B2C] block">
                 {lang === 'ta' ? 'முதல் மாத தவணை' : 'First Month Due'}
               </span>
@@ -161,7 +162,7 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
           </div>
 
           {/* Interactive Month Slider + Emerald Visual Progress Bar */}
-          <div className="p-4 sm:p-6 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 mb-6 sm:mb-8 shadow-lg">
+          <div className="p-4 sm:p-6 rounded-xl bg-white/40 backdrop-blur-md border border-white/30 mb-6 sm:mb-8 shadow-lg overflow-hidden isolate">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <label htmlFor="month-slider" className="text-xs font-bold text-[#052E22] flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-[#064E3B] shrink-0" />
@@ -261,11 +262,12 @@ export const ChitCalculator: React.FC<ChitCalculatorProps> = ({ lang, onEnquireS
 
             <button
               onClick={() => onEnquireScheme(`${currentScheme.chitValueFormatted} Scheme`)}
-              className="w-full sm:w-auto px-6 py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#052E22] bg-[#65E83A] hover:bg-[#7CF056] pubzi-chamfer-sm shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#052E22] bg-[#65E83A] hover:bg-[#7CF056] shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
             >
               <span>{t.calculator.enquireForSelected}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+          </div>
           </div>
         </MotionSection>
       </div>

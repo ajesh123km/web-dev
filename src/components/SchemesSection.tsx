@@ -52,7 +52,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
         {/* Section Header */}
         <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <Calendar className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'அதிகாரப்பூர்வ திட்டங்கள்' : 'Rate Card Plans'}</span>
           </div>
@@ -83,7 +83,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                 <FintechCard3D
                   accent={isTenLakh ? 'mint' : 'emerald'}
                   intensity="medium"
-                  className={`w-full flex flex-col justify-between rounded-2xl pubzi-chamfer transition-all duration-200 p-4 sm:p-6 relative ${
+                  className={`w-full flex flex-col justify-between rounded-2xl overflow-hidden isolate transition-all duration-200 p-4 sm:p-6 relative ${
                     isTenLakh
                       ? 'fintech-card-mint hover:border-[#064E3B]/45'
                       : 'fintech-card hover:border-[#064E3B]/35'
@@ -220,7 +220,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
                 <div className="space-y-2.5 pt-2 relative z-10">
                   <button
                     onClick={() => handleOpenDetails(scheme)}
-                    className={`w-full py-2.5 px-3 text-xs font-bold pubzi-chamfer-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       isTenLakh
                         ? 'text-[#052E22] bg-white hover:bg-[#EAF7F0] border border-[#064E3B]/20'
                         : 'text-[#052E22] bg-[#EAF7F0] hover:bg-[#DCFCE7] border border-[#064E3B]/18'
@@ -232,7 +232,7 @@ export const SchemesSection: React.FC<SchemesSectionProps> = ({
 
                   <button
                     onClick={() => onSelectSchemeForEnquiry(`${scheme.chitValueFormatted} Scheme`)}
-                    className="w-full py-2.5 px-3 text-xs font-extrabold uppercase tracking-wider pubzi-chamfer-sm transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer text-white bg-[#064E3B] hover:bg-[#0B5D46] shadow-[0_6px_16px_-6px_rgba(6,78,59,0.3)]"
+                    className="w-full py-2.5 px-3 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer text-white bg-[#064E3B] hover:bg-[#0B5D46] shadow-[0_6px_16px_-6px_rgba(6,78,59,0.3)]"
                   >
                     <span className="truncate">{t.schemes.enquireThisScheme}</span>
                     <ArrowRight className="w-3.5 h-3.5 shrink-0" />

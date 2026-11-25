@@ -197,39 +197,42 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     <section id="enquiry-form" className="py-12 sm:py-16 lg:py-24 bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Deep Emerald Forest CTA Contact Banner */}
-        <div className="reveal mb-8 sm:mb-10 rounded-2xl fintech-card-forest text-white p-6 sm:p-8 pubzi-chamfer flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left">
-            <div className="mb-2.5">
-              <span className="inline-block bg-[#65E83A] text-[#052E22] px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-widest pubzi-chamfer-sm">
-                {lang === 'ta' ? 'தொடங்குவோம்' : 'Start Your Plan'}
-              </span>
+        <div className="reveal mb-8 sm:mb-10">
+          <div className="rounded-2xl fintech-card-forest text-white p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-left">
+              <div className="mb-2.5">
+                <span className="inline-block bg-[#65E83A] text-[#052E22] px-3 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-widest">
+                  {lang === 'ta' ? 'தொடங்குவோம்' : 'Start Your Plan'}
+                </span>
+              </div>
+              <h2 className="heading-3d-pop-dark text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                {lang === 'ta' ? 'உங்கள் சீட்டு சேமிப்பை இன்று தொடங்குங்கள்' : 'Let’s Secure Your Savings Plan Today'}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#D1FAE5] mt-1.5 max-w-md">
+                {lang === 'ta'
+                  ? 'டீம் ஸ்டார்ஸ் சீட்டுத் திட்டங்களில் சேர விரும்புகிறீர்களா? கீழே உள்ள படிவத்தை நிரப்பவும்.'
+                  : 'Ready to join an upcoming 20-month group? Submit your details below or call us directly.'}
+              </p>
             </div>
-            <h2 className="heading-3d-pop-dark text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-              {lang === 'ta' ? 'உங்கள் சீட்டு சேமிப்பை இன்று தொடங்குங்கள்' : 'Let’s Secure Your Savings Plan Today'}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#D1FAE5] mt-1.5 max-w-md">
-              {lang === 'ta'
-                ? 'டீம் ஸ்டார்ஸ் சீட்டுத் திட்டங்களில் சேர விரும்புகிறீர்களா? கீழே உள்ள படிவத்தை நிரப்பவும்.'
-                : 'Ready to join an upcoming 20-month group? Submit your details below or call us directly.'}
-            </p>
-          </div>
 
-          <a
-            href="tel:9789825684"
-            className="w-full md:w-auto px-6 py-4 bg-[#052E22] hover:bg-[#65E83A] text-white hover:text-[#052E22] border border-[#65E83A]/50 pubzi-chamfer-sm transition-all flex flex-col items-center md:items-end shrink-0 group cursor-pointer"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#65E83A] group-hover:text-[#052E22]">
-              {lang === 'ta' ? 'நேரடி அழைப்பு' : 'Call Us Directly'}
-            </span>
-            <span className="text-lg font-black font-mono tabular-nums mt-0.5">
-              +91 9789825684
-            </span>
-          </a>
+            <a
+              href="tel:9789825684"
+              className="w-full md:w-auto px-6 py-4 rounded-xl bg-[#052E22] hover:bg-[#65E83A] text-white hover:text-[#052E22] border border-[#65E83A]/50 transition-all flex flex-col items-center md:items-end shrink-0 group cursor-pointer"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#65E83A] group-hover:text-[#052E22]">
+                {lang === 'ta' ? 'நேரடி அழைப்பு' : 'Call Us Directly'}
+              </span>
+              <span className="text-lg font-black font-mono tabular-nums mt-0.5">
+                +91 9789825684
+              </span>
+            </a>
+          </div>
         </div>
 
         {/* Elevated Crisp White Form Card */}
-        <div className="reveal reveal-delay-100 fintech-card rounded-2xl p-4 sm:p-10 relative overflow-hidden pubzi-chamfer max-w-3xl mx-auto">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#064E3B] via-[#65E83A] to-[#064E3B]" />
+        <div className="reveal reveal-delay-100 max-w-3xl mx-auto">
+          <div className="fintech-card rounded-2xl p-4 sm:p-10 relative overflow-hidden isolate">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#064E3B] via-[#65E83A] to-[#064E3B]" />
 
           <div className="text-center mb-6 sm:mb-8 flex flex-col items-center">
             <h2 className="heading-3d-pop text-xl sm:text-3xl font-extrabold text-[#052E22] tracking-tight leading-tight">
@@ -502,6 +505,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
             </form>
           )}
 
+          </div>
         </div>
 
       </div>
