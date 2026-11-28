@@ -19,6 +19,7 @@ import { VideoBackground } from './components/VideoBackground';
 import { GoldCoinClickBurst } from './components/GoldCoinClickBurst';
 import { LogoIntroAnimation } from './components/LogoIntroAnimation';
 import { useScrollReveal } from './hooks/useScrollReveal';
+import { publicSupabase } from './supabase';
 
 export default function App() {
   useScrollReveal();
@@ -47,15 +48,23 @@ export default function App() {
   }, [lang]);
 
   useEffect(() => {
-    const events = new EventSource('/api/public-events');
+    if (!publicSupabase) return;
+
+    const supabase = publicSupabase;
     const refreshSchemes = () => window.dispatchEvent(new Event('teamstars:schemes-updated'));
     const refreshAnnouncements = () => window.dispatchEvent(new Event('teamstars:announcements-updated'));
-
-    events.addEventListener('schemes', refreshSchemes);
-    events.addEventListener('announcements', refreshAnnouncements);
+    const channel = supabase
+      .channel('public-website-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chit_schemes' }, refreshSchemes)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, refreshAnnouncements)
+      .subscribe((status, error) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error(`[Supabase Realtime] Public content subscription ${status.toLowerCase()}: ${error?.message || 'No details.'}`);
+        }
+      });
 
     return () => {
-      events.close();
+      void supabase.removeChannel(channel);
     };
   }, []);
 

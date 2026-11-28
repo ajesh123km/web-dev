@@ -6,7 +6,7 @@ import { createServer as createHttpServer } from 'http';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { createClient, type RealtimeChannel } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
 dotenv.config();
@@ -88,34 +88,6 @@ function updateLocalEnquiryStatus(id: string, status: string): boolean {
   return false;
 }
 
-function broadcastPublicUpdate(event: 'schemes' | 'announcements'): void {
-  for (const client of publicRealtimeClients) {
-    client.write(`event: ${event}\ndata: {}\n\n`);
-  }
-}
-
-function startPublicRealtime(): void {
-  if (!supabase || publicRealtimeChannel) return;
-
-  publicRealtimeChannel = supabase
-    .channel('public-website-updates')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'chit_schemes' }, () => {
-      broadcastPublicUpdate('schemes');
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
-      broadcastPublicUpdate('announcements');
-    })
-    .subscribe((status, error) => {
-      if (status === 'SUBSCRIBED') {
-        console.info('[Supabase Realtime] Public content subscription active.');
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        console.error(
-          `[Supabase Realtime] Public content subscription ${status.toLowerCase()}: ${error?.message || 'No details.'}`
-        );
-      }
-    });
-}
-
 const SCHEMES_FILE = path.join(DATA_DIR, 'schemes.json');
 const SCHEME_VERSIONS_FILE = path.join(DATA_DIR, 'scheme_versions.json');
 const GROUPS_FILE = path.join(DATA_DIR, 'groups.json');
@@ -151,8 +123,6 @@ const supabaseKeyMode = process.env.SUPABASE_SECRET_KEY
 const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project'));
 
 let supabase: ReturnType<typeof createClient> | null = null;
-let publicRealtimeChannel: RealtimeChannel | null = null;
-const publicRealtimeClients = new Set<Response>();
 let supabaseTablesReady = false;
 if (isSupabaseConfigured) {
   try {
@@ -1318,7 +1288,7 @@ const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Team Stars Chits <onboardin
 
 // Admin authentication token secret
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProd ? '' : 'teamstars2025');
-const ADMIN_TOKEN_SECRET = process.env.ADMIN_SECRET_KEY || (isProd ? '' : 'teamstars-secret-token-key-2025');
+const ADMIN_TOKEN_SECRET = (process.env.ADMIN_SECRET_KEY || (isProd ? '' : 'teamstars-secret-token-key-2025')).trim();
 
 function isValidAdminAuth(req: Request): boolean {
   const authHeader = req.headers.authorization;
@@ -1337,30 +1307,6 @@ app.get('/healthz', async (_req: Request, res: Response) => {
   if (error) return res.status(503).send('Supabase is unavailable.');
 
   return res.status(200).send('ok');
-});
-
-app.get('/api/public-events', (req: Request, res: Response) => {
-  if (!supabase) return res.status(204).end();
-
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-    'X-Accel-Buffering': 'no'
-  });
-  res.flushHeaders();
-  res.write(': connected\n\n');
-  publicRealtimeClients.add(res);
-  startPublicRealtime();
-
-  const heartbeat = setInterval(() => {
-    res.write(': heartbeat\n\n');
-  }, 25000);
-
-  req.on('close', () => {
-    clearInterval(heartbeat);
-    publicRealtimeClients.delete(res);
-  });
 });
 
 app.get('/api/schemes', async (_req: Request, res: Response) => {
@@ -3471,7 +3417,7 @@ async function startServer() {
       missing.push('SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY');
     }
     if (!process.env.ADMIN_PASSWORD) missing.push('ADMIN_PASSWORD');
-    if (!process.env.ADMIN_SECRET_KEY) missing.push('ADMIN_SECRET_KEY');
+    if (!ADMIN_TOKEN_SECRET) missing.push('ADMIN_SECRET_KEY');
     if (missing.length > 0) {
       throw new Error(`Missing required production environment variables: ${missing.join(', ')}`);
     }
@@ -3502,7 +3448,6 @@ async function startServer() {
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] TEAM STARS CHITS portal running at http://0.0.0.0:${PORT}`);
     console.log(`[Mode] ${isProd ? 'Production' : 'Development'}`);
-    startPublicRealtime();
     void bootstrapSupabaseData();
   });
 }

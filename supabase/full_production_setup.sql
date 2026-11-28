@@ -234,6 +234,17 @@ create policy "Public can view active schemes"
   to anon, authenticated
   using (status = 'active');
 
+drop policy if exists "Public can view published global announcements" on public.announcements;
+create policy "Public can view published global announcements"
+  on public.announcements for select
+  to anon
+  using (
+    target_type = 'all'
+    and is_published = true
+    and is_archived = false
+    and publish_date <= current_date
+  );
+
 -- 16. Service Role & JWT Admin Full Access Policies Across All 11 Tables
 do $$
 declare
