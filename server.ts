@@ -105,11 +105,13 @@ function startPublicRealtime(): void {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
       broadcastPublicUpdate('announcements');
     })
-    .subscribe((status) => {
+    .subscribe((status, error) => {
       if (status === 'SUBSCRIBED') {
         console.info('[Supabase Realtime] Public content subscription active.');
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        console.error(`[Supabase Realtime] Public content subscription ${status.toLowerCase()}.`);
+        console.error(
+          `[Supabase Realtime] Public content subscription ${status.toLowerCase()}: ${error?.message || 'No details.'}`
+        );
       }
     });
 }
