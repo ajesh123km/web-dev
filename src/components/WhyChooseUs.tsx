@@ -51,7 +51,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
 
         {/* Section Heading */}
         <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] text-[#65E83A] border border-emerald-400/30 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] text-[#65E83A] border border-emerald-400/30 px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <span>{lang === 'ta' ? 'நம்பகத்தன்மை தூண்கள்' : 'Core Advantages'}</span>
           </div>
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
@@ -65,11 +65,12 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
         {/* 3 Core Pillars Editorial Bento Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-10 sm:mb-14">
           {/* Pillar 1: Structured Plans */}
-          <button
-            type="button"
-            onClick={() => document.getElementById('schemes')?.scrollIntoView({ behavior: 'smooth' })}
-            className="reveal group text-left relative rounded-2xl fintech-card-forest pubzi-chamfer text-[#ECFDF5] p-6 min-h-[195px] flex flex-col justify-between overflow-hidden transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
-          >
+          <div className="reveal flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('schemes')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full group text-left relative rounded-2xl fintech-card-forest text-[#ECFDF5] p-6 min-h-[195px] flex flex-col justify-between overflow-hidden isolate transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
+            >
             <div className="flex items-start justify-between gap-3">
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#65E83A]">
                 {lang === 'ta' ? 'தூண் 01' : 'Core Pillar 01'}
@@ -92,14 +93,16 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
                 </p>
               </div>
             </div>
-          </button>
+            </button>
+          </div>
 
           {/* Pillar 2: 11th Monthly Draw */}
-          <button
-            type="button"
-            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-            className="reveal reveal-delay-100 group text-left relative rounded-2xl fintech-card-mint pubzi-chamfer p-6 min-h-[195px] flex flex-col justify-between overflow-hidden transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
-          >
+          <div className="reveal reveal-delay-100 flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full group text-left relative rounded-2xl fintech-card-mint p-6 min-h-[195px] flex flex-col justify-between overflow-hidden isolate transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
+            >
             <div className="flex items-start justify-between gap-3">
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#052E22]">
                 {lang === 'ta' ? 'தூண் 02' : 'Core Pillar 02'}
@@ -122,14 +125,16 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
                 </p>
               </div>
             </div>
-          </button>
+            </button>
+          </div>
 
           {/* Pillar 3: Timely Bonus Network */}
-          <button
-            type="button"
-            onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
-            className="reveal reveal-delay-200 group text-left relative rounded-2xl fintech-card pubzi-chamfer p-6 min-h-[195px] flex flex-col justify-between overflow-hidden transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
-          >
+          <div className="reveal reveal-delay-200 flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full group text-left relative rounded-2xl fintech-card p-6 min-h-[195px] flex flex-col justify-between overflow-hidden isolate transition-transform duration-200 hover:-translate-y-1 cursor-pointer"
+            >
             <div className="flex items-start justify-between gap-3">
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#0B3B2C]">
                 {lang === 'ta' ? 'தூண் 03' : 'Core Pillar 03'}
@@ -152,7 +157,8 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
                 </p>
               </div>
             </div>
-          </button>
+            </button>
+          </div>
         </div>
 
         {/* 6 Pillars Bento Grid */}
@@ -166,12 +172,12 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ lang }) => {
               <div key={idx} className={`reveal ${staggerClass} flex`}>
                 <FintechCard3D
                   accent={isForestAccent ? 'emerald' : 'mint'}
-                  className="w-full p-5 sm:p-7 rounded-2xl fintech-card-ash pubzi-chamfer hover:border-[#064E3B]/35 transition-all flex flex-col justify-between"
+                  className="w-full p-5 sm:p-7 rounded-2xl fintech-card-ash hover:border-[#064E3B]/35 transition-all flex flex-col justify-between"
                 >
                 <div>
                   <div className="flex items-center justify-between mb-5">
                     <div
-                      className={`w-12 h-12 rounded-xl border flex items-center justify-center pubzi-chamfer-sm ${
+                      className={`w-12 h-12 rounded-xl border flex items-center justify-center ${
                         isForestAccent
                           ? 'bg-[#064E3B] border-emerald-400/25 text-[#65E83A] shadow-sm'
                           : 'bg-[#65E83A] border-[#064E3B]/20 text-[#052E22]'

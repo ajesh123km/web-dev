@@ -18,7 +18,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
         {/* Section Heading */}
         <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <Building2 className="w-3.5 h-3.5 text-[#65E83A]" />
             <span>{lang === 'ta' ? 'நிறுவன பின்னணி' : 'Corporate Profile'}</span>
           </div>
@@ -78,7 +78,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
           {/* Official Letterhead Card in Deep Emerald */}
           <MotionSection delay={0.1} className="lg:col-span-5 flex">
-            <FintechCard3D accent="forest" className="w-full flex flex-col justify-between p-5 sm:p-8 rounded-2xl fintech-card-forest pubzi-chamfer text-[#ECFDF5] relative overflow-hidden">
+            <FintechCard3D accent="forest" className="w-full flex flex-col justify-between p-5 sm:p-8 rounded-2xl fintech-card-forest text-[#ECFDF5] relative overflow-hidden isolate">
               <div>
                 <div className="border-b border-white/15 pb-4 mb-5">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
@@ -140,7 +140,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
         {/* "Trust Through Transparency" Showcase Banner */}
         <MotionSection delay={0.06} className="mb-12 sm:mb-16">
-          <div className="rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden pubzi-chamfer shadow-xl grid grid-cols-1 lg:grid-cols-12 items-stretch">
+          <div className="rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden isolate bg-clip-padding shadow-xl grid grid-cols-1 lg:grid-cols-12 items-stretch">
             <div className="lg:col-span-6 relative border-b lg:border-b-0 lg:border-r border-white/25 bg-emerald-500/10 overflow-hidden h-[240px] sm:h-[310px] lg:h-auto lg:min-h-[330px]">
               <img
                 src="/assets/aistudio/image_f747490f.png"
@@ -200,8 +200,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="reveal flex">
-              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-white/50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
+              <FintechCard3D accent="emerald" className="w-full p-6 rounded-2xl fintech-card hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 shadow-sm">
                   01
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value1Title}</h4>
@@ -210,8 +210,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
             </div>
 
             <div className="reveal reveal-delay-100 flex">
-              <FintechCard3D accent="ash" className="w-full p-6 rounded-xl fintech-card-ash pubzi-chamfer hover:border-white/50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-white border border-[#064E3B]/20 flex items-center justify-center text-[#064E3B] font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
+              <FintechCard3D accent="ash" className="w-full p-6 rounded-2xl fintech-card-ash hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-white border border-[#064E3B]/20 flex items-center justify-center text-[#064E3B] font-extrabold font-mono mb-4 shadow-sm">
                   02
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value2Title}</h4>
@@ -220,8 +220,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
             </div>
 
             <div className="reveal reveal-delay-200 flex">
-              <FintechCard3D accent="emerald" className="w-full p-6 rounded-xl fintech-card pubzi-chamfer hover:border-white/50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
+              <FintechCard3D accent="emerald" className="w-full p-6 rounded-2xl fintech-card hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] text-[#65E83A] flex items-center justify-center font-extrabold font-mono mb-4 shadow-sm">
                   03
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value3Title}</h4>
@@ -230,8 +230,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang }) => {
             </div>
 
             <div className="reveal reveal-delay-300 flex">
-              <FintechCard3D accent="mint" className="w-full p-6 rounded-xl fintech-card-mint pubzi-chamfer hover:border-white/50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center text-[#65E83A] font-extrabold font-mono mb-4 pubzi-chamfer-sm shadow-sm">
+              <FintechCard3D accent="mint" className="w-full p-6 rounded-2xl fintech-card-mint hover:border-white/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center text-[#65E83A] font-extrabold font-mono mb-4 shadow-sm">
                   04
                 </div>
                 <h4 className="side-heading-3d-pop font-bold text-base text-[#052E22] mb-2">{t.about.value4Title}</h4>

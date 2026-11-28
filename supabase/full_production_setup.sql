@@ -234,6 +234,17 @@ create policy "Public can view active schemes"
   to anon, authenticated
   using (status = 'active');
 
+drop policy if exists "Public can view published global announcements" on public.announcements;
+create policy "Public can view published global announcements"
+  on public.announcements for select
+  to anon
+  using (
+    target_type = 'all'
+    and is_published = true
+    and is_archived = false
+    and publish_date <= current_date
+  );
+
 -- 16. Service Role & JWT Admin Full Access Policies Across All 11 Tables
 do $$
 declare
@@ -300,3 +311,25 @@ create policy "Members read eligible published announcements"
       )
     )
   );
+
+-- 18. Enable Supabase Realtime only for public website content.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'chit_schemes'
+  ) then
+    alter publication supabase_realtime add table public.chit_schemes;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'announcements'
+  ) then
+    alter publication supabase_realtime add table public.announcements;
+  end if;
+end $$;

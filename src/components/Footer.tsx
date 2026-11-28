@@ -22,18 +22,22 @@ export const Footer: React.FC<FooterProps> = ({
 
   useEffect(() => {
     let active = true;
-    fetch('/api/schemes')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
-          setSchemes(data.schemes);
-        }
-      })
-      .catch(() => {
-        // Fallback to static schemes
-      });
+    const loadSchemes = () => {
+      fetch('/api/schemes')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (active && data?.schemes && Array.isArray(data.schemes) && data.schemes.length > 0) {
+            setSchemes(data.schemes);
+          }
+        })
+        .catch(() => {});
+    };
+
+    loadSchemes();
+    window.addEventListener('teamstars:schemes-updated', loadSchemes);
     return () => {
       active = false;
+      window.removeEventListener('teamstars:schemes-updated', loadSchemes);
     };
   }, []);
 

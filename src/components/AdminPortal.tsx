@@ -392,7 +392,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
         const data = await res.json();
         setEnquiries(data.enquiries || []);
       } else if (res.status === 401) {
-        handleLogout();
+        handleLogout(adminToken);
       }
     } catch (e) {
       console.error('Fetch enquiries error:', e);
@@ -430,7 +430,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = (expectedToken?: string) => {
+    const savedToken = localStorage.getItem('teamstars_admin_token');
+    if (expectedToken && savedToken !== expectedToken) return;
+
     localStorage.removeItem('teamstars_admin_token');
     setAdminToken('');
     setIsAuthenticated(false);
@@ -1312,7 +1315,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ lang, isOpen, onClose 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {isAuthenticated && (
               <button
-                onClick={handleLogout}
+                onClick={() => handleLogout()}
                 className="px-2.5 py-1.5 sm:px-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-[11px] sm:text-xs font-semibold text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />

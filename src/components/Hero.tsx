@@ -20,7 +20,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
       {/* Geometric Corner Accent Shape */}
       <div
         aria-hidden="true"
-        className="hidden lg:block absolute top-10 right-12 w-36 h-36 border-2 border-[#064E3B]/15 rotate-12 pointer-events-none pubzi-chamfer"
+        className="hidden lg:block absolute top-10 right-12 w-36 h-36 rounded-2xl border-2 border-[#064E3B]/15 rotate-12 pointer-events-none"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -30,7 +30,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
           <MotionSection className="lg:col-span-6 flex flex-col items-start text-left min-w-0">
             {/* Deep Emerald Sub-Text Ribbon */}
             <div className="inline-flex items-center gap-2.5 mb-4">
-              <span className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1.5 text-[11px] font-extrabold tracking-widest uppercase pubzi-chamfer-sm shadow-sm">
+              <span className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold tracking-widest uppercase shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#65E83A] shrink-0" />
                 <span>{t.hero.kicker}</span>
               </span>
@@ -47,27 +47,27 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
               {t.hero.subtitle}
             </p>
 
-            {/* 2x2 Translucent Glassmorphic Chamfered Feature Tiles with Solid 3D Extruded Icons */}
+            {/* 2x2 Translucent Glassmorphic Feature Tiles with Solid 3D Extruded Icons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-7 sm:mb-8 w-full max-w-xl">
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg overflow-hidden isolate px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-forest flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <ShieldCheck className="w-4 h-4 text-[#65E83A]" />
                 </span>
                 <span>{t.hero.badgeRegistered}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg overflow-hidden isolate px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-token flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <Calendar className="w-4 h-4 text-[#064E3B]" />
                 </span>
                 <span>{t.hero.badgeDuration}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg overflow-hidden isolate px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-mint flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <Wallet className="w-4 h-4 text-[#052E22]" />
                 </span>
                 <span>{t.hero.badgeBonus}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 shadow-lg pubzi-chamfer-sm px-3.5 py-2.5 group">
+              <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-[#052E22] bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg overflow-hidden isolate px-3.5 py-2.5 group">
                 <span className="w-8 h-8 rounded-lg fintech-3d-icon-token flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
                   <BarChart3 className="w-4 h-4 text-[#064E3B]" />
                 </span>
@@ -79,7 +79,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <button
                 onClick={onEnquireNow}
-                className="w-full sm:w-auto px-7 py-3.5 text-sm font-extrabold uppercase tracking-wider text-white bg-[#064E3B] hover:bg-[#0B5D46] pubzi-chamfer-sm shadow-[0_12px_28px_-8px_rgba(6,78,59,0.42)] transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto px-7 py-3.5 text-sm font-extrabold uppercase tracking-wider text-white bg-[#064E3B] hover:bg-[#0B5D46] rounded-xl shadow-[0_12px_28px_-8px_rgba(6,78,59,0.42)] transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
                 <span>{t.hero.enquireNow}</span>
                 <ArrowRight className="w-4 h-4 text-[#65E83A]" />
@@ -87,7 +87,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
 
               <button
                 onClick={onExploreSchemes}
-                className="w-full sm:w-auto px-6 py-3.5 text-sm font-bold text-[#052E22] bg-white hover:bg-[#DCFCE7] border border-[#064E3B]/20 pubzi-chamfer-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-bold text-[#052E22] bg-white hover:bg-[#DCFCE7] border border-[#064E3B]/20 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>{t.hero.exploreSchemes}</span>
               </button>
@@ -108,7 +108,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
               {/* Architectural Backplate Accent Frame */}
               <div
                 aria-hidden="true"
-                className="hidden sm:block absolute -inset-2.5 translate-x-2 translate-y-2 rounded-2xl bg-[#65E83A]/20 border border-[#064E3B]/18 pubzi-chamfer pointer-events-none"
+                className="hidden sm:block absolute -inset-2.5 translate-x-2 translate-y-2 rounded-3xl bg-[#65E83A]/20 border border-[#064E3B]/18 pointer-events-none"
               />
 
               {/* Floating 3D Rendered Fintech Icons Flanking Perimeter */}
@@ -136,7 +136,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
               <FintechCard3D
                 accent="mint"
                 intensity="subtle"
-                className="w-full rounded-2xl fintech-card overflow-hidden pubzi-chamfer relative"
+                className="w-full rounded-2xl fintech-card overflow-hidden isolate relative"
               >
                 {/* Crisp Light-Green to Emerald Top Accent Hairline */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-[#064E3B] via-[#65E83A] to-[#064E3B]" />
@@ -160,7 +160,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
                 </div>
 
                 {/* Deep Emerald Executive Summary Panel */}
-                <div className="p-4 sm:p-6 fintech-card-forest text-[#ECFDF5]">
+                <div className="p-4 sm:p-6 bg-gradient-to-br from-[#0B533D]/85 via-[#074230]/88 to-[#052E22]/92 backdrop-blur-md border-t border-white/20 text-[#ECFDF5]">
                   <div className="flex items-center gap-3.5 mb-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0.5 border-2 border-[#65E83A]/85 shadow-[0_6px_18px_rgba(101,232,58,0.22)] bg-[#052E22] shrink-0">
                       <img
@@ -222,45 +222,47 @@ export const Hero: React.FC<HeroProps> = ({ lang, onExploreSchemes, onEnquireNow
         </div>
 
         {/* Architectural Full-Width Counter Wrap Strip */}
-        <MotionSection delay={0.18} className="mt-10 sm:mt-14 rounded-2xl fintech-card-forest text-[#ECFDF5] p-5 sm:p-7 pubzi-chamfer">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 divide-y sm:divide-y-0 lg:divide-x divide-white/15 text-center">
-            <div className="pt-2 sm:pt-0 lg:px-4">
-              <div className="text-2xl sm:text-4xl font-black text-[#65E83A] font-mono tabular-nums tracking-tight">
-                {t.hero.trustStat1Value}
+        <MotionSection delay={0.18} className="mt-10 sm:mt-14">
+          <div className="rounded-2xl fintech-card-forest overflow-hidden isolate text-[#ECFDF5] p-5 sm:p-7">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 divide-y sm:divide-y-0 lg:divide-x divide-white/15 text-center">
+              <div className="pt-2 sm:pt-0 lg:px-4">
+                <div className="text-2xl sm:text-4xl font-black text-[#65E83A] font-mono tabular-nums tracking-tight">
+                  {t.hero.trustStat1Value}
+                </div>
+                <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
+                  {t.hero.trustStat1Label}
+                </div>
               </div>
-              <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
-                {t.hero.trustStat1Label}
-              </div>
-            </div>
 
-            <div className="pt-2 sm:pt-0 lg:px-4">
-              <div
-                className={`font-black text-white tabular-nums tracking-tight ${
-                  lang === 'ta' ? 'text-lg sm:text-2xl leading-snug' : 'text-2xl sm:text-4xl font-mono'
-                }`}
-              >
-                {t.hero.trustStat2Value}
+              <div className="pt-2 sm:pt-0 lg:px-4">
+                <div
+                  className={`font-black text-white tabular-nums tracking-tight ${
+                    lang === 'ta' ? 'text-lg sm:text-2xl leading-snug' : 'text-2xl sm:text-4xl font-mono'
+                  }`}
+                >
+                  {t.hero.trustStat2Value}
+                </div>
+                <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
+                  {t.hero.trustStat2Label}
+                </div>
               </div>
-              <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
-                {t.hero.trustStat2Label}
-              </div>
-            </div>
 
-            <div className="pt-4 sm:pt-0 lg:px-4">
-              <div className="text-2xl sm:text-4xl font-black text-[#65E83A] font-mono tabular-nums tracking-tight">
-                {t.hero.trustStat3Value}
+              <div className="pt-4 sm:pt-0 lg:px-4">
+                <div className="text-2xl sm:text-4xl font-black text-[#65E83A] font-mono tabular-nums tracking-tight">
+                  {t.hero.trustStat3Value}
+                </div>
+                <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
+                  {t.hero.trustStat3Label}
+                </div>
               </div>
-              <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
-                {t.hero.trustStat3Label}
-              </div>
-            </div>
 
-            <div className="pt-4 sm:pt-0 lg:px-4">
-              <div className="text-2xl sm:text-4xl font-black text-white font-mono tabular-nums tracking-tight">
-                {t.hero.trustStat4Value}
-              </div>
-              <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
-                {t.hero.trustStat4Label}
+              <div className="pt-4 sm:pt-0 lg:px-4">
+                <div className="text-2xl sm:text-4xl font-black text-white font-mono tabular-nums tracking-tight">
+                  {t.hero.trustStat4Value}
+                </div>
+                <div className="text-[11px] sm:text-xs font-bold text-[#D1FAE5] mt-1.5 uppercase tracking-widest">
+                  {t.hero.trustStat4Label}
+                </div>
               </div>
             </div>
           </div>

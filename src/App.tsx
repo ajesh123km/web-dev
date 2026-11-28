@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutSection } from './components/AboutSection';
 import { SchemesSection } from './components/SchemesSection';
+import { PublicAnnouncements } from './components/PublicAnnouncements';
 import { ChitCalculator } from './components/ChitCalculator';
 import { HowItWorks } from './components/HowItWorks';
 import { WhyChooseUs } from './components/WhyChooseUs';
@@ -16,7 +17,9 @@ import { UserPortal } from './components/UserPortal';
 import { LegalModal } from './components/LegalModal';
 import { VideoBackground } from './components/VideoBackground';
 import { GoldCoinClickBurst } from './components/GoldCoinClickBurst';
+import { LogoIntroAnimation } from './components/LogoIntroAnimation';
 import { useScrollReveal } from './hooks/useScrollReveal';
+import { publicSupabase } from './supabase';
 
 export default function App() {
   useScrollReveal();
@@ -43,6 +46,27 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  useEffect(() => {
+    if (!publicSupabase) return;
+
+    const supabase = publicSupabase;
+    const refreshSchemes = () => window.dispatchEvent(new Event('teamstars:schemes-updated'));
+    const refreshAnnouncements = () => window.dispatchEvent(new Event('teamstars:announcements-updated'));
+    const channel = supabase
+      .channel('public-website-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chit_schemes' }, refreshSchemes)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, refreshAnnouncements)
+      .subscribe((status, error) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error(`[Supabase Realtime] Public content subscription ${status.toLowerCase()}: ${error?.message || 'No details.'}`);
+        }
+      });
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -82,6 +106,9 @@ export default function App() {
       {/* Non-Blocking Global Gold Coin & Sparkle Click Burst Overlay */}
       <GoldCoinClickBurst />
 
+      {/* 3D Logo Loading / Intro Animation Overlay (plays once per session) */}
+      <LogoIntroAnimation />
+
       {/* Navigation Bar */}
       <Navbar
         lang={lang}
@@ -94,9 +121,9 @@ export default function App() {
       />
 
       {/* Main Content Sections with Translucent Frosted Glassmorphism Surfaces */}
-      <main className="flex-1 relative z-10 w-full max-w-[1440px] mx-auto px-2.5 sm:px-5 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8 lg:space-y-10">
+      <main className="intro-page-content flex-1 relative z-10 w-full max-w-[1440px] mx-auto px-2.5 sm:px-5 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8 lg:space-y-10">
         {/* 1. Hero Section */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <Hero
             lang={lang}
             onExploreSchemes={() => scrollToSection('schemes')}
@@ -105,20 +132,22 @@ export default function App() {
         </div>
 
         {/* 2. About Us Section */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <AboutSection lang={lang} />
         </div>
 
         {/* 3. Chit Fund Schemes Section with 20-Month Modal */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <SchemesSection
             lang={lang}
             onSelectSchemeForEnquiry={handleSelectSchemeForEnquiry}
           />
         </div>
 
+        <PublicAnnouncements lang={lang} />
+
         {/* 4. Interactive Chit Calculator */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <ChitCalculator
             lang={lang}
             onEnquireScheme={handleSelectSchemeForEnquiry}
@@ -126,27 +155,27 @@ export default function App() {
         </div>
 
         {/* 5. How It Works Step-by-Step */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <HowItWorks lang={lang} />
         </div>
 
         {/* 6. Why Choose Us */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <WhyChooseUs lang={lang} />
         </div>
 
         {/* 7. Frequently Asked Questions Preview & Full Accordion */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <FaqSection lang={lang} />
         </div>
 
         {/* 8. Office Contact & Interactive Google Maps */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <ContactSection lang={lang} />
         </div>
 
         {/* 9. Join / Enquiry Form */}
-        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">
           <EnquiryForm
             lang={lang}
             preSelectedScheme={selectedSchemeForEnquiry}
@@ -155,12 +184,14 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer
-        lang={lang}
-        onNavigate={scrollToSection}
-        onOpenLegal={handleOpenLegal}
-        onOpenAdmin={() => setAdminOpen(true)}
-      />
+      <div className="intro-page-content">
+        <Footer
+          lang={lang}
+          onNavigate={scrollToSection}
+          onOpenLegal={handleOpenLegal}
+          onOpenAdmin={() => setAdminOpen(true)}
+        />
+      </div>
 
       {/* Admin Chit Fund Management Console Modal */}
       <AdminPortal

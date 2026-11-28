@@ -58,7 +58,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ lang }) => {
 
         {/* Section Heading */}
         <MotionSection className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 pubzi-chamfer-sm">
+          <div className="inline-flex items-center gap-1.5 bg-[#064E3B] border border-emerald-400/30 text-[#65E83A] px-3.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest mb-3">
             <span>{lang === 'ta' ? 'முறையான வழிமுறை' : 'Standard Workflow'}</span>
           </div>
           <h2 className="heading-3d-pop text-2xl sm:text-4xl font-extrabold text-[#052E22] tracking-tight leading-tight [text-wrap:balance]">
@@ -71,7 +71,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ lang }) => {
 
         {/* 3D Isometric Stepped Architecture Showcase */}
         <MotionSection delay={0.04} className="mb-10 sm:mb-12">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden pubzi-chamfer shadow-xl">
+          <div className="max-w-4xl mx-auto rounded-2xl border border-white/30 bg-white/35 backdrop-blur-md overflow-hidden isolate bg-clip-padding shadow-xl">
             <IsometricArchitecture3DScene className="w-full h-[240px] sm:h-[295px]" />
             <div className="bg-emerald-500/12 backdrop-blur-md border-t border-white/25 px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
               <div>
@@ -109,12 +109,12 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ lang }) => {
               <div key={idx} className={`reveal ${staggerClass} flex`}>
                 <FintechCard3D
                   accent={isLightGreenFocus ? 'mint' : 'emerald'}
-                  className="w-full relative fintech-card pubzi-chamfer hover:border-[#064E3B]/35 rounded-2xl p-5 sm:p-7 transition-all flex flex-col justify-between"
+                  className="w-full relative fintech-card hover:border-[#064E3B]/35 rounded-2xl p-5 sm:p-7 transition-all flex flex-col justify-between"
                 >
                 <div>
                   <div className="flex items-center justify-between mb-5">
                     <div
-                      className={`w-11 h-11 rounded-xl flex items-center justify-center border pubzi-chamfer-sm ${
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center border ${
                         isLightGreenFocus
                           ? 'bg-[#65E83A] border-[#064E3B]/20 text-[#052E22] shadow-sm'
                           : 'bg-[#064E3B] border-emerald-400/25 text-[#65E83A]'
