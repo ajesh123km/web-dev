@@ -300,3 +300,25 @@ create policy "Members read eligible published announcements"
       )
     )
   );
+
+-- 18. Enable Supabase Realtime only for public website content.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'chit_schemes'
+  ) then
+    alter publication supabase_realtime add table public.chit_schemes;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'announcements'
+  ) then
+    alter publication supabase_realtime add table public.announcements;
+  end if;
+end $$;

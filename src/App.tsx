@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutSection } from './components/AboutSection';
 import { SchemesSection } from './components/SchemesSection';
+import { PublicAnnouncements } from './components/PublicAnnouncements';
 import { ChitCalculator } from './components/ChitCalculator';
 import { HowItWorks } from './components/HowItWorks';
 import { WhyChooseUs } from './components/WhyChooseUs';
@@ -44,6 +45,19 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  useEffect(() => {
+    const events = new EventSource('/api/public-events');
+    const refreshSchemes = () => window.dispatchEvent(new Event('teamstars:schemes-updated'));
+    const refreshAnnouncements = () => window.dispatchEvent(new Event('teamstars:announcements-updated'));
+
+    events.addEventListener('schemes', refreshSchemes);
+    events.addEventListener('announcements', refreshAnnouncements);
+
+    return () => {
+      events.close();
+    };
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -120,6 +134,8 @@ export default function App() {
             onSelectSchemeForEnquiry={handleSelectSchemeForEnquiry}
           />
         </div>
+
+        <PublicAnnouncements lang={lang} />
 
         {/* 4. Interactive Chit Calculator */}
         <div className="bg-gradient-to-br from-white/30 via-white/24 to-white/18 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl overflow-hidden isolate bg-clip-padding">

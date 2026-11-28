@@ -6,7 +6,7 @@ import { createServer as createHttpServer } from 'http';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type RealtimeChannel } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
 dotenv.config();
@@ -88,6 +88,32 @@ function updateLocalEnquiryStatus(id: string, status: string): boolean {
   return false;
 }
 
+function broadcastPublicUpdate(event: 'schemes' | 'announcements'): void {
+  for (const client of publicRealtimeClients) {
+    client.write(`event: ${event}\ndata: {}\n\n`);
+  }
+}
+
+function startPublicRealtime(): void {
+  if (!supabase || publicRealtimeChannel) return;
+
+  publicRealtimeChannel = supabase
+    .channel('public-website-updates')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'chit_schemes' }, () => {
+      broadcastPublicUpdate('schemes');
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
+      broadcastPublicUpdate('announcements');
+    })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.info('[Supabase Realtime] Public content subscription active.');
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        console.error(`[Supabase Realtime] Public content subscription ${status.toLowerCase()}.`);
+      }
+    });
+}
+
 const SCHEMES_FILE = path.join(DATA_DIR, 'schemes.json');
 const SCHEME_VERSIONS_FILE = path.join(DATA_DIR, 'scheme_versions.json');
 const GROUPS_FILE = path.join(DATA_DIR, 'groups.json');
@@ -123,6 +149,8 @@ const supabaseKeyMode = process.env.SUPABASE_SECRET_KEY
 const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project'));
 
 let supabase: ReturnType<typeof createClient> | null = null;
+let publicRealtimeChannel: RealtimeChannel | null = null;
+const publicRealtimeClients = new Set<Response>();
 let supabaseTablesReady = false;
 if (isSupabaseConfigured) {
   try {
@@ -1287,8 +1315,8 @@ const NOTIFICATION_EMAIL = 'ajesh321km2@gmail.com';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Team Stars Chits <onboarding@resend.dev>';
 
 // Admin authentication token secret
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'teamstars2025';
-const ADMIN_TOKEN_SECRET = process.env.ADMIN_SECRET_KEY || 'teamstars-secret-token-key-2025';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProd ? '' : 'teamstars2025');
+const ADMIN_TOKEN_SECRET = process.env.ADMIN_SECRET_KEY || (isProd ? '' : 'teamstars-secret-token-key-2025');
 
 function isValidAdminAuth(req: Request): boolean {
   const authHeader = req.headers.authorization;
@@ -1300,11 +1328,98 @@ function isValidAdminAuth(req: Request): boolean {
 // ======================== API ROUTES ========================
 
 // Public: Active Chit Schemes
-app.get('/api/schemes', (_req: Request, res: Response) => {
+app.get('/healthz', async (_req: Request, res: Response) => {
+  if (!supabase) return res.status(503).send('Supabase is not configured.');
+
+  const { error } = await supabase.from('chit_schemes').select('id', { head: true, count: 'exact' });
+  if (error) return res.status(503).send('Supabase is unavailable.');
+
+  return res.status(200).send('ok');
+});
+
+app.get('/api/public-events', (req: Request, res: Response) => {
+  if (!supabase) return res.status(204).end();
+
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+  res.flushHeaders();
+  res.write(': connected\n\n');
+  publicRealtimeClients.add(res);
+  startPublicRealtime();
+
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    publicRealtimeClients.delete(res);
+  });
+});
+
+app.get('/api/schemes', async (_req: Request, res: Response) => {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('chit_schemes')
+      .select('*')
+      .eq('status', 'active')
+      .order('chit_value', { ascending: true });
+
+    if (!error && data) return res.json({ schemes: data.map(dbRowToScheme) });
+    console.error('[API] Failed to load public schemes from Supabase:', error?.message);
+    if (isProd) return res.status(503).json({ error: 'Public schemes are temporarily unavailable.' });
+  } else if (isProd) {
+    return res.status(503).json({ error: 'Public schemes are temporarily unavailable.' });
+  }
+
   const schemes = getLocalSchemes()
     .filter((s: any) => (s.status || 'active') === 'active')
     .sort((a: any, b: any) => Number(a.chitValue) - Number(b.chitValue));
-  res.json({ schemes });
+  return res.json({ schemes });
+});
+
+app.get('/api/public-announcements', async (_req: Request, res: Response) => {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('id, title, description, category, publish_date, created_at')
+      .eq('target_type', 'all')
+      .eq('is_published', true)
+      .eq('is_archived', false)
+      .lte('publish_date', new Date().toISOString().slice(0, 10))
+      .order('publish_date', { ascending: false });
+
+    if (!error && data) return res.json({ announcements: data });
+    console.error('[API] Failed to load public announcements from Supabase:', error?.message);
+    if (isProd) return res.status(503).json({ error: 'Public announcements are temporarily unavailable.' });
+  } else if (isProd) {
+    return res.status(503).json({ error: 'Public announcements are temporarily unavailable.' });
+  }
+
+  const announcements = getLocalAnnouncements()
+    .filter((item: any) =>
+      item.is_published !== false &&
+      !item.is_archived &&
+      (item.target_type === 'all' || item.target_group_id === 'all' || !item.target_group_id) &&
+      String(item.publish_date || '').slice(0, 10) <= new Date().toISOString().slice(0, 10)
+    )
+    .sort((a: any, b: any) =>
+      new Date(b.publish_date || b.created_at).getTime() - new Date(a.publish_date || a.created_at).getTime()
+    )
+    .map(({ id, title, description, category, publish_date, created_at }: any) => ({
+      id,
+      title,
+      description,
+      category,
+      publish_date,
+      created_at
+    }));
+
+  return res.json({ announcements });
 });
 
 // Health & System status endpoint
@@ -1436,6 +1551,9 @@ app.post('/api/enquiries', async (req: Request, res: Response) => {
     }
 
     // 2. Always persist to local cache/store as reliable fail-safe
+    if (isProd && !savedInSupabase) {
+      return res.status(503).json({ error: 'We could not securely save your enquiry. Please try again later.' });
+    }
     saveLocalEnquiry(newEnquiry);
 
     // 3. Send Notification Email to ajesh321km2@gmail.com and Customer Acknowledgement
@@ -3344,6 +3462,19 @@ app.delete('/api/admin/announcements/:id', async (req: Request, res: Response) =
 // ======================== SERVING FRONTEND ========================
 
 async function startServer() {
+  if (isProd) {
+    const missing: string[] = [];
+    if (!supabaseUrl) missing.push('SUPABASE_URL');
+    if (!process.env.SUPABASE_SECRET_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      missing.push('SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY');
+    }
+    if (!process.env.ADMIN_PASSWORD) missing.push('ADMIN_PASSWORD');
+    if (!process.env.ADMIN_SECRET_KEY) missing.push('ADMIN_SECRET_KEY');
+    if (missing.length > 0) {
+      throw new Error(`Missing required production environment variables: ${missing.join(', ')}`);
+    }
+  }
+
   const httpServer = createHttpServer(app);
 
   if (!isProd) {
@@ -3369,6 +3500,7 @@ async function startServer() {
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] TEAM STARS CHITS portal running at http://0.0.0.0:${PORT}`);
     console.log(`[Mode] ${isProd ? 'Production' : 'Development'}`);
+    startPublicRealtime();
     void bootstrapSupabaseData();
   });
 }
@@ -3378,5 +3510,6 @@ export default app;
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   startServer().catch(err => {
     console.error('[Fatal Server Startup Error]:', err);
+    process.exitCode = 1;
   });
 }
